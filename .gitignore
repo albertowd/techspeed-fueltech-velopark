@@ -1,0 +1,21 @@
+# secrets
+.env
+
+# the original 0.5.0 track, read by tools/build_051.py; kept locally only
+base/
+
+# build output: rebuilt tracks, logs, release archives
+build/
+*.7z
+*.zip
+
+# made by the tools, kept locally so the tools run without remaking them
+tools/textures/
+tools/kn5/
+tools/render/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/

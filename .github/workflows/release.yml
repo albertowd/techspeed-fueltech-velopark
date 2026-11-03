@@ -1,0 +1,46 @@
+name: Release
+
+# Push a tag like v0.5.1 to build velopark-0.5.1.7z for overtake.gg and attach it to a
+# GitHub release, with that version's CHANGELOG section as the release notes.
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Check the version
+        id: version
+        run: |
+          set -e
+          version="${GITHUB_REF_NAME#v}"
+          track=content/tracks/techspeed_velopark
+          grep -q "^VERSION = $version\$" "$track/extension/ext_config.ini" \
+            || { echo "ext_config.ini is not at $version: run release.ps1 -Version $version first"; exit 1; }
+          awk -v v="## $version" '$0 == v {on = 1; next} /^## / {on = 0} on' "$track/CHANGELOG.md" > notes.md
+          [ -s notes.md ] || { echo "CHANGELOG.md has no '## $version' section"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build the archive
+        run: |
+          set -e
+          archive="velopark-${{ steps.version.outputs.version }}.7z"
+          7z a -t7z -mx=9 "$archive" content > /dev/null
+          7z t "$archive" > /dev/null
+          ls -la "$archive"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Techspeed Velopark ${{ steps.version.outputs.version }}
+          body_path: notes.md
+          files: velopark-${{ steps.version.outputs.version }}.7z

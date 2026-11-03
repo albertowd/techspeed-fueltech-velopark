@@ -1,0 +1,7 @@
+numpy
+pillow
+scipy
+shapely
+triangle
+# Blender as a Python module, for the preview renders
+bpy

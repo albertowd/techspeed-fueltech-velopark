@@ -1,0 +1,5 @@
+# track models are large binaries; velopark_tyres.kn5 is over GitHub's 100 MB limit
+*.kn5 filter=lfs diff=lfs merge=lfs -text
+*.dds filter=lfs diff=lfs merge=lfs -text
+*.ai binary
+*.ps1 text eol=crlf

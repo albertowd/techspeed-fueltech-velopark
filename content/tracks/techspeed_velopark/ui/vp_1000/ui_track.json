@@ -1,0 +1,22 @@
+{
+	"author": "Alberto Wollmann Dietrich",
+	"city": "Nova Santa Rita",
+	"country": "Brazil",
+	"description": "Rental/amateur track to learn go kart racing, more curves and less speed but still very challenging to new drivers.",
+	"geotags": [
+		"-29.821622",
+		"-51.323484"
+	],
+	"length": "1004",
+	"name": "Techspeed Velopark 1000",
+	"pitboxes": "24",
+	"run": "clockwise",
+	"tags": [
+		"Brazil",
+		"circuit",
+		"gokart"
+	],
+	"year": "2020",
+	"width": "10",
+	"version": "0.5.1"
+}

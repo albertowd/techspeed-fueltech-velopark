@@ -1,0 +1,22 @@
+{
+	"author": "Alberto Wollmann Dietrich",
+	"city": "Nova Santa Rita",
+	"country": "Brazil",
+	"description": "A kids track that is managed by a professor that can teach kids that do not have enough age to race in the real track.",
+	"geotags": [
+		"-29.821622",
+		"-51.323484"
+	],
+	"length": "227",
+	"name": "Techspeed Velopark Kids",
+	"pitboxes": "3",
+	"run": "anticlockwise",
+	"tags": [
+		"Brazil",
+		"circuit",
+		"gokart"
+	],
+	"year": "2020",
+	"width": "6",
+	"version": "0.5.1"
+}
