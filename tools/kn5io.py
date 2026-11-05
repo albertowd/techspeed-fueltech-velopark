@@ -48,6 +48,7 @@ class Model:
             start = r.p
             name = r.st()
             shader = r.st()
+            blend, alpha_tested = b[r.p], b[r.p + 1]
             r.p += 2 + (4 if s.version > 4 else 0)
             for _ in range(r.i()):
                 r.st()
@@ -57,9 +58,10 @@ class Model:
                 sampler = r.st()
                 r.i()
                 tex[sampler] = r.st()
-            s.materials.append(dict(name=name, shader=shader, tex=tex, raw=b[start:r.p]))
+            s.materials.append(dict(name=name, shader=shader, tex=tex, raw=b[start:r.p], blend=blend, alpha_tested=bool(alpha_tested)))
         s.meshes = []
         s.dummies = {}
+        s.dummy_at = {}         # where each dummy's own matrix is in the file, and its parent's
         s._node(r, np.eye(4))
 
     def _node(s, r, parent):
@@ -69,11 +71,13 @@ class Model:
         r.p += 1
         m = parent
         if kind == 1:
+            s.dummy_at[name] = (r.p, parent)
             local = np.array(struct.unpack_from('<16f', s.bytes, r.p)).reshape(4, 4)
             r.p += 64
             m = local @ parent
             s.dummies[name] = m
         elif kind == 2:
+            visible = bool(s.bytes[r.p + 1])
             r.p += 3
             vc = r.i()
             vp = r.p
@@ -82,12 +86,13 @@ class Model:
             ip = r.p
             r.p += ic * 2
             mat = r.i()
+            renderable = bool(s.bytes[r.p + 28])
             r.p += 12 + 16 + 1
             d = np.frombuffer(s.bytes, dtype='<f4', count=vc * 11, offset=vp).reshape(-1, 11).copy()
             # rows of the kn5 matrix: v' = v @ m
             d[:, :3] = d[:, :3] @ m[:3, :3] + m[3, :3]
             idx = np.frombuffer(s.bytes, dtype='<u2', count=ic, offset=ip).reshape(-1, 3).copy()
-            s.meshes.append(dict(name=name, mat=mat, v=d, f=idx, vp=vp, ip=ip, ic=ic))
+            s.meshes.append(dict(name=name, mat=mat, v=d, f=idx, vp=vp, ip=ip, ic=ic, visible=visible, renderable=renderable))
         else:
             raise ValueError('node type %d' % kind)
         for _ in range(kids):

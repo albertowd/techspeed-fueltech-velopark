@@ -8,7 +8,7 @@ Tag line: The Techspeed Velopark kart circuit in Nova Santa Rita, Brazil, with 8
 
 The Techspeed Velopark karting circuit in Nova Santa Rita, Brazil, built for go-karts. Eight layouts, from a 227 m kids track to a 2.5 km endurance layout, on ground traced from satellite imagery.
 
-[SCREENSHOT: screens/1-grid.jpg]
+[SCREENSHOT: ../docs/screens/1-grid.jpg]
 
 [MEDIA=youtube]YOUTUBE_VIDEO_ID[/MEDIA]
 
@@ -37,7 +37,7 @@ The Techspeed Velopark karting circuit in Nova Santa Rita, Brazil, built for go-
 [*][B]Velopark Kids:[/B] a kids track managed by a professor, teaching kids who are not old enough to race on the real track.
 [/LIST]
 
-[SCREENSHOT: screens/2-kids.jpg]
+[SCREENSHOT: ../docs/screens/2-kids.jpg]
 
 [HEADING=2]Features[/HEADING]
 
@@ -53,9 +53,9 @@ The Techspeed Velopark karting circuit in Nova Santa Rita, Brazil, built for go-
 [*]3D grass, rain effects and night lights with Custom Shaders Patch.
 [/LIST]
 
-[SCREENSHOT: screens/3-gantry-night.jpg]
+[SCREENSHOT: ../docs/screens/3-gantry-night.jpg]
 
-[SCREENSHOT: screens/4-night-overview.jpg]
+[SCREENSHOT: ../docs/screens/4-night-overview.jpg]
 
 [HEADING=2]Requirements[/HEADING]
 

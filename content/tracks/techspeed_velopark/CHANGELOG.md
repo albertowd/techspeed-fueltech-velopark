@@ -15,20 +15,36 @@ Test build for the new kerbs, light poles and start panel.
     on the second on the right up the third straight, inside the curve at the end of the
     long straight back to the middle and inside the top curve of the 1500, and flat kerbs with grooves along the two straights
     between the hairpins after the second S and outside the last corner.
+  - New kerbs all round the Techspeed Velopark 1000 too: concrete ribs inside its corners,
+    painted ramps elsewhere.
   - Narrow and low like the real ones: 0.6 m for the ramps, a 0.45 m ramp with 1 m of ribs behind.
-- The white edge line of the road along every new kerb, where the old kerbs hid it.
+- The white edge line of the road along every new kerb, where the old kerbs hid it, and along
+  the grass edges of the roads between the layouts. On the 1000 it runs across the mouths of
+  the roads the layout does not take, dashed at the pit entry and exit.
+- The 1500 grid's lines, slots and start places follow the inside edge of the last turn where
+  they end.
+- The grass islands round the kerbs at the hairpins are grass all the way to the road, with an
+  edge line along their flat side.
+- Asphalt run-offs behind some of the 1000's kerbs, with the tyre barrier moved out along them.
 - Grid slot marks on the second straight, the lines along its outside edge and the pit lane
   beside it, and the hotlap start line after the turn onto the third straight, as painted
   on the real track.
 - A 50 m board on the second straight, after its 100 m board.
 - New tyre walls: on the island along the exit onto the second straight, where the tarmac ends
   inside the turn onto the third straight, and across the grass to the barrier at the exit of
-  the kink after the second S.
+  the kink after the second S. The gaps in the barrier round the inside of the 1500 pit entry
+  and of the 1000's second corner are closed.
 - New 17 m light poles with a ring of round floodlights and a stack of tyres round the foot,
   in place of the old 8 m poles.
-- Night lights moved up to the new lamp heads, at half the brightness that matched the old poles.
+- Night lights moved up to the new lamp heads, at a quarter of the brightness that matched
+  the old poles.
+- The paddock buildings no longer glow brighter than anything else at night.
 - Start panel lowered to the height of the real one, with its legs standing at the panel ends.
+- The 1500 and 1000 start panels stand where the real ones do: the 1500's on its shadow in the
+  ground photo, just before its start line, and the 1000's past its line, over the pit exit.
+  On every layout the panel it does not use stands dark.
 - Removed copies of some trees that were left far under the ground.
+- A first test conversion of the 1500 for BeamNG.drive, as a separate download.
 
 ## 0.5.0
 

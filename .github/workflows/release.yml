@@ -1,7 +1,8 @@
 name: Release
 
-# Push a tag like v0.5.1 to build velopark-0.5.1.7z for overtake.gg and attach it to a
-# GitHub release, with that version's CHANGELOG section as the release notes.
+# Push a tag like v0.5.1 to build velopark-0.5.1.7z for Assetto Corsa (for overtake.gg) and
+# velopark-beamng-0.5.1.zip for BeamNG.drive, and attach both to a GitHub release, with that
+# version's CHANGELOG section as the release notes.
 
 on:
   push:
@@ -39,8 +40,22 @@ jobs:
           7z t "$archive" > /dev/null
           ls -la "$archive"
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Build the BeamNG archive
+        run: |
+          set -e
+          pip install numpy pillow
+          python tools/export_beamng.py
+          mv "build/velopark-beamng-${{ steps.version.outputs.version }}.zip" .
+          ls -la "velopark-beamng-${{ steps.version.outputs.version }}.zip"
+
       - uses: softprops/action-gh-release@v2
         with:
           name: Techspeed Velopark ${{ steps.version.outputs.version }}
           body_path: notes.md
-          files: velopark-${{ steps.version.outputs.version }}.7z
+          files: |
+            velopark-${{ steps.version.outputs.version }}.7z
+            velopark-beamng-${{ steps.version.outputs.version }}.zip

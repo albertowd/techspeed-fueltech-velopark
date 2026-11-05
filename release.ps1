@@ -5,16 +5,17 @@
 .DESCRIPTION
     Updates the version of the track in content\ in its README, the layout
     files and the Custom Shaders Patch config, then builds and tests
-    build\velopark-<version>.7z to try out.
+    build\velopark-<version>.7z for Assetto Corsa and converts the track into
+    build\velopark-beamng-<version>.zip for BeamNG.drive, to try out.
 
     Add a "## <version>" section to CHANGELOG.md first: the release stops
     without one. Then commit, tag v<version> and push the tag: the Release
-    action builds the same archive and attaches it to a GitHub release, ready
+    action builds the same two archives and attaches them to a GitHub release, ready
     to upload to overtake.gg.
 
 .EXAMPLE
     .\release.ps1 -Version 0.6.0
-    Updates the version and builds the archive.
+    Updates the version and builds both archives.
 
 .EXAMPLE
     .\release.ps1 -Version 0.6.0 -Install
@@ -26,7 +27,7 @@
 
 .EXAMPLE
     .\release.ps1 -Version 0.5.1 -Force
-    Rebuilds the archive of the current version.
+    Rebuilds the archives of the current version.
 #>
 [CmdletBinding()]
 param(
@@ -37,13 +38,17 @@ param(
     # Copy the track into the game after building.
     [switch]$Install,
 
-    # Overwrite an archive that already exists.
+    # Overwrite archives that already exist.
     [switch]$Force,
 
     # Report what would happen and change nothing.
     [switch]$DryRun,
 
-    [string]$GameTracks = 'D:\SteamLibrary\steamapps\common\assettocorsa\content\tracks'
+    [string]$GameTracks = 'D:\SteamLibrary\steamapps\common\assettocorsa\content\tracks',
+
+    # The Python with the packages in tools\requirements.txt, for the BeamNG conversion.
+    # By default the one in .venv, else the one on the path.
+    [string]$Python
 )
 
 $ErrorActionPreference = 'Stop'
@@ -77,11 +82,26 @@ if ([IO.File]::ReadAllText($changelog) -notmatch $heading) {
 
 $build = Join-Path $root 'build'
 $archive = Join-Path $build "velopark-$Version.7z"
-if ((Test-Path $archive) -and -not $Force) { throw "$archive already exists. Use -Force to replace it." }
+$beamng = Join-Path $build "velopark-beamng-$Version.zip"
+foreach ($a in $archive, $beamng) {
+    if ((Test-Path $a) -and -not $Force) { throw "$a already exists. Use -Force to replace it." }
+}
 
 $sevenZip = (Get-Command 7z -ErrorAction SilentlyContinue).Source
 if (-not $sevenZip) { $sevenZip = 'C:\Program Files\7-Zip\7z.exe' }
 if (-not (Test-Path $sevenZip)) { throw '7-Zip not found.' }
+
+if (-not $Python) {
+    $Python = Join-Path $root '.venv\Scripts\python.exe'
+    if (-not (Test-Path $Python)) { $Python = 'python' }
+}
+# Its error output would stop the script with Python's traceback in place of the message below.
+$ErrorActionPreference = 'Continue'
+& $Python -c 'import numpy, PIL' 2>$null
+$ErrorActionPreference = 'Stop'
+if ($LASTEXITCODE -ne 0) {
+    throw "$Python lacks the packages in tools\requirements.txt. Install them, or pass -Python."
+}
 
 if ($Install -and (Get-Process acs -ErrorAction SilentlyContinue)) {
     throw 'Assetto Corsa is running. Close it before using -Install.'
@@ -119,6 +139,11 @@ finally {
 if ($LASTEXITCODE -ne 0) { throw 'The archive failed its test.' }
 Move-Item -LiteralPath $temp -Destination $archive -Force
 Write-Host ("Built {0} ({1:N1} MB)" -f $archive, ((Get-Item $archive).Length / 1MB))
+
+& $Python (Join-Path $root 'tools\export_beamng.py')
+if ($LASTEXITCODE -ne 0) { throw "The BeamNG conversion failed with exit code $LASTEXITCODE." }
+if (-not (Test-Path $beamng)) { throw "The BeamNG conversion did not make $beamng." }
+Write-Host ("Built {0} ({1:N1} MB)" -f $beamng, ((Get-Item $beamng).Length / 1MB))
 
 if ($Install) {
     $dest = Join-Path $GameTracks $trackName
