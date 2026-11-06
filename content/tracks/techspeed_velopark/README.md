@@ -1,6 +1,6 @@
 # Techspeed Velopark for Assetto Corsa
 
-Version 0.5.1, by Alberto Wollmann Dietrich.
+Version 0.6.0, by Alberto Wollmann Dietrich.
 
 The Techspeed Velopark karting circuit in Nova Santa Rita, Brazil, built for go-karts.
 

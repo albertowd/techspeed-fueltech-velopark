@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.6.0
+
+The track for BeamNG.drive, with races and a working start gantry, and a few fixes.
+
+### Assetto Corsa
+
+- The light pole by the 1500 pit entry stands inside its ring of tyres, now closed all round,
+  with its night light moved up with it.
+- Grass grows outside the 1500's north turn too.
+- The kids track's old rumble strips are replaced by the simple painted ramp kerbs, along the
+  edge of the road outside its white line.
+
+### BeamNG.drive
+
+A separate download, `velopark-beamng-0.6.0.zip`: drop it in BeamNG's `mods` folder.
+
+- The track of the 1500, with every layout's start to pick from in the level menu, each with
+  its picture.
+- A timed race for every layout but the hotlap: drive into the marker at the layout's start
+  and press the key it shows. Pick the laps and a standing start on the grid or a rolling one
+  from the hotlap start, then race through the countdown, with checkpoints, sector splits
+  and lap times.
+- The start gantry's board shows the ten best laps driven on the layout raced under it and the
+  race clock, or the time of day, as in Assetto Corsa. Its start lamps light through the
+  countdown and go out at the start.
+- The night lights of the poles, lit by day too, as BeamNG has no lights that come on at night
+  only.
+- Grass near the racing line, where Assetto Corsa grows its own.
+- Every layout's racing line on the map, which BeamNG's AI drives. No road traffic.
+- Trees and painted numbers show through where they should, the tyre walls have open tops,
+  and cars drive on the road, not over it.
+
 ## 0.5.1
 
 Test build for the new kerbs, light poles and start panel.

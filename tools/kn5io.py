@@ -27,7 +27,8 @@ class Model:
     """Textures and materials as raw byte blocks, meshes as arrays with their byte offsets."""
 
     def __init__(s, path):
-        b = open(path, 'rb').read()
+        """From a file, or from a kn5's bytes."""
+        b = bytes(path) if isinstance(path, (bytes, bytearray)) else open(path, 'rb').read()
         s.bytes = b
         r = Reader(b)
         assert b[:6] == b'sc6969'
@@ -86,13 +87,16 @@ class Model:
             ip = r.p
             r.p += ic * 2
             mat = r.i()
+            # the distances it is drawn from and to (0 to 0: always)
+            lod_in, lod_out = struct.unpack_from('<ff', s.bytes, r.p + 4)
             renderable = bool(s.bytes[r.p + 28])
             r.p += 12 + 16 + 1
             d = np.frombuffer(s.bytes, dtype='<f4', count=vc * 11, offset=vp).reshape(-1, 11).copy()
             # rows of the kn5 matrix: v' = v @ m
             d[:, :3] = d[:, :3] @ m[:3, :3] + m[3, :3]
             idx = np.frombuffer(s.bytes, dtype='<u2', count=ic, offset=ip).reshape(-1, 3).copy()
-            s.meshes.append(dict(name=name, mat=mat, v=d, f=idx, vp=vp, ip=ip, ic=ic, visible=visible, renderable=renderable))
+            s.meshes.append(dict(name=name, mat=mat, v=d, f=idx, vp=vp, ip=ip, ic=ic, visible=visible, renderable=renderable,
+                                 lod_in=lod_in, lod_out=lod_out))
         else:
             raise ValueError('node type %d' % kind)
         for _ in range(kids):

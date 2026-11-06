@@ -3,3 +3,6 @@
 *.dds filter=lfs diff=lfs merge=lfs -text
 *.ai binary
 *.ps1 text eol=crlf
+# the source models; and the source textures, JPEG and PNG as well as DDS
+*.glb filter=lfs diff=lfs merge=lfs -text
+source/textures/** filter=lfs diff=lfs merge=lfs -text

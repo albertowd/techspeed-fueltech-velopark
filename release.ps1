@@ -3,15 +3,16 @@
     Prepares a new release of the Techspeed Velopark track.
 
 .DESCRIPTION
-    Updates the version of the track in content\ in its README, the layout
-    files and the Custom Shaders Patch config, then builds and tests
-    build\velopark-<version>.7z for Assetto Corsa and converts the track into
-    build\velopark-beamng-<version>.zip for BeamNG.drive, to try out.
+    Updates the version of the track in its sources, source\track: in its README,
+    the layout files and the Custom Shaders Patch config. Then builds both games
+    from source\ with tools\build_tracks.py, makes content\ the same as the
+    Assetto Corsa build, and packs and tests build\velopark-<version>.7z for
+    Assetto Corsa and build\velopark-beamng-<version>.zip for BeamNG.drive.
 
-    Add a "## <version>" section to CHANGELOG.md first: the release stops
-    without one. Then commit, tag v<version> and push the tag: the Release
-    action builds the same two archives and attaches them to a GitHub release, ready
-    to upload to overtake.gg.
+    Add a "## <version>" section to source\track\CHANGELOG.md first: the release
+    stops without one. Then commit, tag v<version> and push the tag: the Release
+    action builds the same two archives from content\ and attaches them to a
+    GitHub release, ready to upload to overtake.gg.
 
 .EXAMPLE
     .\release.ps1 -Version 0.6.0
@@ -46,7 +47,7 @@ param(
 
     [string]$GameTracks = 'D:\SteamLibrary\steamapps\common\assettocorsa\content\tracks',
 
-    # The Python with the packages in tools\requirements.txt, for the BeamNG conversion.
+    # The Python with numpy and pillow (in tools\requirements.txt), for the build.
     # By default the one in .venv, else the one on the path.
     [string]$Python
 )
@@ -65,8 +66,9 @@ function Update-File {
     if (-not $DryRun) { [IO.File]::WriteAllText($Path, $new, $noBom) }
 }
 
-$track = Join-Path $root "content\tracks\$trackName"
-if (-not (Test-Path $track)) { throw "Track folder not found: $track" }
+# The track's files as they ship, besides its models: the build copies them.
+$track = Join-Path $root 'source\track'
+if (-not (Test-Path $track)) { throw "Track sources not found: $track" }
 
 $config = Join-Path $track 'extension\ext_config.ini'
 $oldVersion = [regex]::Match([IO.File]::ReadAllText($config), '(?m)^VERSION = (\d+\.\d+\.\d+)').Groups[1].Value
@@ -77,7 +79,7 @@ if ($oldVersion -and [version]$Version -lt [version]$oldVersion) { throw "$Versi
 $changelog = Join-Path $track 'CHANGELOG.md'
 $heading = '(?m)^## ' + [regex]::Escape($Version) + '\s*$'
 if ([IO.File]::ReadAllText($changelog) -notmatch $heading) {
-    throw "CHANGELOG.md has no '## $Version' section. Add one first."
+    throw "source\track\CHANGELOG.md has no '## $Version' section. Add one first."
 }
 
 $build = Join-Path $root 'build'
@@ -123,11 +125,20 @@ if ($DryRun) {
     return
 }
 
+# Both games from the sources, content\ made the same as the Assetto Corsa build, and the
+# BeamNG archive packed. -Install copies the track into the folder -GameTracks names.
+$buildArgs = @('--pack', '--content', '--check')
+if ($Install) { $buildArgs += '--install' }
+$env:AC_TRACKS = $GameTracks
+& $Python (Join-Path $root 'tools\build_tracks.py') @buildArgs
+if ($LASTEXITCODE -ne 0) { throw "The build failed with exit code $LASTEXITCODE." }
+if (-not (Test-Path $beamng)) { throw "The build did not make $beamng." }
+
 # Built beside the final name, so a failed build leaves the old archive intact.
 New-Item -ItemType Directory -Force -Path $build | Out-Null
 $temp = "$archive.new"
 if (Test-Path $temp) { Remove-Item -LiteralPath $temp -Confirm:$false }
-Push-Location $root
+Push-Location (Join-Path $build 'ac')
 try {
     & $sevenZip a -t7z -mx=9 $temp content | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "7-Zip failed with exit code $LASTEXITCODE." }
@@ -140,15 +151,5 @@ if ($LASTEXITCODE -ne 0) { throw 'The archive failed its test.' }
 Move-Item -LiteralPath $temp -Destination $archive -Force
 Write-Host ("Built {0} ({1:N1} MB)" -f $archive, ((Get-Item $archive).Length / 1MB))
 
-& $Python (Join-Path $root 'tools\export_beamng.py')
-if ($LASTEXITCODE -ne 0) { throw "The BeamNG conversion failed with exit code $LASTEXITCODE." }
-if (-not (Test-Path $beamng)) { throw "The BeamNG conversion did not make $beamng." }
 Write-Host ("Built {0} ({1:N1} MB)" -f $beamng, ((Get-Item $beamng).Length / 1MB))
-
-if ($Install) {
-    $dest = Join-Path $GameTracks $trackName
-    New-Item -ItemType Directory -Force -Path $dest | Out-Null
-    Copy-Item -Path (Join-Path $track '*') -Destination $dest -Recurse -Force
-    Write-Host "Installed to $dest"
-}
 Write-Host "Next: commit, then 'git tag v$Version' and 'git push origin v$Version' to publish it."

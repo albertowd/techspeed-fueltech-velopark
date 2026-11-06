@@ -1,0 +1,22 @@
+{
+	"author": "Alberto Wollmann Dietrich",
+	"city": "Nova Santa Rita",
+	"country": "Brazil",
+	"description": "Rental track with greater straight speed and not so tight turns to add a new challenge to rental drivers.",
+	"geotags": [
+		"-29.821383",
+		"-51.324252"
+	],
+	"length": "1477",
+	"name": "Techspeed Velopark 1500 Amateur",
+	"pitboxes": "16",
+	"run": "clockwise",
+	"tags": [
+		"Brazil",
+		"circuit",
+		"gokart"
+	],
+	"width": "10",
+	"year": "2020",
+	"version": "0.6.0"
+}
