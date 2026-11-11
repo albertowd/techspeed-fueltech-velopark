@@ -35,8 +35,10 @@ The 1500 is the championship layout, with its pits at the centre building. The 1
 
 Download the latest version from [GitHub's releases](https://github.com/albertowd/techspeed-fueltech-velopark/releases) or from its [overtake.gg page](https://www.overtake.gg/downloads/techspeed-velopark.31817/):
 
-- `techspeed-fueltech-velopark-<version>-ac.7z` for Assetto Corsa;
-- `techspeed-fueltech-velopark-<version>-beamng.zip` for BeamNG.drive.
+- `techspeed_fueltech_velopark_ac.7z` for Assetto Corsa;
+- `techspeed_fueltech_velopark_beamng.zip` for BeamNG.drive.
+
+They have the same names in every version, so a new download replaces the old one.
 
 See the [changelog](CHANGELOG.md) for what is new in each version.
 

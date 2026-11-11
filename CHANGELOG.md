@@ -2,6 +2,9 @@
 
 ## 0.8.0
 
+- Downloads keep the same file name in every version, so a new one replaces the old one.
+- BeamNG.drive: delete the old `techspeed-fueltech-velopark-0.7.0-beamng.zip` from your mods folder when you update.
+
 ### Both games
 
 - Rounded metal roofs on the buildings in the middle of the track.

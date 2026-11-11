@@ -6,7 +6,7 @@ Takes the models one layout loads (vp_1500 by default) from the Assetto Corsa bu
 build/ac/content/tracks/techspeed_fueltech_velopark,
 and writes build/beamng/levels/techspeed_fueltech_velopark with the meshes as Collada shapes, their
 textures and materials, and the level's objects, then packs it as
-build/dist/techspeed-fueltech-velopark-<version>-beamng.zip, beside the Assetto Corsa archive, to drop in BeamNG's mods
+build/dist/techspeed_fueltech_velopark_beamng.zip, beside the Assetto Corsa archive, to drop in BeamNG's mods
 folder. release.ps1 runs it through build_tracks.py. Only the models that changed since the
 last run are written again; --no-pack leaves out the zip, to run the level unpacked from
 BeamNG's mods/unpacked folder.
@@ -783,7 +783,6 @@ def export(layout, track, out=None, pack=True):
         state = {'layout': layout, 'format': FORMAT}
     written = set()
     ui = json.load(open(os.path.join(track, 'ui', layout, 'ui_track.json'), encoding='utf-8'))
-    version = ui.get('version', '0')
 
     cfg = configparser.ConfigParser()
     cfg.read(os.path.join(track, 'models_%s.ini' % layout))
@@ -1205,7 +1204,8 @@ def export(layout, track, out=None, pack=True):
     # packed beside the final name, so a failed pack leaves the old zip intact
     dist = os.path.join(os.path.dirname(out), 'dist')
     os.makedirs(dist, exist_ok=True)
-    zip_path = os.path.join(dist, 'techspeed-fueltech-velopark-%s-beamng.zip' % version)
+    # no version in its name (BeamNG's rule: letters, digits, - and _), so a new one replaces the old
+    zip_path = os.path.join(dist, 'techspeed_fueltech_velopark_beamng.zip')
     with zipfile.ZipFile(zip_path + '.new', 'w', zipfile.ZIP_DEFLATED) as z:
         for top in (level, os.path.join(out, 'gameplay'), os.path.join(out, 'lua'), os.path.join(out, 'scripts'), os.path.join(out, 'vehicles')):
             for base, _, fs in os.walk(top):

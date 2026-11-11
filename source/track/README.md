@@ -33,7 +33,7 @@ Servers need this same version of the track. The Kids layout must be added to th
 
 ### BeamNG.drive
 
-Drop `techspeed-fueltech-velopark-<version>-beamng.zip` in BeamNG's `mods` folder as it is, without unzipping it. It is the 1500's track, with every layout's start, a time trial and an AI race for each layout.
+Drop `techspeed_fueltech_velopark_beamng.zip` in BeamNG's `mods` folder as it is, without unzipping it. It is the 1500's track, with every layout's start, a time trial and an AI race for each layout.
 
 ## Known limits
 

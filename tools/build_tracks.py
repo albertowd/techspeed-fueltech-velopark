@@ -6,7 +6,7 @@
               <name>.kn5, with source/track copied beside them
     beamng    build/beamng/levels/techspeed_fueltech_velopark, from the AC build: one layout
               (--layout, vp_1500 by default), unpacked, to try from BeamNG's mods/unpacked;
-              --pack also packs build/dist/techspeed-fueltech-velopark-<version>-beamng.zip
+              --pack also packs build/dist/techspeed_fueltech_velopark_beamng.zip
     neither   both
 
 Only what changed since the last build is made again: a model whose .glb or textures are as

@@ -1,7 +1,7 @@
 name: Release
 
-# Push a tag like v0.6.1 to build techspeed-fueltech-velopark-0.6.1-ac.7z for Assetto Corsa (for overtake.gg) and
-# techspeed-fueltech-velopark-0.6.1-beamng.zip for BeamNG.drive from the track's sources, and attach both to a
+# Push a tag like v0.6.1 to build techspeed_fueltech_velopark_ac.7z for Assetto Corsa (for overtake.gg) and
+# techspeed_fueltech_velopark_beamng.zip for BeamNG.drive from the track's sources, and attach both to a
 # GitHub release, with that version's CHANGELOG section as the release notes.
 
 on:
@@ -49,16 +49,16 @@ jobs:
         run: |
           set -e
           version="${{ steps.version.outputs.version }}"
-          archive="$PWD/techspeed-fueltech-velopark-$version-ac.7z"
+          archive="$PWD/techspeed_fueltech_velopark_ac.7z"
           (cd build/ac && 7z a -t7z -mx=9 "$archive" content > /dev/null)
           7z t "$archive" > /dev/null
-          mv "build/dist/techspeed-fueltech-velopark-$version-beamng.zip" .
-          ls -la "techspeed-fueltech-velopark-$version-ac.7z" "techspeed-fueltech-velopark-$version-beamng.zip"
+          mv "build/dist/techspeed_fueltech_velopark_beamng.zip" .
+          ls -la "techspeed_fueltech_velopark_ac.7z" "techspeed_fueltech_velopark_beamng.zip"
 
       - uses: softprops/action-gh-release@v2
         with:
           name: ${{ steps.version.outputs.version }}
           body_path: notes.md
           files: |
-            techspeed-fueltech-velopark-${{ steps.version.outputs.version }}-ac.7z
-            techspeed-fueltech-velopark-${{ steps.version.outputs.version }}-beamng.zip
+            techspeed_fueltech_velopark_ac.7z
+            techspeed_fueltech_velopark_beamng.zip

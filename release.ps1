@@ -6,8 +6,9 @@
     Updates the version of the track in its sources, source\track: in its README,
     the layout files and the Custom Shaders Patch config. Then builds both games
     from source\ with tools\build_tracks.py, and packs and tests
-    build\dist\techspeed-fueltech-velopark-<version>-ac.7z for Assetto Corsa and
-    build\dist\techspeed-fueltech-velopark-<version>-beamng.zip for BeamNG.drive.
+    build\dist\techspeed_fueltech_velopark_ac.7z for Assetto Corsa and
+    build\dist\techspeed_fueltech_velopark_beamng.zip for BeamNG.drive. Their names are the
+    same in every version, so a new archive replaces the old one.
 
     Add a "## <version>" section to CHANGELOG.md first: the release
     stops without one. Then commit, tag v<version> and push the tag: the Release
@@ -26,9 +27,6 @@
     .\release.ps1 -Version 0.7.0 -DryRun
     Shows what would change and touches nothing.
 
-.EXAMPLE
-    .\release.ps1 -Version 0.5.1 -Force
-    Rebuilds the archives of the current version.
 #>
 [CmdletBinding()]
 param(
@@ -38,9 +36,6 @@ param(
 
     # Copy the track into the game after building.
     [switch]$Install,
-
-    # Overwrite archives that already exist.
-    [switch]$Force,
 
     # Report what would happen and change nothing.
     [switch]$DryRun,
@@ -84,11 +79,8 @@ if ([IO.File]::ReadAllText($changelog) -notmatch $heading) {
 
 $build = Join-Path $root 'build'
 $dist = Join-Path $build 'dist'
-$archive = Join-Path $dist "techspeed-fueltech-velopark-$Version-ac.7z"
-$beamng = Join-Path $dist "techspeed-fueltech-velopark-$Version-beamng.zip"
-foreach ($a in $archive, $beamng) {
-    if ((Test-Path $a) -and -not $Force) { throw "$a already exists. Use -Force to replace it." }
-}
+$archive = Join-Path $dist "techspeed_fueltech_velopark_ac.7z"
+$beamng = Join-Path $dist "techspeed_fueltech_velopark_beamng.zip"
 
 $sevenZip = (Get-Command 7z -ErrorAction SilentlyContinue).Source
 if (-not $sevenZip) { $sevenZip = 'C:\Program Files\7-Zip\7z.exe' }
