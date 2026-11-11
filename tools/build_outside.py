@@ -111,6 +111,9 @@ TOWER_OPEN = [8., 22., 0., 30., 15., 35., 12., 25.]
 # rises over them
 PIT_TENT = ((-41., 130.4), (10.4, 8.6), (.087, .996))
 PIT_TENT_EAVE, PIT_TENT_DOME = 3.2, 2.6
+# the prices on the fuel station's sign, in reais: the averages in Rio Grande do Sul in ANP's
+# survey of early November 2026
+FUEL_PRICES = (('ÁLCOOL', '4,55'), ('GASOLINA', '6,11'))
 # the vp_1500's flagpoles where their shadows start on the ground photo
 FLAGPOLES = [(-21.25 - .26 * i, 112.3 - 2. * i) for i in range(5)]
 
@@ -309,16 +312,44 @@ def banner_texture():
     return img
 
 
+def sign_font(size):
+    from PIL import ImageFont
+    for f in ('arialbd.ttf', 'C:/Windows/Fonts/arialbd.ttf', 'DejaVuSans-Bold.ttf'):
+        try:
+            return ImageFont.truetype(f, size)
+        except OSError:
+            pass
+    return ImageFont.load_default()
+
+
 def pylon_texture():
-    """The fuel station's sign: a silver V on white over a navy band, 1 wide to 2 high."""
+    """The fuel station's sign, 1 wide to 2 high: the Velopark logo on white (tools/reference/
+    velopark_logo.png when it is there, else the name under a V), over a navy board with the
+    prices (FUEL_PRICES) in red digits, as the stations' boards light them."""
     from PIL import ImageDraw
-    W, H = 256, 512
-    img = Image.new('RGB', (W, H), (240, 241, 243))
+    W, H = 512, 1024
+    img = Image.new('RGB', (W, H), (242, 243, 245))
     d = ImageDraw.Draw(img)
-    d.polygon([(40, 60), (128, 300), (216, 60), (180, 60), (128, 220), (76, 60)], fill=(150, 156, 166))
-    d.rectangle((0, 340, W, H), fill=(28, 36, 70))
-    for i, w in enumerate((160, 110, 130)):
-        d.rectangle((48, 370 + i * 40, 48 + w, 382 + i * 40), fill=(225, 228, 235))
+    top = 540
+    logo = os.path.join(ROOT, 'tools', 'reference', 'velopark_logo.png')
+    if os.path.exists(logo):
+        L = Image.open(logo).convert('RGBA')
+        k = min((W - 60) / L.width, (top - 60) / L.height)
+        L = L.resize((int(L.width * k), int(L.height * k)), Image.LANCZOS)
+        img.paste(L, ((W - L.width) // 2, (top - L.height) // 2), L)
+    else:
+        navy = (28, 36, 70)
+        d.polygon([(96, 60), (256, 380), (416, 60), (346, 60), (256, 250), (166, 60)], fill=navy)
+        d.text((W // 2, 460), 'VELOPARK', fill=navy, font=sign_font(86), anchor='mm')
+    d.rectangle((0, top, W, H), fill=(26, 32, 62))
+    rows = len(FUEL_PRICES)
+    for i, (fuel, price) in enumerate(FUEL_PRICES):
+        y0 = top + 30 + i * (H - top - 60) // rows
+        y1 = y0 + (H - top - 60) // rows - 24
+        d.text((26, (y0 + y1) // 2), fuel, fill=(236, 238, 242), font=sign_font(38), anchor='lm')
+        d.rectangle((W - 236, y0, W - 28, y1), fill=(8, 8, 10))
+        d.text((W - 228, y0 + 14), 'R$', fill=(236, 238, 242), font=sign_font(24), anchor='lt')
+        d.text((W - 40, (y0 + y1) // 2 + 6), price, fill=(255, 40, 30), font=sign_font(96), anchor='rm')
     return img
 
 
@@ -1127,16 +1158,20 @@ def fuel_station(model, ground):
             pil += sh.beam((x, yb - .3, z), (x, yb + 3.25, z), .3, tile=(.5, 1.))
         model.add(name + '_PILLARS', 'Pillar', pil)
         model.add('1WALL_' + name, 'GreyWall', sh.walls(rect(bx, bz, bw, bd, 0), yb - .3, yb + 3., tile=(2., 2.)))
-    # the sign by the road, north of the canopy
+    # the sign by the road, north of the canopy, its faces to the west and the east, to the
+    # traffic both ways along the road; the image the right way round seen from each side
     sx, sz = 196., -3.
     g = float(ground(sx, sz)[0])
     model.add('FUEL_SIGN_POST', 'Steel', sh.beam((sx, g - .3, sz), (sx, g + 3.2, sz), .3))
-    panel = sh.box((sx - 1., g + 3.2, sz - .2), (sx + 1., g + 7.2, sz + .2), tile=(1., 1.), faces='ewtb')
+    panel = sh.box((sx - .2, g + 3.2, sz - 1.), (sx + .2, g + 7.2, sz + 1.), tile=(1., 1.), faces='nstb')
     model.add('FUEL_SIGN_POST', 'Steel', panel)
-    for zz, nrm in ((sz + .21, 1), (sz - .21, -1)):
-        q = sh.quad((sx + nrm * 1., g + 3.2, zz), (sx - nrm * 1., g + 3.2, zz), (sx - nrm * 1., g + 7.2, zz), (sx + nrm * 1., g + 7.2, zz), tile=(2., 4.))
-        q = [sh._part(V, N, np.c_[U[:, 0], 1 - U[:, 1]], F) for V, N, U, F in q]
-        model.add('FUEL_SIGN', 'Pylon', q)
+    U = np.array([(0, 1), (1, 1), (1, 0), (0, 0)], float)
+    for xx, nrm in ((sx + .21, 1.), (sx - .21, -1.)):
+        # seen from out along nrm, its right is towards -z for the west face, +z for the east
+        za, zb = (sz + 1., sz - 1.) if nrm > 0 else (sz - 1., sz + 1.)
+        V = np.array([(xx, g + 3.2, za), (xx, g + 3.2, zb), (xx, g + 7.2, zb), (xx, g + 7.2, za)])
+        n = np.array([nrm, 0., 0.])
+        model.add('FUEL_SIGN', 'Pylon', [sh._part(V, np.tile(n, (4, 1)), U, sh._facing(V, [(0, 1, 2), (0, 2, 3)], n))])
 
 
 def banner(model, name, a, b, y0, y1, ground=None, lift=.06):
