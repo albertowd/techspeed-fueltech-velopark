@@ -1,7 +1,7 @@
 """The trees round the track as the ground photo and the screenshots show them, in
 source/models/velopark_extra.glb (and BeamNG's forest, source/models/velopark_extra_trees.json).
 
-    python tools/plant_outside.py [--prune | --strip]
+    python tools/plant_outside.py [--prune | --strip | --south]
 
 After tools/build_outside.py, whose roads, fences and buildings nothing is planted on, nor
 anything new within VERGE metres of the track's roads (the grass inside its fence):
@@ -20,7 +20,8 @@ anything new within VERGE metres of the track's roads (the grass inside its fenc
   east's fence and the paddock's south.
 
 --strip plants the strip between the vp_1000's north tyre wall and the north fence thick with
-eucalyptus, as it is (strip()).
+eucalyptus, as it is (strip()); --south makes the grove south of the fuel station tall eucalyptus
+in place of its broad leaf trees, as the ground photo shows it (south()).
 
 Nothing new stands inside the track's outline (its roads and tyre walls, with the infields they
 enclose): --prune takes out any that does, from a planting before that rule.
@@ -139,6 +140,18 @@ def prune():
     if not gone.any():
         print('no new tree inside the track')
         return
+    pieces_out = take_out(extra, forest, gone)
+    bt.save(extra, EXTRA)
+    json.dump(forest, open(bt.FOREST, 'w'), indent=0)
+    print('%d new trees inside the track out (%d pieces)' % (gone.sum(), pieces_out))
+
+
+def take_out(extra, forest, gone):
+    """The new trees (NEW_KINDS, the meshes named ..._n<i>) whose stands gone marks out of extra
+    and the forest: the pieces of their meshes nearest them and the walls round their trunks. How
+    many pieces."""
+    stands = forest['trees']
+    S = np.array([[s[1], s[3]] for s in stands])
     tree_of = cKDTree(S)
     emptied, pieces_out = [], 0
     for n, m in bp.meshes(extra):
@@ -164,9 +177,7 @@ def prune():
     for parent, _ in kn5tree.walk(extra['root']):
         parent['children'] = [c for c in parent['children'] if id(c) not in drop]
     forest['trees'] = [s for s, g in zip(stands, gone) if not g]
-    bt.save(extra, EXTRA)
-    json.dump(forest, open(bt.FOREST, 'w'), indent=0)
-    print('%d new trees inside the track out (%d pieces)' % (gone.sum(), pieces_out))
+    return pieces_out
 
 
 STRIP_X = (-168., 62.)     # x the strip north of the vp_1000's north straight runs over
@@ -201,14 +212,24 @@ def strip():
     P = bt.jittered(np.array([x0, 270.]), np.array([x1, 335.]), STRIP_APART, rng)
     P = P[(P[:, 1] < fence_z(P[:, 0]) - STRIP_FROM_FENCE) & ~contains_xy(near_track, P[:, 0], P[:, 1])]
     forest = json.load(open(bt.FOREST))
-    stands = forest['trees']
-    S = np.array([[q[1], q[3]] for q in stands])
+    S = np.array([[q[1], q[3]] for q in forest['trees']])
     P = P[cKDTree(S).query(P)[0] > STRIP_APART * .7]
+    ground = bp.Surface(np.concatenate([bp.triangles(n, m) for n, m in bp.meshes(track) if 'GRASS' in n['name'][:7] and len(n['faces'])]))
+    ok = lambda C: (C[:, 1] < fence_z(C[:, 0]) - STRIP_FROM_FENCE) & ~contains_xy(near_track, C[:, 0], C[:, 1])
+    new, young, clumps, tris = plant_euca(extra, forest, P, rng, ground, ok, 's')
+    print('%d eucalyptus (%d young) and %d clumps of understory in the strip north of the vp_1000: %d triangles' % (
+        len(new), young, clumps, tris))
+
+
+def plant_euca(extra, forest, P, rng, ground, ok, tag):
+    """Eucalyptus at the spots P, a quarter of them young ones, with the understory under them
+    where ok (a function of points) lets it be, into extra and the forest, saved. Their meshes
+    named EUCA_<part>_..._<tag><i>. The stands made, how many young, the clumps, the triangles."""
+    stands = forest['trees']
     variants = forest['variants']
     euca = [n for n, v in variants.items() if v.get('kind') == 'euca']
     young = [n for n, v in variants.items() if v.get('kind') == 'young']
     shapes = {n: bt.shape_of(variants[n]) for n in euca + young}
-    ground = bp.Surface(np.concatenate([bp.triangles(n, m) for n, m in bp.meshes(track) if 'GRASS' in n['name'][:7] and len(n['faces'])]))
     tiles, walls, new = {}, {}, []
     kinds = np.where(rng.random(len(P)) < .25, 'young', 'euca')
     for (x, z), kind in zip(P, kinds):
@@ -230,7 +251,7 @@ def strip():
         walls.setdefault(key, []).append((Vw, np.r_[ring, ring] / np.linalg.norm(ring[0]), np.zeros((12, 2)), np.array(Fw)))
     # the understory under them
     C = P[rng.integers(len(P), size=len(P) * 4)] + rng.normal(0, 2., (len(P) * 4, 2))
-    C = C[(C[:, 1] < fence_z(C[:, 0]) - STRIP_FROM_FENCE) & ~contains_xy(near_track, C[:, 0], C[:, 1])]
+    C = C[ok(C)]
     for x, z in C:
         g = ground.y(x, z)
         if np.isnan(g):
@@ -251,18 +272,61 @@ def strip():
     for key in sorted(tiles):
         for part, parts in tiles[key].items():
             for i, run in enumerate(bt.chunks(parts)):
-                nd = bt.node(template, '%s%s_%d_%d_s%d' % (bt.PREFIX, part.upper(), key[0], key[1], i), run, part_mat[part])
+                nd = bt.node(template, '%s%s_%d_%d_%s%d' % (bt.PREFIX, part.upper(), key[0], key[1], tag, i), run, part_mat[part])
                 root.append(nd)
                 tris += len(nd['faces'])
     for key in sorted(walls):
         for i, run in enumerate(bt.chunks(walls[key])):
-            root.append(bt.node(template, '1WALL_%sTRUNKS_%d_%d_s%d' % (bt.PREFIX, key[0], key[1], i), run, mats['EucaBark'],
+            root.append(bt.node(template, '1WALL_%sTRUNKS_%d_%d_%s%d' % (bt.PREFIX, key[0], key[1], tag, i), run, mats['EucaBark'],
                                 dict(renderable=0, cast_shadows=0)))
     bt.save(extra, EXTRA)
     forest['trees'] = stands + new
     json.dump(forest, open(bt.FOREST, 'w'), indent=0)
-    print('%d eucalyptus (%d young) and %d clumps of understory in the strip north of the vp_1000: %d triangles' % (
-        len(new), sum(1 for q in new if q[0] in young), len(C), tris))
+    return new, sum(1 for q in new if q[0] in young), len(C), tris
+
+
+# the grove south of the fuel station and the paddock's buildings, from the plantation along the
+# west to the long shed: tall eucalyptus, as the ground photo's long shadows show them
+SOUTH_GROVE = [(112., -128.), (245., -128.), (245., -52.), (112., -52.)]
+SOUTH_APART = 4.
+
+
+def south():
+    """The broad leaf trees in the grove south of the fuel station (SOUTH_GROVE) as eucalyptus,
+    young ones among them and the understory, as the plantation's: SOUTH_APART apart wherever the
+    ground photo shows crowns there, clear of the roads and buildings. Their meshes named
+    EUCA_<part>_..._w<i>: run again, it finds them planted."""
+    from shapely import contains_xy
+    from shapely.geometry import Polygon
+    extra = gltf_source.load_kn5(EXTRA)
+    if any(n['name'].startswith(bt.PREFIX) and n['name'].split('_')[-1][:1] == 'w' for n, m in bp.meshes(extra)):
+        print('the grove south of the fuel station is eucalyptus already')
+        return
+    track = gltf_source.load_kn5(bp.TRACK)
+    paths = [bp.TRACK, EXTRA, OUTSIDE] + [os.path.join(bp.MODELS, f + '.glb') for f in
+                                          ('velopark_paddock', 'velopark_kerbs', 'velopark_tyres', 'velopark_paint', 'velopark_poles', 'velopark_kids')]
+    models = {p: (track if p == bp.TRACK else extra if p == EXTRA else gltf_source.load_kn5(p)) for p in paths}
+    (xa, xb), (za, zb) = EXTENT
+    grid = bt.Grid(np.array([xa, za]), np.array([xb, zb]))
+    near = blocked(models, grid)
+    share = crowns(track)
+    area = Polygon(SOUTH_GROVE)
+    forest = json.load(open(bt.FOREST))
+    S = np.array([[s[1], s[3]] for s in forest['trees']])
+    broad = np.array([forest['variants'][s[0]].get('kind') == 'broad' for s in forest['trees']])
+    gone = broad & contains_xy(area, S[:, 0], S[:, 1])
+    pieces_out = take_out(extra, forest, gone)
+    rng = np.random.default_rng(SEED + 9)
+    lo, hi = np.min(SOUTH_GROVE, axis=0), np.max(SOUTH_GROVE, axis=0)
+    P = bt.jittered(lo, hi, SOUTH_APART, rng)
+    P = P[contains_xy(area, P[:, 0], P[:, 1]) & ~near[tuple(grid.cells(P).T)] & (at(share, P) > CROWNS)]
+    K = np.array([[s[1], s[3]] for s in forest['trees']])
+    P = P[cKDTree(K).query(P)[0] > SOUTH_APART * .7]
+    ground = bp.Surface(np.concatenate([bp.triangles(n, m) for n, m in bp.meshes(track) if 'GRASS' in n['name'][:7] and len(n['faces'])]))
+    ok = lambda C: contains_xy(area, C[:, 0], C[:, 1]) & ~near[tuple(grid.cells(C).T)]
+    new, young, clumps, tris = plant_euca(extra, forest, P, rng, ground, ok, 'w')
+    print('%d broad leaf trees out of the grove south of the fuel station (%d pieces); %d eucalyptus (%d young) '
+          'and %d clumps of understory in it: %d triangles' % (gone.sum(), pieces_out, len(new), young, clumps, tris))
 
 
 def main():
@@ -485,4 +549,4 @@ def main():
 
 
 if __name__ == '__main__':
-    prune() if '--prune' in sys.argv else strip() if '--strip' in sys.argv else main()
+    prune() if '--prune' in sys.argv else strip() if '--strip' in sys.argv else south() if '--south' in sys.argv else main()

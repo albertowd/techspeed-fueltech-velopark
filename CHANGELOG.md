@@ -12,6 +12,7 @@
 - Big white tent by the pit boxes.
 - Fuel station sign turned to the road, with the Velopark logo and lit fuel price displays.
 - Flagpoles at the 1500 start moved to where the real ones stand.
+- Tall eucalyptus grove south of the fuel station.
 
 ## 0.7.0
 
