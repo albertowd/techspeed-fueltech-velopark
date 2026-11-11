@@ -2,7 +2,7 @@
 
 How the track is made, for anyone changing it. Playing it? See the [README](README.md).
 
-The track is made from its sources in [source/](source), its layouts in [source/track](source/track); its [README](source/track/README.md) is the one that ships with it. What changed in each version of the repository is in the [CHANGELOG](CHANGELOG.md): note each change under the next version's section at its top. `tools/build_tracks.py` builds both games from the sources (see [Sources](#sources)), and `release.ps1` packs the release (see [Making a release](#making-a-release)).
+The track is made from its sources in [source/](source), its layouts in [source/track](source/track); its [README](source/track/README.md) is the one that ships with it. What changed in each version of the repository is in the [CHANGELOG](CHANGELOG.md): note each change under the next version's section at its top, one line per change, written for the players: what they will see or feel, not how it was made. `tools/build_tracks.py` builds both games from the sources (see [Sources](#sources)), and `release.ps1` packs the release (see [Making a release](#making-a-release)).
 
 ## Folders
 
