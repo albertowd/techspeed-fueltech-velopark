@@ -10,7 +10,7 @@
 - See-through windows in steel frames on every building, with rooms behind them.
 - Rooms lit at night by their ceiling lamps.
 - Big white tent by the pit boxes.
-- Fuel station sign turned to the road, with the Velopark logo and fuel prices, lit at night.
+- Fuel station sign turned to the road, with the Velopark logo and lit fuel price displays.
 - Flagpoles at the 1500 start moved to where the real ones stand.
 
 ## 0.7.0

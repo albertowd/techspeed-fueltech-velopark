@@ -112,7 +112,8 @@ TOWER_OPEN = [8., 22., 0., 30., 15., 35., 12., 25.]
 PIT_TENT = ((-41., 130.4), (10.4, 8.6), (.087, .996))
 PIT_TENT_EAVE, PIT_TENT_DOME = 3.2, 2.6
 # the prices on the fuel station's sign, in reais: the averages in Rio Grande do Sul in ANP's
-# survey of early November 2026
+# survey of early November 2026. The Custom Shaders Patch shows them from its config's script,
+# which tools/build_outside.py writes there from these
 FUEL_PRICES = (('ÁLCOOL', '4,55'), ('GASOLINA', '6,11'))
 # the vp_1500's flagpoles where their shadows start on the ground photo
 FLAGPOLES = [(-21.25 - .26 * i, 112.3 - 2. * i) for i in range(5)]
@@ -322,15 +323,42 @@ def sign_font(size):
     return ImageFont.load_default()
 
 
+PYLON = (512, 1024, 540)    # the sign's texture, its width and height, and where its board starts
+
+
+def price_boxes():
+    """Where each price shows on the sign's texture: (u0, u1, v0, v1), 0 to 1 over it."""
+    W, H, top = PYLON
+    rows = len(FUEL_PRICES)
+    out = []
+    for i in range(rows):
+        y0 = top + 30 + i * (H - top - 60) // rows
+        y1 = y0 + (H - top - 60) // rows - 24
+        out.append(((W - 236) / W, (W - 28) / W, y0 / H, y1 / H))
+    return out
+
+
+def prices_texture():
+    """The prices as the sign shows them without the Custom Shaders Patch (and in BeamNG): each
+    in red digits on black, a square of the texture each, one under the other. With the patch the
+    script in its config draws them there instead, lit (FUEL_PRICES_SCRIPT)."""
+    from PIL import ImageDraw
+    n = len(FUEL_PRICES)
+    img = Image.new('RGB', (512, 512 * n), (8, 8, 10))
+    d = ImageDraw.Draw(img)
+    for i, (fuel, price) in enumerate(FUEL_PRICES):
+        d.text((480, 512 * i + 270), price, fill=(255, 40, 30), font=sign_font(210), anchor='rm')
+    return img
+
+
 def pylon_texture():
     """The fuel station's sign, 1 wide to 2 high: the Velopark logo on white (tools/reference/
-    velopark_logo.png when it is there, else the name under a V), over a navy board with the
-    prices (FUEL_PRICES) in red digits, as the stations' boards light them."""
+    velopark_logo.png when it is there, else the name under a V), over a navy board with each
+    fuel's name and a black box for its price, which the prices' own mesh covers."""
     from PIL import ImageDraw
-    W, H = 512, 1024
+    W, H, top = PYLON
     img = Image.new('RGB', (W, H), (242, 243, 245))
     d = ImageDraw.Draw(img)
-    top = 540
     logo = os.path.join(ROOT, 'tools', 'reference', 'velopark_logo.png')
     if os.path.exists(logo):
         L = Image.open(logo).convert('RGBA')
@@ -342,14 +370,11 @@ def pylon_texture():
         d.polygon([(96, 60), (256, 380), (416, 60), (346, 60), (256, 250), (166, 60)], fill=navy)
         d.text((W // 2, 460), 'VELOPARK', fill=navy, font=sign_font(86), anchor='mm')
     d.rectangle((0, top, W, H), fill=(26, 32, 62))
-    rows = len(FUEL_PRICES)
-    for i, (fuel, price) in enumerate(FUEL_PRICES):
-        y0 = top + 30 + i * (H - top - 60) // rows
-        y1 = y0 + (H - top - 60) // rows - 24
-        d.text((26, (y0 + y1) // 2), fuel, fill=(236, 238, 242), font=sign_font(38), anchor='lm')
-        d.rectangle((W - 236, y0, W - 28, y1), fill=(8, 8, 10))
-        d.text((W - 228, y0 + 14), 'R$', fill=(236, 238, 242), font=sign_font(24), anchor='lt')
-        d.text((W - 40, (y0 + y1) // 2 + 6), price, fill=(255, 40, 30), font=sign_font(96), anchor='rm')
+    for (fuel, price), (u0, u1, v0, v1) in zip(FUEL_PRICES, price_boxes()):
+        y0, y1 = v0 * H, v1 * H
+        d.text((26, (y0 + y1) / 2 - 16), fuel, fill=(236, 238, 242), font=sign_font(38), anchor='lm')
+        d.text((26, (y0 + y1) / 2 + 26), 'R$ / litro', fill=(170, 178, 200), font=sign_font(24), anchor='lm')
+        d.rectangle((u0 * W - 6, y0 - 6, u1 * W + 6, y1 + 6), fill=(8, 8, 10))
     return img
 
 
@@ -393,6 +418,7 @@ MATERIALS = {
     'Fascia': ('OUT_fascia.dds', dict(spec=.2, exp=20.)),
     'Banner': ('OUT_banner.dds', dict(spec=.1, amb=.35, dif=.65)),
     'Pylon': ('OUT_pylon.dds', dict(spec=.2, exp=20., amb=.35, dif=.65)),
+    'FuelPrices': ('OUT_fuel_prices.dds', dict(spec=.3, exp=40., amb=.35, dif=.65)),
 }
 
 
@@ -962,6 +988,52 @@ def lamps(model, name, spots, yaw=0., at=(0, 0, 0)):
     LAMP_SPOTS.extend(map(tuple, S))
 
 
+def write_price_display():
+    """The fuel station's prices as a display of the Custom Shaders Patch, as the start gantry's
+    board is: a script that draws them on the prices' material in red digits, lit like LEDs and
+    glowing at night, written into the track's config from FUEL_PRICES (each price a square of
+    the display, one under the other, as prices_texture() paints them)."""
+    path = os.path.join(LAYOUTS, 'extension', 'ext_config.ini')
+    text = open(path, encoding='utf-8', newline='').read()
+    n = len(FUEL_PRICES)
+    lua = '\n'.join([
+        '-- the prices, in reais: edit them here, or in FUEL_PRICES of tools/build_outside.py',
+        'local PRICES = { %s }' % ', '.join('"%s"' % p for _, p in FUEL_PRICES),
+        'local RED = rgbm(1, .06, .04, 1)',
+        'local LETTER = vec2(120, 250)',
+        'function update(dt)',
+        '\tfor i, p in ipairs(PRICES) do',
+        '\t\tlocal y = (i - 1) * 512 + 130',
+        '\t\tlocal whole, cents = p:match("(%d+),(%d+)")',
+        '\t\tlocal x = 482 - LETTER.x * (#whole + #cents) - 42',
+        '\t\tdisplay.text{ pos = vec2(x, y), letter = LETTER, text = whole, font = "digital_big", color = RED }',
+        '\t\tx = x + LETTER.x * #whole',
+        '\t\tdisplay.rect{ pos = vec2(x + 8, y + LETTER.y - 44), size = vec2(26, 44), color = RED }',
+        '\t\tdisplay.text{ pos = vec2(x + 42, y), letter = LETTER, text = cents, font = "digital_big", color = RED }',
+        '\tend',
+        'end'])
+    block = '\n'.join([
+        "; The fuel station's prices: lit digits as the start gantry's board has, drawn by this",
+        '; script, written by tools/build_outside.py from its FUEL_PRICES. Without the patch the',
+        '; sign shows them painted.',
+        '[SCRIPTABLE_DISPLAY_...]', 'MATERIALS = OutFuelPrices', 'RESOLUTION = 512, %d' % (512 * n),
+        'DISPLAY_POS = 0, 0', 'DISPLAY_SIZE = 512, %d' % (512 * n), "SCRIPT = '", lua + "'", 'BACKGROUND = 0, 0, 0, 1', '',
+        '[CustomEmissive]', 'ACTIVE = 1', "DESCRIPTION = Fuel station's prices", 'MATERIALS = OutFuelPrices',
+        'Resolution = 512, %d' % (512 * n),
+        '@ = CustomEmissive_Rect, Channel = 0, Start = "0, 0", Size = "512, %d", CornerRadius = 0.0' % (512 * n), '',
+        '[MATERIAL_ADJUSTMENT_...]', 'ACTIVE = 1', "DESCRIPTION = Fuel station's prices at night",
+        'MATERIALS = OutFuelPrices', 'CONDITION = NIGHT_SMOOTH', 'KEY_0 = ksEmissive',
+        'VALUE_0 = 255, 255, 255, 0.094', 'VALUE_0_OFF = 0, 0, 0',
+        "; (the end of the fuel station's prices)"]) + '\n\n'
+    old = re.search(r"; The fuel station's prices: lit digits.*?; \(the end of the fuel station's prices\)\n\n", text, re.S)
+    if old:
+        text = text[:old.start()] + block + text[old.end():]
+    else:
+        at = text.index('; ---- Start gantry board')
+        text = text[:at] + block + text[at:]
+    open(path, 'w', encoding='utf-8', newline='').write(text)
+
+
 def write_lights():
     """The buildings' lamps' night lights, as their series in the track's Custom Shaders Patch
     config (which tools/export_beamng.py makes BeamNG's night lights too)."""
@@ -1172,6 +1244,13 @@ def fuel_station(model, ground):
         V = np.array([(xx, g + 3.2, za), (xx, g + 3.2, zb), (xx, g + 7.2, zb), (xx, g + 7.2, za)])
         n = np.array([nrm, 0., 0.])
         model.add('FUEL_SIGN', 'Pylon', [sh._part(V, np.tile(n, (4, 1)), U, sh._facing(V, [(0, 1, 2), (0, 2, 3)], n))])
+        # the prices: a display of their own over the board's black boxes, each a square of it
+        at = lambda u, v: (xx + nrm * .005, g + 7.2 - 4. * v, za + (zb - za) * u)
+        k = len(FUEL_PRICES)
+        for i, (u0, u1, v0, v1) in enumerate(price_boxes()):
+            P = np.array([at(u0, v1), at(u1, v1), at(u1, v0), at(u0, v0)])
+            UV = np.array([(0, (i + 1) / k), (1, (i + 1) / k), (1, i / k), (0, i / k)])
+            model.add('FUEL_PRICES', 'FuelPrices', [sh._part(P, np.tile(n, (4, 1)), UV, sh._facing(P, [(0, 1, 2), (0, 2, 3)], n))])
 
 
 def banner(model, name, a, b, y0, y1, ground=None, lift=.06):
@@ -1358,6 +1437,7 @@ def main():
         middle_building(model, name, P, eave, ground)
     pit_tent(model, ground)
     print('%d building lamps lit at night' % write_lights())
+    write_price_display()
     fuel_station(model, ground)
     # the banners: along the stand's front wall by R26, and on the south fence west of R15
     banner(model, 'STAND', (-19.01, -21.1), (-9.06, -38.03), .2, 1.45, lift=.5)
@@ -1373,6 +1453,7 @@ def main():
     made = textures()
     made['OUT_banner.dds'] = (banner_texture(), 'DXT1')
     made['OUT_pylon.dds'] = (pylon_texture(), 'DXT1')
+    made['OUT_fuel_prices.dds'] = (prices_texture(), 'DXT1')
     for name, (img, fmt) in made.items():
         data = kn5io.dds(img, fmt)
         open(os.path.join(TEX, name), 'wb').write(data)
