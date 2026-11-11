@@ -28,7 +28,8 @@ jobs:
           track=source/track
           grep -q "^VERSION = $version\$" "$track/extension/ext_config.ini" \
             || { echo "ext_config.ini is not at $version: run release.ps1 -Version $version first"; exit 1; }
-          awk -v v="## $version" '$0 == v {on = 1; next} /^## / {on = 0} on' "$track/CHANGELOG.md" > notes.md
+          # the section of this version, its lines without any Windows line ends
+          awk -v v="## $version" '{sub(/\r$/, "")} $0 == v {on = 1; next} /^## / {on = 0} on' "$track/CHANGELOG.md" > notes.md
           [ -s notes.md ] || { echo "CHANGELOG.md has no '## $version' section"; exit 1; }
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
