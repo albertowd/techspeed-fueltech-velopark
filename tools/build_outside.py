@@ -112,9 +112,10 @@ TOWER_OPEN = [8., 22., 0., 30., 15., 35., 12., 25.]
 PIT_TENT = ((-41., 130.4), (10.4, 8.6), (.087, .996))
 PIT_TENT_EAVE, PIT_TENT_DOME = 3.2, 2.6
 # the prices on the fuel station's sign, in reais: the averages in Rio Grande do Sul in ANP's
-# survey of early November 2026. The Custom Shaders Patch shows them from its config's script,
+# survey of early November 2026, written as the stations' lit boards show them, a dot between
+# the reais and the centavos. The Custom Shaders Patch shows them from its config's script,
 # which tools/build_outside.py writes there from these
-FUEL_PRICES = (('ÁLCOOL', '4,55'), ('GASOLINA', '6,11'))
+FUEL_PRICES = (('ÁLCOOL', '4.55'), ('GASOLINA', '6.11'))
 # the vp_1500's flagpoles where their shadows start on the ground photo
 FLAGPOLES = [(-21.25 - .26 * i, 112.3 - 2. * i) for i in range(5)]
 
@@ -1000,16 +1001,10 @@ def write_price_display():
         '-- the prices, in reais: edit them here, or in FUEL_PRICES of tools/build_outside.py',
         'local PRICES = { %s }' % ', '.join('"%s"' % p for _, p in FUEL_PRICES),
         'local RED = rgbm(1, .06, .04, 1)',
-        'local LETTER = vec2(120, 250)',
+        'local LETTER = vec2(104, 250)',
         'function update(dt)',
         '\tfor i, p in ipairs(PRICES) do',
-        '\t\tlocal y = (i - 1) * 512 + 130',
-        '\t\tlocal whole, cents = p:match("(%d+),(%d+)")',
-        '\t\tlocal x = 482 - LETTER.x * (#whole + #cents) - 42',
-        '\t\tdisplay.text{ pos = vec2(x, y), letter = LETTER, text = whole, font = "digital_big", color = RED }',
-        '\t\tx = x + LETTER.x * #whole',
-        '\t\tdisplay.rect{ pos = vec2(x + 8, y + LETTER.y - 44), size = vec2(26, 44), color = RED }',
-        '\t\tdisplay.text{ pos = vec2(x + 42, y), letter = LETTER, text = cents, font = "digital_big", color = RED }',
+        '\t\tdisplay.text{ pos = vec2(482 - LETTER.x * #p, (i - 1) * 512 + 130), letter = LETTER, text = p, font = "digital_big", color = RED }',
         '\tend',
         'end'])
     block = '\n'.join([
