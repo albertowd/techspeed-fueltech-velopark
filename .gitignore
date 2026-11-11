@@ -19,3 +19,6 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# the raw satellite pictures surroundings.jpg is laid from (68 MB); kept locally, fetched again by tools/surroundings.py photo
+tools/reference/surroundings/tiles/

@@ -50,7 +50,8 @@ WIDE, WIDE_GRID = ((-500., 500.), (-440., 440.)), 20.
 GRID = 10.                               # metres apart; Google's data is some 9.5 m apart here
 BATCH = 400                              # points a request: Google takes 512, URLs to 16 kB
 SKIP = (412134875, 95507048)             # OpenStreetMap's car circuit and drag strip, not the kart track's
-OVERPASS = ('https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter')
+OVERPASS = ('https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter',
+            'https://maps.mail.ru/osm/tools/overpass/api/interpreter')
 SURFACE = ('1ROAD_', '1GRASS_0', '1GRASS_PATHS', '1KERB_')   # the meshes that are the ground's top
 UA = 'techspeed-fueltech-velopark-elevation'
 SPACINGS = (10, 20, 40, 60, 80, 120)    # metres apart, the points methods interpolates from

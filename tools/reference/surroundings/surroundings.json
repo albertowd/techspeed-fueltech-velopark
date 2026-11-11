@@ -1,0 +1,19 @@
+{
+ "image": "surroundings.jpg",
+ "metres_a_pixel": 1.0,
+ "area_x_z": [
+  [
+   -1500.0,
+   1500.0
+  ],
+  [
+   -1500.0,
+   1500.0
+  ]
+ ],
+ "pixel": "column = (1500 - x) / 1, row = (1500 - z) / 1",
+ "sources": [
+  "Google Maps Static API, satellite, zoom 17 scale 2, fetched 2026-11-11",
+  "the track's ground photo (GoogleMap.jpg) in the middle, 1060 m square"
+ ]
+}
