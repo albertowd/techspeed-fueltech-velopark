@@ -27,10 +27,10 @@ by location.json) and screenshots of the vp_1000 driven from K1_S_LEFT to K1_T1:
   Techspeed banners on the stand by R26 and on the south fence west of R15;
 - the buildings in the middle of the track (MIDDLE) and the race control tower as the screenshots
   show them, in place of the paddock's (tools/restyle_paddock.py takes those out): grey block
-  walls, a band of glass under the eaves, and a dark metal roof rising gently and curling down
-  over one side, as the solar shed's roof is made to over its north side; the tower's upper
-  floor with two windows a side, their top lights hinged at the top and opened out; and the big
-  white tent by the pit boxes, north of the solar shed.
+  walls, a band of glass under the eaves, and one rounded roof of dark metal arched over each
+  from west to east; the tower's upper floor with two windows a side, their top lights hinged
+  at the top and opened out; and the big white tent by the pit boxes, north of the solar shed,
+  its fabric rising like a ball from the square of its posts.
 
 Everything stands on the ground as it is (after tools/level_ground.py). Its textures are made
 here, into source/textures (OUT_*.dds), but the old roofs' sheets, which are BuildingRoof.dds. Run
@@ -82,15 +82,15 @@ MESH_LO, MESH_HI = .05, 1.9   # the mesh's foot and top over the ground
 LAMP_APART = 12.         # metres between the globe lamps
 SEED = 7
 # the buildings in the middle of the track, made again as the screenshots show them: each its
-# corners (as its walls to hit in velopark_paddock.glb), its eaves' height, and the side its roof
-# curls down over (the edge from corner i to i + 1)
-MIDDLE = {'PADDOCK_BUILDING_N': ([(-58.58, 54.83), (-40.63, 53.68), (-39.44, 73.32), (-57.03, 74.48)], 5.0, 2),
-          'PADDOCK_BUILDING_M': ([(-65.86, 32.09), (-35.7, 29.76), (-33.55, 53.09), (-63.46, 55.42)], 4.8, 1),
-          'PADDOCK_BUILDING_S': ([(-62.54, 17.37), (-45.08, 15.61), (-43.88, 30.09), (-61.59, 31.25)], 4.2, 0),
-          'GARAGE': ([(-45.67, 142.03), (-39.81, 141.45), (-37.18, 168.83), (-42.92, 169.66)], 4.1, 2)}
-# their roofs: metal sheet ROOF_UP over the eaves where it curls, rising ROOF_SLOPE to the side
-# across, ROOF_OVER beyond the walls, bending down round ROOF_R until it falls at ROOF_END degrees
-ROOF_UP, ROOF_SLOPE, ROOF_OVER, ROOF_R, ROOF_END, ROOF_THICK = .3, .035, .6, 1.4, 75., .14
+# corners (as its walls to hit in velopark_paddock.glb) and its eaves' height
+MIDDLE = {'PADDOCK_BUILDING_N': ([(-58.58, 54.83), (-40.63, 53.68), (-39.44, 73.32), (-57.03, 74.48)], 5.0),
+          'PADDOCK_BUILDING_M': ([(-65.86, 32.09), (-35.7, 29.76), (-33.55, 53.09), (-63.46, 55.42)], 4.8),
+          'PADDOCK_BUILDING_S': ([(-62.54, 17.37), (-45.08, 15.61), (-43.88, 30.09), (-61.59, 31.25)], 4.2),
+          'GARAGE': ([(-45.67, 142.03), (-39.81, 141.45), (-37.18, 168.83), (-42.92, 169.66)], 4.1)}
+# their roofs, each one rounded sheet of metal arched from west to east: ROOF_UP over the eaves
+# over the walls, rising ROOF_RISE of the width between them in the middle, ROOF_OVER beyond
+# them, ROOF_THICK thick, the arc in ROOF_STEPS
+ROOF_UP, ROOF_RISE, ROOF_OVER, ROOF_THICK, ROOF_STEPS = .3, .12, .6, .14, 25
 BAND, BAND_PANE = (1.5, .4), 1.6   # the glass band, from and to under the eaves, and its panes' width
 # the race control tower's upper floor: the windows' sill, the hinge of their top lights over the
 # floor, the top lights' height, the wall left at each corner and between the two windows, and
@@ -99,9 +99,10 @@ TOWER_SILL, TOWER_HINGE, TOWER_TOP = 5.0, 7.5, 1.
 TOWER_MARGIN, TOWER_MULLION = .3, .2
 TOWER_OPEN = [8., 22., 0., 30., 15., 35., 12., 25.]
 # the big tent by the pit boxes, north of the solar shed, from the ground photo: its middle, width
-# and depth, its depth's way (as the solar shed's posts run), its eaves, valance and dome
+# and depth, its depth's way (as the solar shed's posts run), its eaves, and how high its fabric
+# rises over them
 PIT_TENT = ((-41., 130.4), (10.4, 8.6), (.087, .996))
-PIT_TENT_EAVE, PIT_TENT_VALANCE, PIT_TENT_DOME = 3.2, .5, 2.3
+PIT_TENT_EAVE, PIT_TENT_DOME = 3.2, 2.6
 # the vp_1500's flagpoles where their shadows start on the ground photo
 FLAGPOLES = [(-21.25 - .26 * i, 112.3 - 2. * i) for i in range(5)]
 
@@ -785,10 +786,10 @@ def control_tower(model, ground, cx, cz, w=5.6, d=5.6, front='w'):
     for x, z in rect(cx, cz, w + .1, d + .1, 0):
         pillars += sh.beam((x, y - .3, z), (x, y + 8.15, z), .36, tile=(.5, 1.))
     model.add('TOWER_CONTROL_PILLARS', 'Pillar', pillars)
-    # the roof, as the middle's buildings' are, curling down over the south
-    roof, under = curved_roof(corners, 0, y + 8.1 + ROOF_UP, over=.9, slope=.02)
+    # the roof, as the middle's buildings' are, arched from west to east
+    roof, gables = barrel_roof(corners, y + 8.1, over=.9)
     model.add('TOWER_CONTROL_ROOF', 'RoofDark', roof)
-    model.add('TOWER_CONTROL_WALLS', 'GreyWall', sh.walls(corners, y + 8.1, under, tile=(2., 2.)))
+    model.add('TOWER_CONTROL_WALLS', 'GreyWall', gable_walls(gables, (cx, cz)))
     model.add('1WALL_TOWER_CONTROL', 'GreyWall', sh.walls(corners, y - .3, y + 3., tile=(2., 2.)))
 
 
@@ -801,85 +802,101 @@ def upright(p, q, y0, y1, out):
 
 
 # ---- the buildings in the middle of the track ---------------------------------------------------
-def curved_roof(P, curl, y_edge, over=ROOF_OVER, slope=ROOF_SLOPE, R=ROOF_R, end=ROOF_END, thick=ROOF_THICK,
-                flat=True, tile=2.):
-    """A metal roof over the four corners P: rising gently (slope) from the side curl (the edge
-    from P[curl] to P[curl + 1]), its top y_edge there, to the side across, reaching over the
-    walls by over, and beyond the curl side bending down round R until it falls at end degrees.
-    Without flat, the bend only, as an edge on a roof there already. Its parts, and the height of
-    its underside over each corner of P."""
+def barrel_roof(P, eave, rise=ROOF_RISE, over=ROOF_OVER, thick=ROOF_THICK, tile=2.):
+    """One rounded metal roof over the four corners P, arched from its west side to its east side
+    (across x) and straight along its north to south: an arc of a circle from eave + ROOF_UP over
+    the walls on each side, rising by rise of the width between them in its middle, carrying on
+    over beyond them by over. Its parts, and the gable walls' outlines under it (each a list of
+    points (x, y, z) from one side's eave over to the other's)."""
     P = np.asarray(P, float)
-    A, B = P[curl % 4], P[(curl + 1) % 4]
-    D, C = P[(curl + 3) % 4], P[(curl + 2) % 4]     # across: D facing A, C facing B
-    th0, th1 = math.atan(slope), math.radians(end)
-    ov = over / np.linalg.norm(B - A) if flat else 0.
-    cols = []
-    for t in (-ov, 1 + ov):
-        q0, q1 = D + (C - D) * t, A + (B - A) * t
-        e = (q1 - q0) / np.linalg.norm(q1 - q0)
-        L = np.linalg.norm(q1 - q0)
-        rows = [(-(L + over), y_edge + slope * (L + over), th0), (0., y_edge, th0)] if flat else []
-        for f in np.linspace(th0, th1, 11)[(0 if not flat else 1):]:
-            rows.append((R * (math.sin(f) - math.sin(th0)), y_edge - R * (math.cos(th0) - math.cos(f)), f))
-        cols.append([(np.array([q1[0] + e[0] * s, yy, q1[1] + e[1] * s]), np.array([e[0] * math.sin(f), math.cos(f), e[1] * math.sin(f)]))
-                     for s, yy, f in rows])
-    n = len(cols[0])
-    top = np.array([[p for p, _ in col] for col in cols])          # (2, n, 3)
+    # the sides along z are the eaves: A to B one, D to C the other across from it
+    e = max(range(4), key=lambda i: abs(P[(i + 1) % 4][1] - P[i][1]) - abs(P[(i + 1) % 4][0] - P[i][0]))
+    A, B, C, D = P[e], P[(e + 1) % 4], P[(e + 2) % 4], P[(e + 3) % 4]
+    ov = over / np.linalg.norm(B - A)
+    y_eave = eave + ROOF_UP
+    cols, gables = [], []
+    for t in (-ov, 0., 1., 1 + ov):
+        q0, q1 = A + (B - A) * t, D + (C - D) * t
+        W = np.linalg.norm(q1 - q0)
+        u = (q1 - q0) / W
+        r = rise * W
+        R = (W * W / 4 + r * r) / (2 * r)
+        yc = y_eave + r - R
+        rows = []
+        for s in np.linspace(-over, W + over, ROOF_STEPS):
+            dx = s - W / 2
+            y = yc + math.sqrt(R * R - dx * dx)
+            rows.append((np.array([q0[0] + u[0] * s, y, q0[1] + u[1] * s]),
+                         np.array([u[0] * dx / R, (y - yc) / R, u[1] * dx / R])))
+        cols.append(rows)
+        if t in (0., 1.):
+            # under the roof, over the walls: from one eave over to the other
+            g = [(q0[0], eave, q0[1])]
+            for s in np.linspace(0, W, ROOF_STEPS):
+                dx = s - W / 2
+                g.append((q0[0] + u[0] * s, yc + math.sqrt(R * R - dx * dx) - thick, q0[1] + u[1] * s))
+            g.append((q1[0], eave, q1[1]))
+            gables.append(np.array(g))
+    cols = [cols[0], cols[3]]
+    top = np.array([[p for p, _ in col] for col in cols])      # (2, n, 3)
     nrm = np.array([[m for _, m in col] for col in cols])
     bot = top - nrm * thick
-    across = np.linalg.norm(top[1, 0] - top[0, 0])
+    n = top.shape[1]
+    along = np.linalg.norm(top[1, 0] - top[0, 0])
     arc = np.r_[0., np.cumsum(np.linalg.norm(np.diff(top[0], axis=0), axis=1))]
     out = []
+    quad = lambda V, Nn: sh._part(V, Nn, np.zeros((4, 2)), sh._facing(V, [(0, 1, 2), (0, 2, 3)], Nn.mean(0)))
     for i in range(n - 1):
         for S, sgn in ((top, 1.), (bot, -1.)):
             V = np.array([S[0, i], S[1, i], S[1, i + 1], S[0, i + 1]])
             Nn = np.array([nrm[0, i], nrm[1, i], nrm[1, i + 1], nrm[0, i + 1]]) * sgn
-            U = np.array([(0, arc[i]), (across, arc[i]), (across, arc[i + 1]), (0, arc[i + 1])]) / tile
+            U = np.array([(arc[i], 0), (arc[i], along), (arc[i + 1], along), (arc[i + 1], 0)]) / tile
             out.append(sh._part(V, Nn, U, sh._facing(V, [(0, 1, 2), (0, 2, 3)], Nn.mean(0))))
-    # its edges: along each side, and across each end
+    # its edges: the arcs at its north and south ends, and along the eaves
     side = top[1, 0] - top[0, 0]
     side /= np.linalg.norm(side)
     for k, sgn in ((0, -1.), (1, 1.)):
         for i in range(n - 1):
-            V = np.array([top[k, i], top[k, i + 1], bot[k, i + 1], bot[k, i]])
-            out.append(sh._part(V, np.tile(side * sgn, (4, 1)), np.zeros((4, 2)), sh._facing(V, [(0, 1, 2), (0, 2, 3)], side * sgn)))
-    for i, d in ((0, top[0, 0] - top[0, 1]), (n - 1, top[0, n - 1] - top[0, n - 2])):
-        d = d / np.linalg.norm(d)
-        V = np.array([top[0, i], top[1, i], bot[1, i], bot[0, i]])
-        out.append(sh._part(V, np.tile(d, (4, 1)), np.zeros((4, 2)), sh._facing(V, [(0, 1, 2), (0, 2, 3)], d)))
-    # the underside over each corner of P: at the curl side, and up the slope across
-    under = np.full(4, y_edge - thick)
-    under[(curl + 3) % 4] += slope * np.linalg.norm(A - D)
-    under[(curl + 2) % 4] += slope * np.linalg.norm(B - C)
-    return out, under
+            out.append(quad(np.array([top[k, i], top[k, i + 1], bot[k, i + 1], bot[k, i]]), np.tile(side * sgn, (4, 1))))
+    for i in (0, n - 1):
+        d = (top[0, i] - top[0, n // 2]) * [1, 0, 1]
+        out.append(quad(np.array([top[0, i], top[1, i], bot[1, i], bot[0, i]]), np.tile(d / np.linalg.norm(d), (4, 1))))
+    return out, gables
 
 
-def middle_building(model, name, P, eave, curl, ground):
+def gable_walls(gables, centre, tile=(2., 2.)):
+    """The walls closing the gables under a barrel roof, facing out from the building's middle."""
+    out = []
+    for g in gables:
+        mid = g.mean(0)
+        n = np.array([mid[0] - centre[0], 0., mid[2] - centre[1]])
+        a = g[-1] - g[0]
+        a = np.array([a[0], 0., a[2]]) / np.linalg.norm(a)
+        n = n - a * (n @ a)
+        n /= np.linalg.norm(n)
+        out += sh.poly(g, n=n, tile=tile, axes=(a, np.array([0., 1., 0.])))
+    return out
+
+
+def middle_building(model, name, P, eave, ground):
     """One of the buildings in the middle of the track: grey block walls round the corners P up to
-    eave, a band of glass along them under it, and a curved roof over them, curling down over the
-    side curl; a grey fascia from the walls up to the roof."""
+    eave, a band of glass along them under it, and one rounded roof arched over it from west to
+    east, its gables walled up to it."""
     P = np.asarray(P, float)
     y0 = ground.low(P)
     model.add(name + '_WALLS', 'GreyWall', sh.walls(P, y0 - .3, eave, tile=(2., 2.)))
-    roof, under = curved_roof(P, curl, eave + ROOF_UP)
+    roof, gables = barrel_roof(P, eave)
     model.add(name + '_ROOF', 'RoofDark', roof)
-    model.add(name + '_WALLS', 'GreyWall', sh.walls(P, eave, under, tile=(2., 2.)))
+    model.add(name + '_WALLS', 'GreyWall', gable_walls(gables, P.mean(0)))
     c = P.mean(0)
     out = P + (P - c) / np.linalg.norm(P - c, axis=1)[:, None] * .04
     model.add(name + '_GLASS', 'GlassBand', sh.walls(out, eave - BAND[0], eave - BAND[1], tile=(BAND_PANE, BAND[0] - BAND[1])))
     return y0
 
 
-def solar_curl(model):
-    """The solar shed's roof curled down over its north edge, as the others are."""
-    P = [(-32.4, 95.44), (-61.1, 97.78), (-58.71, 125.41), (-30.01, 123.44)]
-    roof, _ = curved_roof(P, 2, 4.72, slope=0., R=1.1, flat=False)
-    model.add('SOLAR_CURL', 'RoofDark', roof)
-
-
 def pit_tent(model, ground):
-    """The big white tent north of the solar shed, by the pit boxes: a dome of white fabric on
-    steel posts, a dark valance round it, open under it."""
+    """The big white tent north of the solar shed, by the pit boxes: on steel posts, all white
+    fabric, rising from the square the posts make like a ball, open under it."""
     c, (w, d), ez = np.array(PIT_TENT[0]), PIT_TENT[1], np.array(PIT_TENT[2], float)
     ez /= np.linalg.norm(ez)
     ex = np.array([ez[1], -ez[0]])
@@ -890,34 +907,24 @@ def pit_tent(model, ground):
     for i in range(4):
         for f in (0., .5):
             x, z = corners[i] + (corners[(i + 1) % 4] - corners[i]) * f
-            posts += sh.beam((x, y - .2, z), (x, eave + .1, z), .1, tile=(.5, 1.))
+            posts += sh.beam((x, y - .2, z), (x, eave, z), .1, tile=(.5, 1.))
     model.add('PIT_TENT_POLES', 'Steel', posts)
-    band = sh.walls(corners, eave, eave + PIT_TENT_VALANCE, tile=(4., PIT_TENT_VALANCE / .3))
-    band += sh.walls(corners, eave, eave + PIT_TENT_VALANCE, tile=(4., PIT_TENT_VALANCE / .3), outward=False)
-    model.add('PIT_TENT_VALANCE', 'Fascia', band)
-    # the dome: rings of a rounded rectangle, up to its top
-    M, K, p = 48, 10, 5.
-    a = np.linspace(0, 2 * np.pi, M, endpoint=False)
-    ux = np.sign(np.cos(a)) * np.abs(np.cos(a)) ** (2 / p)
-    uz = np.sign(np.sin(a)) * np.abs(np.sin(a)) ** (2 / p)
-    V = []
-    for k in range(K + 1):
-        t = math.cos(k / K * math.pi / 2)
-        h = eave + PIT_TENT_VALANCE + PIT_TENT_DOME * max(1 - t * t, 0.) ** .75
-        xz = c + np.outer(ux * t * w / 2, ex) + np.outer(uz * t * d / 2, ez)
-        V += [(x, h, z) for x, z in xz]
-    V = np.array(V)
+    # the fabric over the square: highest in its middle, down to the eaves all round its edges,
+    # standing up from them as a ball's side does
+    K = 24
+    g = np.cos(np.linspace(np.pi, 0, K + 1))           # -1 to 1, closer at the edges
+    U, Vv = np.meshgrid(g, g)
+    h = eave + PIT_TENT_DOME * np.sqrt(np.clip((1 - U ** 2) * (1 - Vv ** 2), 0, 1))
+    xz = c + U[..., None] * ex * w / 2 + Vv[..., None] * ez * d / 2
+    V = np.c_[xz[..., 0].ravel(), h.ravel(), xz[..., 1].ravel()]
     F = []
-    for k in range(K):
-        for i in range(M):
-            a0, a1 = k * M + i, k * M + (i + 1) % M
-            b0, b1 = a0 + M, a1 + M
-            F += [(a0, a1, b1), (a0, b1, b0)]
+    for i in range(K):
+        for j in range(K):
+            a, b = i * (K + 1) + j, i * (K + 1) + j + 1
+            F += [(a, b, b + K + 1), (a, b + K + 1, a + K + 1)]
     F = np.array(F)
     N = sh._vertex_normals(V, F)
-    up = N[:, 1] < 0
-    N[up] = -N[up]
-    # each triangle facing up and out, as the normals say
+    N[N[:, 1] < 0] *= -1
     tri_n = np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]])
     flip = (tri_n * N[F].mean(1)).sum(1) < 0
     F[flip] = F[flip][:, ::-1]
@@ -1151,9 +1158,8 @@ def main():
     marshal(model, ground, 3.2, 116.3, side=-1., tag='_1500')
     flagpoles(model, ground, FLAGPOLES)
     control_tower(model, ground, -47., 80.5, front='w')
-    for name, (P, eave, curl) in MIDDLE.items():
-        middle_building(model, name, P, eave, curl, ground)
-    solar_curl(model)
+    for name, (P, eave) in MIDDLE.items():
+        middle_building(model, name, P, eave, ground)
     pit_tent(model, ground)
     fuel_station(model, ground)
     # the banners: along the stand's front wall by R26, and on the south fence west of R15

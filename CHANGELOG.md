@@ -4,7 +4,7 @@
 
 ### Both games
 
-- Curved metal roofs on the buildings in the middle of the track.
+- Rounded metal roofs on the buildings in the middle of the track.
 - Glass bands along the paddock buildings.
 - Darker roofs on the paddock buildings.
 - Race control tower windows with top lights opened out.
