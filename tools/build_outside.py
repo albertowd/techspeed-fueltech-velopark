@@ -27,16 +27,18 @@ by location.json) and screenshots of the vp_1000 driven from K1_S_LEFT to K1_T1:
   Techspeed banners on the stand by R26 and on the south fence west of R15;
 - the buildings in the middle of the track (MIDDLE) and the race control tower as the screenshots
   show them, in place of the paddock's (tools/restyle_paddock.py takes those out): grey block
-  walls, a band of glass under the eaves, and one rounded roof of dark metal arched over each
-  from west to east; the tower's upper floor with two windows a side, their top lights hinged
-  at the top and opened out; and the big white tent by the pit boxes, north of the solar shed,
-  its fabric rising like a ball from the square of its posts.
+  walls, a band of steel framed windows under the eaves, and one rounded roof of dark metal
+  arched over each from west to east; the tower's upper floor with two windows a side, their
+  top lights hinged at the top and opened out; plastered inside, with ceiling lamps, whose night
+  lights it writes into the Custom Shaders Patch config (LIGHT_SERIES_3); and the big white tent
+  by the pit boxes, north of the solar shed, its fabric rising like a ball from the square of
+  its posts.
 
 Everything stands on the ground as it is (after tools/level_ground.py). Its textures are made
 here, into source/textures (OUT_*.dds), but the old roofs' sheets, which are BuildingRoof.dds. Run
 again, it makes the model again, the same.
 """
-import glob, io, json, math, os, sys
+import glob, io, json, math, os, re, sys
 
 import numpy as np
 from PIL import Image
@@ -91,7 +93,12 @@ MIDDLE = {'PADDOCK_BUILDING_N': ([(-58.58, 54.83), (-40.63, 53.68), (-39.44, 73.
 # over the walls, rising ROOF_RISE of the width between them in the middle, ROOF_OVER beyond
 # them, ROOF_THICK thick, the arc in ROOF_STEPS
 ROOF_UP, ROOF_RISE, ROOF_OVER, ROOF_THICK, ROOF_STEPS = .3, .12, .6, .14, 25
-BAND, BAND_PANE = (1.5, .4), 1.6   # the glass band, from and to under the eaves, and its panes' width
+BAND, BAND_PANE, BAND_END = (1.5, .4), 1.6, .3   # the band of windows: from and to under the eaves,
+                                                 # its panes' width, and the wall left at each end
+FRAME = .06              # the windows' steel frames, their side
+# the ceiling lamps: their side and depth, about how far apart, and their night lights' colour
+# (brightness last) and reach
+LAMP, LAMP_EVERY, LAMP_LIGHT, LAMP_RANGE = (.6, .08), 7., '1, 0.84, 0.62, 0.15', 8.
 # the race control tower's upper floor: the windows' sill, the hinge of their top lights over the
 # floor, the top lights' height, the wall left at each corner and between the two windows, and
 # how far each top light is open (degrees; two a side, round from the south)
@@ -253,24 +260,17 @@ def textures():
     cone = np.zeros((n, n, 3)) + np.array([236., 96., 30.]) * (.9 + .1 * noise(n, 8, 19)[..., None])
     cone[(y > .42) & (y < .62)] = 238
     T['OUT_cone.dds'] = (rgb(cone), 'DXT1')
-    # the race control tower's windows, a pane or a top light: the glass in a dark frame; the glass
-    # light, so it lights up when the patch makes it glow at night
-    tg = np.zeros((n, n, 3)) + np.array([70., 72., 76.])
-    pane = (x > .04) & (x < .96) & (y > .05) & (y < .95)
-    sky = (np.array([150., 170., 190.]) * (.85 + .25 * (1 - y))[..., None]) * (.9 + .1 * noise(n, 4, 21)[..., None])
-    tg[pane] = sky[pane]
-    T['OUT_tower_glass.dds'] = (rgb(tg), 'DXT1')
-    # the band of glass along the middle's buildings: dark glass, a frame round each pane
-    gb = np.zeros((n, n, 3)) + np.array([62., 64., 68.])
-    pane = (x > .03) & (x < .97) & (y > .06) & (y < .94)
-    dark = np.array([52., 62., 76.]) * (.8 + .4 * (1 - y))[..., None] * (.92 + .08 * noise(n, 4, 23)[..., None])
-    gb[pane] = dark[pane]
-    T['OUT_glass_band.dds'] = (rgb(gb), 'DXT1')
+    # window glass: a little grey blue, mostly clear
+    gl = np.zeros((n, n, 4)) + np.array([150., 168., 182., 70.])
+    gl[..., :3] *= (.95 + .1 * noise(n, 4, 21))[..., None]
+    T['OUT_glass.dds'] = (Image.fromarray(np.clip(gl, 0, 255).astype(np.uint8), 'RGBA'), 'DXT5')
+    # the windows' steel frames, painted dark grey
+    T['OUT_frame.dds'] = (rgb((58 + 8 * noise(n, 6, 23))[..., None] * np.array([1., 1.02, 1.05])), 'DXT1')
+    # a ceiling lamp's diffuser
+    T['OUT_lamp.dds'] = (rgb(np.full((n, n, 3), 1.) * np.array([246., 242., 230.])), 'DXT1')
     # the dark metal roofs: ribs along the slope, eight to a tile
     rib = .5 + .5 * np.cos(x * 8 * 2 * np.pi)
     T['OUT_roof_dark.dds'] = (rgb((84 + 14 * rib ** 4 + 5 * noise(n, 6, 24))[..., None] * np.array([1., 1.02, 1.05])), 'DXT1')
-    # inside an open window
-    T['OUT_dark.dds'] = (rgb(np.full((n, n, 3), 34.) + 4 * noise(n, 4, 25)[..., None]), 'DXT1')
     # the fuel station canopy's fascia: dark grey, a light line along it
     fa = np.zeros((n, n, 3)) + 70 + 10 * noise(n, 6, 20)[..., None]
     fa[(y > .7) & (y < .76)] = (200, 205, 210)
@@ -327,9 +327,9 @@ def pylon_texture():
 PROPS = ('ksAmbient', 'ksDiffuse', 'ksSpecular', 'ksSpecularEXP', 'ksEmissive', 'ksAlphaRef')
 
 
-def material(name, tex, amb=.3, dif=.6, spec=.08, exp=12., at=False, emissive=0.):
+def material(name, tex, amb=.3, dif=.6, spec=.08, exp=12., at=False, emissive=0., blend=False):
     vals = (amb, dif, spec, exp, emissive, 1.)
-    return dict(name=name, shader='ksPerPixelAT' if at else 'ksPerPixel', blend=0, alpha_tested=int(at), depth_mode=0,
+    return dict(name=name, shader='ksPerPixelAT' if at else 'ksPerPixel', blend=int(blend), alpha_tested=int(at), depth_mode=int(blend),
                 props=[dict(name=p, value=float(v), rest=b'\0' * 36) for p, v in zip(PROPS, vals)],
                 textures=[dict(sampler='txDiffuse', slot=0, name=tex)])
 
@@ -352,10 +352,10 @@ MATERIALS = {
     'Turf': ('OUT_turf.dds', dict(spec=.03)),
     'Globe': ('OUT_globe.dds', dict(amb=.6, dif=.6, emissive=.0)),
     'Cone': ('OUT_cone.dds', dict(spec=.2, exp=20.)),
-    'TowerGlass': ('OUT_tower_glass.dds', dict(spec=.4, exp=40.)),
-    'GlassBand': ('OUT_glass_band.dds', dict(spec=.4, exp=40.)),
+    'Glass': ('OUT_glass.dds', dict(spec=.9, exp=90., blend=True)),
+    'Frame': ('OUT_frame.dds', dict(spec=.3, exp=30.)),
+    'Lamp': ('OUT_lamp.dds', dict(amb=.5, dif=.6)),
     'RoofDark': ('OUT_roof_dark.dds', dict(spec=.2, exp=25.)),
-    'Dark': ('OUT_dark.dds', dict(spec=.05)),
     'GreyWall': ('BuildingWallGrey.dds', {}),
     'Pillar': ('BuildingPillar.dds', {}),
     'Fascia': ('OUT_fascia.dds', dict(spec=.2, exp=20.)),
@@ -405,6 +405,8 @@ def write(model, tex):
             flags = dict(renderable=0, cast_shadows=0)
         elif name.startswith(('FENCE_MESH', 'LAMPS')):
             flags = dict(lod_out=450.)
+        elif MATERIALS[mat][1].get('blend'):
+            flags = dict(transparent=1, cast_shadows=0)
         for i, run in enumerate(build_trees.chunks(parts)):
             children.append(mesh_node(name if i == 0 else '%s_%d' % (name, i), run, names[mat], flags))
     k = dict(version=6, extra=0, textures=textures, materials=mats,
@@ -729,59 +731,36 @@ def marshal(model, ground, cx, cz, side=1., tag='', w=3.):
 
 
 def control_tower(model, ground, cx, cz, w=5.6, d=5.6, front='w'):
-    """The race control tower by the vp_1500's start: a ground floor of grey block with its
-    windows, an upper floor glazed all round, salmon red pillars at its corners, a roof slab
-    reaching over it."""
+    """The race control tower by the vp_1500's start: grey block walls, salmon red pillars at its
+    corners, a rounded roof over it. Its upper floor has two windows a side, each a pane and a top
+    light a metre high over it, hinged at its top and opened out, each as far as it is; its ground
+    floor two windows on its front. The windows are steel framed glass, the rooms behind them
+    plastered, each with a lamp in its ceiling."""
     corners = rect(cx, cz, w, d, 0)
     y = ground.low(corners)
-    grey = sh.walls(corners, y - .3, y + 3.6, tile=(2., 2.)) + sh.walls(corners, y + 3.6, y + 4.1, tile=(2., 2.))
-    grey += sh.walls(corners, y + 7.7, y + 8.1, tile=(2., 2.))
-    # the upper floor: on each side two windows by each other, each a pane over a sill wall and a
-    # top light a metre high over it, hinged at its top and opened out, each as far as it is
-    grey += sh.walls(corners, y + 4.1, y + 7.7, tile=(2., 2.))
-    model.add('TOWER_CONTROL_WALLS', 'GreyWall', grey)
-    panes, tops, holes = [], [], []
-    c = np.array([cx, cz])
+    holes, wins = {}, []
     for i in range(4):
-        a, b = corners[i], corners[(i + 1) % 4]
-        L = np.linalg.norm(b - a)
-        along = (b - a) / L
-        out = (a + b) / 2 - c
-        out /= np.linalg.norm(out)
+        L = np.linalg.norm(corners[(i + 1) % 4] - corners[i])
         ww = (L - 2 * TOWER_MARGIN - TOWER_MULLION) / 2
         for j in range(2):
             s0 = TOWER_MARGIN + j * (ww + TOWER_MULLION)
-            p, q = a + along * s0, a + along * (s0 + ww)
-            o = lambda k: out * k
-            panes.append(upright(p + o(.03), q + o(.03), y + TOWER_SILL, y + TOWER_HINGE - TOWER_TOP, out))
-            holes.append(upright(p + o(.02), q + o(.02), y + TOWER_HINGE - TOWER_TOP, y + TOWER_HINGE, out))
-            ang = math.radians(TOWER_OPEN[2 * i + j])
-            top = y + TOWER_HINGE
-            hp, hq = p + o(.05), q + o(.05)
-            lo_p, lo_q = hp + o(TOWER_TOP * math.sin(ang)), hq + o(TOWER_TOP * math.sin(ang))
-            ylo = top - TOWER_TOP * math.cos(ang)
-            V = np.array([(lo_p[0], ylo, lo_p[1]), (lo_q[0], ylo, lo_q[1]), (hq[0], top, hq[1]), (hp[0], top, hp[1])])
-            nrm = np.cross(V[1] - V[0], V[3] - V[0])
-            nrm /= np.linalg.norm(nrm)
-            if nrm @ np.array([out[0], 0, out[1]]) < 0:
-                nrm = -nrm
-            U = np.array([(0, 0), (1, 0), (1, 1), (0, 1)], float)
-            F = sh._facing(V, [(0, 1, 2), (0, 2, 3)], nrm)
-            tops += [sh._part(V, np.tile(nrm, (4, 1)), U, F), sh._part(V, np.tile(-nrm, (4, 1)), U, F[:, ::-1])]
-    # the glass of a material of its own, which the Custom Shaders Patch lights at night
-    model.add('TOWER_CONTROL_UPPER_GLASS', 'TowerGlass', panes + tops)
-    model.add('TOWER_CONTROL_OPEN', 'Dark', holes)
-    win = []
-    # the ground floor's windows on its front and its door at the back
-    ops = []
-    side = {'w': (1, 0), 'e': (-1, 0), 'n': (0, 1), 's': (0, -1)}[front]
-    for t in (-1.2, 1.2):
-        if side[0]:
-            x = cx + side[0] * (w / 2 + .02)
-            ops += sh.quad((x, y + 1., cz + t - .7 * side[0]), (x, y + 1., cz + t + .7 * side[0]), (x, y + 2.4, cz + t + .7 * side[0]), (x, y + 2.4, cz + t - .7 * side[0]))
-    for V, N, U, F in ops:
-        win.append(sh._part(V, N, np.c_[.02 + .44 * (U[:, 0] - U[:, 0].min()) / max(np.ptp(U[:, 0]), 1e-6), (U[:, 1] - U[:, 1].min()) / max(np.ptp(U[:, 1]), 1e-6)], F))
-    model.add('TOWER_CONTROL_GLASS', 'Openings', win)
+            hole = (s0, s0 + ww, y + TOWER_SILL, y + TOWER_HINGE)
+            holes.setdefault(i, []).append(hole)
+            wins.append((i, hole, dict(transoms=(y + TOWER_HINGE - TOWER_TOP,), open_top=(TOWER_TOP, TOWER_OPEN[2 * i + j]))))
+    side = {'s': 0, 'w': 1, 'n': 2, 'e': 3}[front]
+    for s in (1.6, 4.0):
+        hole = (s - .7, s + .7, y + 1., y + 2.4)
+        holes.setdefault(side, []).append(hole)
+        wins.append((side, hole, dict(bars=(s,), transoms=(y + 1.7,))))
+    outer, inner = holed_walls(corners, y - .3, y + 8.1, holes)
+    model.add('TOWER_CONTROL_WALLS', 'GreyWall', outer)
+    glazing(model, 'TOWER_CONTROL', corners, wins)
+    # the two rooms: the ground floor's up to the upper floor's slab, the upper one's to the roof
+    rooms = [(y + .02, y + 3.6), (y + 4.1, y + 8.1)]
+    inside = inner + [p for f, c in rooms for p in sh.poly([(x, c, z) for x, z in corners], n=np.array([0., -1., 0.]), tile=(2., 2.))]
+    model.add('TOWER_CONTROL_INSIDE', 'Plaster', inside)
+    model.add('TOWER_CONTROL_FLOOR', 'Concrete', [p for f, c in rooms for p in sh.poly([(x, f, z) for x, z in corners], n=np.array([0., 1., 0.]), tile=(2., 2.))])
+    lamps(model, 'TOWER_CONTROL', [(cx, c, cz) for f, c in rooms])
     pillars = []
     for x, z in rect(cx, cz, w + .1, d + .1, 0):
         pillars += sh.beam((x, y - .3, z), (x, y + 8.15, z), .36, tile=(.5, 1.))
@@ -793,12 +772,140 @@ def control_tower(model, ground, cx, cz, w=5.6, d=5.6, front='w'):
     model.add('1WALL_TOWER_CONTROL', 'GreyWall', sh.walls(corners, y - .3, y + 3., tile=(2., 2.)))
 
 
-def upright(p, q, y0, y1, out):
-    """An upright pane from p to q (x, z), y0 to y1, facing out; its uv 0 to 1 over it."""
-    V = np.array([(p[0], y0, p[1]), (q[0], y0, q[1]), (q[0], y1, q[1]), (p[0], y1, p[1])])
-    n = np.array([out[0], 0., out[1]])
+# ---- windows and lamps --------------------------------------------------------------------------
+LAMP_SPOTS = []          # where every building's ceiling lamps hang, for their night lights
+
+
+def side_of(P, i):
+    """The side of P from corner i: its start, its way along, its length and its way out."""
+    P = np.asarray(P, float)
+    a, b = P[i], P[(i + 1) % len(P)]
+    L = np.linalg.norm(b - a)
+    along = (b - a) / L
+    out = np.array([along[1], -along[0]])
+    if out @ ((a + b) / 2 - P.mean(0)) < 0:
+        out = -out
+    return a, along, L, out
+
+
+def wall_quad(a, along, n, s0, s1, h0, h1, tile=2.):
+    p, q = a + along * s0, a + along * s1
+    V = np.array([(p[0], h0, p[1]), (q[0], h0, q[1]), (q[0], h1, q[1]), (p[0], h1, p[1])])
+    U = np.array([(s0, h0), (s1, h0), (s1, h1), (s0, h1)]) / tile
+    nn = np.array([n[0], 0., n[1]])
+    return sh._part(V, np.tile(nn, (4, 1)), U, sh._facing(V, [(0, 1, 2), (0, 2, 3)], nn))
+
+
+def holed_walls(P, y0, y1, holes):
+    """Walls round P from y0 to y1 with holes in them: holes[i] the (s0, s1, h0, h1) on the side
+    from P[i], s along it. Their faces outside, and inside."""
+    outer, inner = [], []
+    for i in range(len(P)):
+        a, along, L, n = side_of(P, i)
+        hs = holes.get(i, [])
+        xs = sorted({0., L} | {v for h in hs for v in h[:2]})
+        ys = sorted({y0, y1} | {v for h in hs for v in h[2:]})
+        for xa, xb in zip(xs, xs[1:]):
+            for ya, yb in zip(ys, ys[1:]):
+                xm, ym = (xa + xb) / 2, (ya + yb) / 2
+                if any(s0 < xm < s1 and h0 < ym < h1 for s0, s1, h0, h1 in hs):
+                    continue
+                outer.append(wall_quad(a, along, n, xa, xb, ya, yb))
+                inner.append(wall_quad(a, along, -n, xa, xb, ya, yb))
+    return outer, inner
+
+
+def pane(V):
+    """A pane of glass on the four points V, both its faces."""
+    V = np.asarray(V, float)
+    n = np.cross(V[1] - V[0], V[3] - V[0])
+    n /= np.linalg.norm(n)
     U = np.array([(0, 0), (1, 0), (1, 1), (0, 1)], float)
-    return sh._part(V, np.tile(n, (4, 1)), U, sh._facing(V, [(0, 1, 2), (0, 2, 3)], n))
+    F = sh._facing(V, [(0, 1, 2), (0, 2, 3)], n)
+    return [sh._part(V, np.tile(n, (4, 1)), U, F), sh._part(V, np.tile(-n, (4, 1)), U, F[:, ::-1])]
+
+
+def window(a, along, n, hole, bars=(), transoms=(), open_top=None):
+    """A steel framed window in the hole (s0, s1, h0, h1) on the side from a, along it, facing n:
+    its frame, bars (at s) and transoms (at h), and the glass between them. With open_top (its
+    height, degrees), the top light over the top transom is hinged at the hole's top and opened
+    out. Its frame and its glass."""
+    s0, s1, h0, h1 = hole
+    at = lambda s, h, o=0.: np.array([a[0] + along[0] * s + n[0] * o, h, a[1] + along[1] * s + n[1] * o])
+    f = FRAME / 2
+    frame, glass = [], []
+    beam = lambda p, q: sh.beam(p, q, FRAME, tile=(.5, 1.))
+    for p, q in ((at(s0, h0), at(s1, h0)), (at(s0, h1), at(s1, h1)), (at(s0, h0), at(s0, h1)), (at(s1, h0), at(s1, h1))):
+        frame += beam(p, q)
+    top = h1
+    if open_top:
+        th, ang = open_top
+        top = h1 - th
+        r = math.radians(ang)
+        # the top light: its frame round it, turned out about the hinge along the hole's top
+        tl = lambda s, k: at(s, h1 - k * th * math.cos(r), k * th * math.sin(r))
+        c = [tl(s0 + f, 1), tl(s1 - f, 1), tl(s1 - f, 0), tl(s0 + f, 0)]
+        for p, q in zip(c, c[1:] + c[:1]):
+            frame += beam(p, q)
+        g = [tl(s0 + 2 * f, 1 - f / th), tl(s1 - 2 * f, 1 - f / th), tl(s1 - 2 * f, f / th), tl(s0 + 2 * f, f / th)]
+        glass += pane(g)
+    for h in transoms:
+        frame += beam(at(s0, h), at(s1, h))
+    for s in bars:
+        frame += beam(at(s, h0), at(s, top))
+    # the fixed panes, between the frame, bars and transoms up to the top light
+    ss = [s0] + sorted(bars) + [s1]
+    hh = [h0] + sorted(h for h in transoms if h < top - 1e-6) + [top]
+    for sa, sb in zip(ss, ss[1:]):
+        for ha, hb in zip(hh, hh[1:]):
+            glass += pane([at(sa + f, ha + f), at(sb - f, ha + f), at(sb - f, hb - f), at(sa + f, hb - f)])
+    return frame, glass
+
+
+def glazing(model, name, P, wins):
+    """The windows wins, each (side of P, hole, window's options), into the model."""
+    frame, glass = [], []
+    for i, hole, kw in wins:
+        a, along, L, n = side_of(P, i)
+        fr, gl = window(a, along, n, hole, **kw)
+        frame += fr
+        glass += gl
+    model.add(name + '_FRAMES', 'Frame', frame)
+    model.add(name + '_GLASS', 'Glass', glass)
+
+
+def lamps(model, name, spots):
+    """Ceiling lamps, a flat white box under the ceiling at each spot (x, ceiling, z), which glows
+    at night, and a night light under it in the Custom Shaders Patch config."""
+    out = []
+    for x, c, z in spots:
+        out += sh.box((x - LAMP[0] / 2, c - LAMP[1], z - LAMP[0] / 2), (x + LAMP[0] / 2, c, z + LAMP[0] / 2), faces='nsewb')
+        LAMP_SPOTS.append((x, c - LAMP[1] - .05, z))
+    model.add(name + '_LAMPS', 'Lamp', out)
+
+
+def write_lights():
+    """The buildings' lamps' night lights, as their series in the track's Custom Shaders Patch
+    config (which tools/export_beamng.py makes BeamNG's night lights too)."""
+    path = os.path.join(LAYOUTS, 'extension', 'ext_config.ini')
+    text = open(path, encoding='utf-8', newline='').read()
+    block = '\n'.join([
+        '; The buildings in the middle of the track are lit inside at night by their ceiling lamps,',
+        '; written by tools/build_outside.py where it hangs them.',
+        '[LIGHT_SERIES_3]', 'ACTIVE = 1', 'DESCRIPTION = Building lamps',
+        'COLOR = %s' % LAMP_LIGHT, 'DIRECTION = 0, -1, 0', 'SPOT = 170', 'SPOT_SHARPNESS = 0.2',
+        'RANGE = %g' % LAMP_RANGE, 'RANGE_GRADIENT_OFFSET = 0.3', 'FADE_AT = 300', 'FADE_SMOOTH = 40',
+        'DIFFUSE_CONCENTRATION = 0.6', 'SINGLE_FREQUENCY = 0', 'SHADOWS = 0', 'CONDITION = NIGHT_SMOOTH'] +
+        ['POSITION_%d = %.3f, %.3f, %.3f' % (i, x, y, z) for i, (x, y, z) in enumerate(LAMP_SPOTS)]) + '\n\n'
+    old = re.search(r'; The buildings in the middle of the track are lit inside.*?\n\n', text, re.S)
+    if old:
+        text = text[:old.start()] + block + text[old.end():]
+    else:
+        at = text.index('[MATERIAL_ADJUSTMENT_')
+        at = text.rfind('\n\n', 0, at) + 2
+        text = text[:at] + block + text[at:]
+    open(path, 'w', encoding='utf-8', newline='').write(text)
+    return len(LAMP_SPOTS)
 
 
 # ---- the buildings in the middle of the track ---------------------------------------------------
@@ -880,17 +987,36 @@ def gable_walls(gables, centre, tile=(2., 2.)):
 
 def middle_building(model, name, P, eave, ground):
     """One of the buildings in the middle of the track: grey block walls round the corners P up to
-    eave, a band of glass along them under it, and one rounded roof arched over it from west to
-    east, its gables walled up to it."""
+    eave, a band of steel framed windows along them under it, plastered inside with ceiling lamps
+    in rows, and one rounded roof arched over it from west to east, its gables walled up to it."""
     P = np.asarray(P, float)
     y0 = ground.low(P)
-    model.add(name + '_WALLS', 'GreyWall', sh.walls(P, y0 - .3, eave, tile=(2., 2.)))
+    holes, wins = {}, []
+    for i in range(4):
+        a, along, L, n = side_of(P, i)
+        s0, s1 = BAND_END, L - BAND_END
+        k = max(1, int(round((s1 - s0) / BAND_PANE)))
+        hole = (s0, s1, eave - BAND[0], eave - BAND[1])
+        holes[i] = [hole]
+        wins.append((i, hole, dict(bars=tuple(s0 + (s1 - s0) * j / k for j in range(1, k)))))
+    outer, inner = holed_walls(P, y0 - .3, eave, holes)
+    model.add(name + '_WALLS', 'GreyWall', outer)
     roof, gables = barrel_roof(P, eave)
     model.add(name + '_ROOF', 'RoofDark', roof)
     model.add(name + '_WALLS', 'GreyWall', gable_walls(gables, P.mean(0)))
-    c = P.mean(0)
-    out = P + (P - c) / np.linalg.norm(P - c, axis=1)[:, None] * .04
-    model.add(name + '_GLASS', 'GlassBand', sh.walls(out, eave - BAND[0], eave - BAND[1], tile=(BAND_PANE, BAND[0] - BAND[1])))
+    glazing(model, name, P, wins)
+    model.add(name + '_INSIDE', 'Plaster', inner + sh.poly([(x, eave, z) for x, z in P], n=np.array([0., -1., 0.]), tile=(2., 2.)))
+    model.add(name + '_FLOOR', 'Concrete', sh.poly([(x, y0 + .02, z) for x, z in P], n=np.array([0., 1., 0.]), tile=(2., 2.)))
+    # the lamps in rows, about LAMP_EVERY apart
+    nu = max(1, int(round(np.linalg.norm(P[1] - P[0]) / LAMP_EVERY)))
+    nv = max(1, int(round(np.linalg.norm(P[3] - P[0]) / LAMP_EVERY)))
+    spots = []
+    for i in range(nu):
+        for j in range(nv):
+            u, v = (i + .5) / nu, (j + .5) / nv
+            x, z = (1 - u) * (1 - v) * P[0] + u * (1 - v) * P[1] + u * v * P[2] + (1 - u) * v * P[3]
+            spots.append((x, eave, z))
+    lamps(model, name, spots)
     return y0
 
 
@@ -1161,6 +1287,7 @@ def main():
     for name, (P, eave) in MIDDLE.items():
         middle_building(model, name, P, eave, ground)
     pit_tent(model, ground)
+    print('%d building lamps lit at night' % write_lights())
     fuel_station(model, ground)
     # the banners: along the stand's front wall by R26, and on the south fence west of R15
     banner(model, 'STAND', (-19.01, -21.1), (-9.06, -38.03), .2, 1.45, lift=.5)
