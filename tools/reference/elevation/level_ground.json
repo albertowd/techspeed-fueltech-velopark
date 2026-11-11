@@ -1,0 +1,11 @@
+{
+ "offset_m": 9.641,
+ "google_points": 5316,
+ "ground_points": 1883,
+ "levelled": "2026-11-10",
+ "cell_m": 5.0,
+ "sigma_m": 15.0,
+ "track_min_m": -5.347,
+ "track_max_m": 2.299,
+ "field": "level_ground.npz"
+}

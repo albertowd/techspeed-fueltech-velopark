@@ -1,12 +1,12 @@
 """Build the track for each game from its sources in source/.
 
-    python tools/build_tracks.py [ac] [beamng] [--layout vp_1500] [--pack] [--install] [--content] [--check] [--all]
+    python tools/build_tracks.py [ac] [beamng] [--layout vp_1500] [--pack] [--install] [--all]
 
-    ac        build/ac/content/tracks/techspeed_velopark: each source/models/<name>.glb as
+    ac        build/ac/content/tracks/techspeed_fueltech_velopark: each source/models/<name>.glb as
               <name>.kn5, with source/track copied beside them
-    beamng    build/beamng/levels/techspeed_velopark, from the AC build: one layout
+    beamng    build/beamng/levels/techspeed_fueltech_velopark, from the AC build: one layout
               (--layout, vp_1500 by default), unpacked, to try from BeamNG's mods/unpacked;
-              --pack also packs build/velopark-beamng-<version>.zip
+              --pack also packs build/dist/techspeed-fueltech-velopark-<version>-beamng.zip
     neither   both
 
 Only what changed since the last build is made again: a model whose .glb or textures are as
@@ -14,8 +14,7 @@ they were keeps its kn5, and BeamNG keeps the shapes of the kn5s that stayed the
 makes everything again.
 
 --install copies what changed of the AC build into the game (the folder in release.ps1, or
-AC_TRACKS). --content makes content/ the same as the AC build, as release.ps1 does for a
-release. --check compares the AC build with content/ and lists every file that differs.
+AC_TRACKS).
 """
 import json, os, shutil, sys, time
 
@@ -23,7 +22,7 @@ import gltf_source
 import kn5tree
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TRACK = 'techspeed_velopark'
+TRACK = 'techspeed_fueltech_velopark'
 SOURCE = os.path.join(ROOT, 'source')
 BUILD = os.path.join(ROOT, 'build')
 AC_OUT = os.path.join(BUILD, 'ac', 'content', 'tracks', TRACK)
@@ -91,26 +90,6 @@ def build_ac(everything=False):
     print('AC: %d of %d models made, %d track files updated, in %.1f s: %s' % (made, len(stems), copied, time.time() - t0, AC_OUT))
 
 
-def check():
-    content = os.path.join(ROOT, 'content', 'tracks', TRACK)
-    diff = []
-    for base, _, files in os.walk(content):
-        for f in files:
-            a = os.path.join(base, f)
-            b = os.path.join(AC_OUT, os.path.relpath(a, content))
-            if not os.path.exists(b):
-                diff.append('only in content: ' + os.path.relpath(a, content))
-            elif open(a, 'rb').read() != open(b, 'rb').read():
-                diff.append('differs: ' + os.path.relpath(a, content))
-    for base, _, files in os.walk(AC_OUT):
-        for f in files:
-            b = os.path.join(base, f)
-            if not os.path.exists(os.path.join(content, os.path.relpath(b, AC_OUT))):
-                diff.append('only in the build: ' + os.path.relpath(b, AC_OUT))
-    print('\n'.join(diff) if diff else 'The AC build is the same as content/, file for file.')
-    return not diff
-
-
 def main():
     args = sys.argv[1:]
     games = [a for a in args if a in ('ac', 'beamng')] or ['ac', 'beamng']
@@ -118,11 +97,6 @@ def main():
     everything = '--all' in args
     if 'ac' in games or not os.path.exists(AC_OUT):
         build_ac(everything)
-    if '--content' in args:
-        content = os.path.join(ROOT, 'content', 'tracks', TRACK)
-        print('AC: %d files updated in %s' % (sync(AC_OUT, content), content))
-    if '--check' in args and not check():
-        sys.exit(1)
     if '--install' in args:
         dest = os.path.join(GAME_TRACKS, TRACK)
         print('AC: %d files updated in %s' % (sync(AC_OUT, dest), dest))

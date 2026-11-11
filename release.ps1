@@ -1,29 +1,29 @@
 <#
 .SYNOPSIS
-    Prepares a new release of the Techspeed Velopark track.
+    Prepares a new release of the Techspeed FuelTech Velopark track.
 
 .DESCRIPTION
     Updates the version of the track in its sources, source\track: in its README,
     the layout files and the Custom Shaders Patch config. Then builds both games
-    from source\ with tools\build_tracks.py, makes content\ the same as the
-    Assetto Corsa build, and packs and tests build\velopark-<version>.7z for
-    Assetto Corsa and build\velopark-beamng-<version>.zip for BeamNG.drive.
+    from source\ with tools\build_tracks.py, and packs and tests
+    build\dist\techspeed-fueltech-velopark-<version>-ac.7z for Assetto Corsa and
+    build\dist\techspeed-fueltech-velopark-<version>-beamng.zip for BeamNG.drive.
 
     Add a "## <version>" section to source\track\CHANGELOG.md first: the release
     stops without one. Then commit, tag v<version> and push the tag: the Release
-    action builds the same two archives from content\ and attaches them to a
+    action builds the same two archives from source\ and attaches them to a
     GitHub release, ready to upload to overtake.gg.
 
 .EXAMPLE
-    .\release.ps1 -Version 0.6.0
+    .\release.ps1 -Version 0.7.0
     Updates the version and builds both archives.
 
 .EXAMPLE
-    .\release.ps1 -Version 0.6.0 -Install
+    .\release.ps1 -Version 0.7.0 -Install
     Also copies the track into the game.
 
 .EXAMPLE
-    .\release.ps1 -Version 0.6.0 -DryRun
+    .\release.ps1 -Version 0.7.0 -DryRun
     Shows what would change and touches nothing.
 
 .EXAMPLE
@@ -47,14 +47,14 @@ param(
 
     [string]$GameTracks = 'D:\SteamLibrary\steamapps\common\assettocorsa\content\tracks',
 
-    # The Python with numpy and pillow (in tools\requirements.txt), for the build.
+    # The Python with the packages in tools\requirements.txt, for the build.
     # By default the one in .venv, else the one on the path.
     [string]$Python
 )
 
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
-$trackName = 'techspeed_velopark'
+$trackName = 'techspeed_fueltech_velopark'
 $noBom = New-Object System.Text.UTF8Encoding($false)
 
 function Update-File {
@@ -83,8 +83,9 @@ if ([IO.File]::ReadAllText($changelog) -notmatch $heading) {
 }
 
 $build = Join-Path $root 'build'
-$archive = Join-Path $build "velopark-$Version.7z"
-$beamng = Join-Path $build "velopark-beamng-$Version.zip"
+$dist = Join-Path $build 'dist'
+$archive = Join-Path $dist "techspeed-fueltech-velopark-$Version-ac.7z"
+$beamng = Join-Path $dist "techspeed-fueltech-velopark-$Version-beamng.zip"
 foreach ($a in $archive, $beamng) {
     if ((Test-Path $a) -and -not $Force) { throw "$a already exists. Use -Force to replace it." }
 }
@@ -99,7 +100,7 @@ if (-not $Python) {
 }
 # Its error output would stop the script with Python's traceback in place of the message below.
 $ErrorActionPreference = 'Continue'
-& $Python -c 'import numpy, PIL' 2>$null
+& $Python -c 'import numpy, PIL, scipy, shapely, triangle' 2>$null
 $ErrorActionPreference = 'Stop'
 if ($LASTEXITCODE -ne 0) {
     throw "$Python lacks the packages in tools\requirements.txt. Install them, or pass -Python."
@@ -111,7 +112,7 @@ if ($Install -and (Get-Process acs -ErrorAction SilentlyContinue)) {
 
 $today = (Get-Date).ToString('d MMMM yyyy', [Globalization.CultureInfo]::InvariantCulture)
 Update-File (Join-Path $track 'README.md') '(?m)^Version \d+\.\d+\.\d+,' "Version $Version,"
-Update-File $config '(?m)^; Techspeed Velopark \d+\.\d+\.\d+' "; Techspeed Velopark $Version"
+Update-File $config '(?m)^; Techspeed FuelTech Velopark \d+\.\d+\.\d+' "; Techspeed FuelTech Velopark $Version"
 Update-File $config '(?m)^VERSION = \d+\.\d+\.\d+' "VERSION = $Version"
 if ($Version -ne $oldVersion) {
     Update-File $config '(?m)^DATE_RELEASE = .*$' "DATE_RELEASE = $today"
@@ -125,9 +126,9 @@ if ($DryRun) {
     return
 }
 
-# Both games from the sources, content\ made the same as the Assetto Corsa build, and the
+# Both games from the sources, everything made again as the Release action does, and the
 # BeamNG archive packed. -Install copies the track into the folder -GameTracks names.
-$buildArgs = @('--pack', '--content', '--check')
+$buildArgs = @('ac', 'beamng', '--all', '--pack')
 if ($Install) { $buildArgs += '--install' }
 $env:AC_TRACKS = $GameTracks
 & $Python (Join-Path $root 'tools\build_tracks.py') @buildArgs
@@ -135,7 +136,7 @@ if ($LASTEXITCODE -ne 0) { throw "The build failed with exit code $LASTEXITCODE.
 if (-not (Test-Path $beamng)) { throw "The build did not make $beamng." }
 
 # Built beside the final name, so a failed build leaves the old archive intact.
-New-Item -ItemType Directory -Force -Path $build | Out-Null
+New-Item -ItemType Directory -Force -Path $dist | Out-Null
 $temp = "$archive.new"
 if (Test-Path $temp) { Remove-Item -LiteralPath $temp -Confirm:$false }
 Push-Location (Join-Path $build 'ac')

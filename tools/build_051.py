@@ -1,9 +1,9 @@
 """Build the 0.5.1 test: new kerbs on T1-T3 of the 1500 (and the Amateur corner after T1),
 new light poles with their night lights recomputed, and the lowered start panel.
 
-Copies base/velopark-0.5.0 to build/velopark-0.5.1 and only ever writes inside the copy.
-The track in content/ is what this made; copy build/velopark-0.5.1/content over it to take a
-rebuild. Do not after content/ has moved on from 0.5.1: it would undo those changes.
+Copies base/velopark-0.5.0 to build/ac/velopark-0.5.1 and only ever writes inside the copy.
+0.5.1 was released from what this made; the track has been made from its sources in source/
+since 0.6.0, which this does not touch.
 """
 import glob, io, json, math, os, re, shutil, struct, sys, types
 
@@ -19,7 +19,7 @@ from build_preview import BLOCK, TILE, A_DEPTH, B_WIDTH
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'base', 'velopark-0.5.0')
-DST = os.path.join(ROOT, 'build', 'velopark-0.5.1')
+DST = os.path.join(ROOT, 'build', 'ac', 'velopark-0.5.1')
 TRACK = os.path.join(DST, 'content', 'tracks', 'techspeed_velopark')
 TEX = bp.TEX
 VERSION = '0.5.1'
@@ -3453,4 +3453,4 @@ def versions():
 
 if __name__ == '__main__':
     build()
-    open(os.path.join(ROOT, 'build', 'build_051.log'), 'w').write('\n'.join(REPORT) + '\n')
+    open(os.path.join(ROOT, 'build', 'ac', 'build_051.log'), 'w').write('\n'.join(REPORT) + '\n')

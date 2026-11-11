@@ -1,6 +1,6 @@
 """Draw the track from above with the name of every road and kerb on it, to talk about them by
-name: python tools/track_map.py [out.png]. Reads the track in content/, x to the left and z
-up, as it lies on the ground."""
+name: python tools/track_map.py [out.png]. Reads the Assetto Corsa build in build/ac (python
+tools/build_tracks.py ac first), x to the left and z up, as it lies on the ground."""
 import os, sys
 
 import numpy as np
@@ -11,12 +11,13 @@ from shapely.ops import unary_union
 import kn5io
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TRACK = os.path.join(ROOT, 'content', 'tracks', 'techspeed_velopark')
+TRACK = os.path.join(ROOT, 'build', 'ac', 'content', 'tracks', 'techspeed_fueltech_velopark')
 OUT = os.path.join(ROOT, 'docs', 'track_map.png')
 SCALE = 9.            # pixels a metre
-GRASS, ROAD, PADDOCK = (196, 214, 170), (150, 150, 150), (178, 172, 160)
+GRASS, ROAD, PADDOCK, PAVING = (196, 214, 170), (150, 150, 150), (178, 172, 160), (206, 200, 186)
 KERBS = {'KerbConcrete': ((40, 90, 200), 'concrete kerb'), 'KerbRamp': ((214, 50, 50), 'ramp kerb'),
-         'KerbFloor': ((230, 140, 20), 'floor kerb'), 'Rumble1': ((200, 60, 200), 'old kerb')}
+         'KerbFloor': ((230, 140, 20), 'floor kerb'),
+         'KerbRound': ((235, 195, 0), 'round kerb'), 'Rumble1': ((200, 60, 200), 'old kerb')}
 
 
 def font(size, bold=False):
@@ -50,7 +51,7 @@ def main(out):
     kerbs = kn5io.Model(os.path.join(TRACK, 'velopark_kerbs.kn5'))
     kids = kn5io.Model(os.path.join(TRACK, 'velopark_kids.kn5'))
     paddock = kn5io.Model(os.path.join(TRACK, 'velopark_paddock.kn5'))
-    roads, kerb_shapes, pad_rest = [], [], []
+    roads, kerb_shapes, pad_rest, paving = [], [], [], []
     for mdl in (model, kerbs, kids):
         for m in mdl.meshes:
             n, mat = m['name'], mdl.material_name(m)
@@ -59,6 +60,10 @@ def main(out):
                 if len(t):
                     label = n[len('1ROAD_KERB_'):] if n.startswith('1ROAD_KERB_') else n.replace('1ROAD_', 'R')
                     kerb_shapes.append((label, mat, t))
+            elif mat == 'Pavers':
+                t = triangles(m)
+                if len(t):
+                    paving.append((n if 'PATCH' not in n and 'PAVERS' not in n else None, t))
             elif n.startswith('1ROAD_PADDOCK'):
                 # what is left of the paddock's asphalt where the build cut it: paddock still
                 pad_rest.append(triangles(m))
@@ -66,9 +71,16 @@ def main(out):
                 t = triangles(m)
                 if len(t):
                     # the asphalt round the new kerbs and the patches filling the ground are drawn, unnamed
-                    roads.append((None if 'KERB' in n or 'PATCH' in n else n, t))
-    pad = np.concatenate([triangles(m) for m in paddock.meshes if m['name'].startswith('1ROAD')] + pad_rest)
-    every = np.concatenate([t for _, t in roads] + [pad])
+                    roads.append((None if 'KERB' in n or 'PATCH' in n or n.endswith('_ASPHALT') else n, t))
+    # the paths across the infield (tools/build_paths.py), roads of their own in the paddock's model
+    for m in paddock.meshes:
+        if m['name'].startswith('1ROAD_PATH_'):
+            t = triangles(m)
+            if len(t):
+                roads.append((m['name'], t))
+    pad = np.concatenate([triangles(m) for m in paddock.meshes if m['name'].startswith('1ROAD') and
+                          not m['name'].startswith('1ROAD_PATH_')] + pad_rest)
+    every = np.concatenate([t for _, t in roads] + [pad] + [t for _, t in paving])
     lo, hi = every.reshape(-1, 2).min(0) - 10, every.reshape(-1, 2).max(0) + 10
     W, H = ((hi - lo) * SCALE).astype(int) + (0, 120)
     # x runs left and z up, so the track lies as it does on the ground
@@ -80,6 +92,9 @@ def main(out):
     for _, tri in roads:
         for t in tri:
             d.polygon(P(t), fill=ROAD)
+    for _, tri in paving:
+        for t in tri:
+            d.polygon(P(t), fill=PAVING)
     # the road meshes' outlines, so where one ends and the next starts shows
     for name, tri in roads:
         if name:
@@ -89,14 +104,14 @@ def main(out):
         for t in tri:
             d.polygon(P(t), fill=KERBS[mat][0])
     name_font = font(20, True)
-    for name, tri in roads:
+    for name, tri in roads + paving:
         if not name:
             continue
         g = largest(shape(tri))
         if g.area < 2:
             continue
         x, y = P([g.representative_point().coords[0]])[0]
-        d.text((x, y), name.replace('1ROAD_RUNOFF_', 'RUNOFF ').replace('1ROAD_', 'R'), font=name_font, fill=(30, 30, 30), anchor='mm',
+        d.text((x, y), name.replace('1ROAD_RUNOFF_', 'RUNOFF ').replace('1ROAD_PATH_', 'PATH ').replace('1ROAD_', 'R').replace('1KERB_', 'R'), font=name_font, fill=(30, 30, 30), anchor='mm',
                stroke_width=2, stroke_fill=(235, 235, 235))
     for label, mat, tri in kerb_shapes:
         c = tri.reshape(-1, 2)
@@ -105,12 +120,12 @@ def main(out):
         d.text((x, y), label, font=name_font, fill=KERBS[mat][0], anchor='mm', stroke_width=3, stroke_fill='white')
     # key
     d.rectangle((0, 0, W, 110), fill='white')
-    d.text((20, 14), 'Techspeed Velopark: roads and kerbs by name', font=font(30, True), fill=(20, 20, 20))
+    d.text((20, 14), 'Techspeed FuelTech Velopark: roads and kerbs by name', font=font(30, True), fill=(20, 20, 20))
     d.text((20, 58), 'Roads are the 1ROAD_ meshes of velopark.kn5 (R17 = 1ROAD_17); kerbs are the 1ROAD_KERB_ meshes of '
-                     'velopark_kerbs.kn5, named as in tools/build_051.py; the kids track\'s are in velopark_kids.kn5. x runs left, z up.',
+                     'velopark_kerbs.kn5, named as in tools/build_051.py and tools/build_round_kerbs.py; the kids track\'s are in velopark_kids.kn5. x runs left, z up.',
            font=font(17), fill=(60, 60, 60))
     x = 20
-    for col, what in [(ROAD, 'road'), (PADDOCK, 'paddock')] + [KERBS[k] for k in KERBS if any(m == k for _, m, _ in kerb_shapes)]:
+    for col, what in [(ROAD, 'road'), (PAVING, 'paving'), (PADDOCK, 'paddock')] + [KERBS[k] for k in KERBS if any(m == k for _, m, _ in kerb_shapes)]:
         d.rectangle((x, 86, x + 22, 104), fill=col, outline=(80, 80, 80))
         d.text((x + 30, 84), what, font=font(17), fill=(40, 40, 40))
         x += 60 + int(d.textlength(what, font=font(17)))
@@ -119,7 +134,7 @@ def main(out):
     d.text((W - 140, 70), '50 m', font=font(17), fill=(20, 20, 20))
     os.makedirs(os.path.dirname(out), exist_ok=True)
     im.save(out, optimize=True)
-    print('%s: %d roads, %d kerbs, %dx%d' % (out, sum(1 for n, _ in roads if n), len(kerb_shapes), W, H))
+    print('%s: %d roads, %d paved, %d kerbs, %dx%d' % (out, sum(1 for n, _ in roads if n), len(paving), len(kerb_shapes), W, H))
 
 
 if __name__ == '__main__':

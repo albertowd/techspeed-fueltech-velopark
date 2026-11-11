@@ -133,7 +133,7 @@ def to_gltf(k, tex_uri):
                unused_materials=[[g['name'], g['extras']['kn5']] for i, g in enumerate(materials) if i not in used])
     # on the root node too: Blender drops the file's own extras, but keeps a node's
     nodes[root]['extras']['kn5']['file'] = top
-    doc = dict(asset=dict(version='2.0', generator='kart-velopark gltf_source'), scene=0, scenes=[dict(nodes=[root])],
+    doc = dict(asset=dict(version='2.0', generator='techspeed-fueltech-velopark gltf_source'), scene=0, scenes=[dict(nodes=[root])],
                nodes=nodes, meshes=meshes, materials=materials, textures=textures, images=images,
                buffers=[dict(byteLength=b.size)], bufferViews=b.views, accessors=b.accessors, extras=dict(kn5=top))
     for key in ('meshes', 'materials', 'textures', 'images', 'bufferViews', 'accessors'):

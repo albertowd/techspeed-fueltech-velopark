@@ -1,5 +1,51 @@
 # Changelog
 
+## 0.7.0
+
+Renamed to Techspeed FuelTech Velopark. The track now lies on the real ground's heights, with the buildings, fences and trees round it rebuilt, and BeamNG.drive gets AI races.
+
+- Renamed to Techspeed FuelTech Velopark, in the new folder `techspeed_fueltech_velopark`: delete the old `techspeed_velopark` folder.
+
+### Both games
+
+- Ground and track at the real ground's heights; no grade over 2.7%.
+- Dirt roads along the north and west of the property.
+- Fences round the property, the vp_1000 and the south pits.
+- Buildings round the track: sheds, houses, barn, judges' tower, Velogrill and sports court.
+- Paddock buildings in grey block with salmon pillars.
+- Race control tower, lit at night with Custom Shaders Patch.
+- Fuel station in the R27 loop.
+- Techspeed banners by R26 and on the south fence.
+- Flag marshal tents and flagpoles at the starts.
+- 3D eucalyptus plantation along the north and west.
+- Woods, broad leaf trees, palms and bamboo round the property.
+- Tree trunks can be hit.
+- Tyre walls, poles and trees stand on the ground.
+- Concrete paving on R29 and the floor kerb run-offs.
+- Yellow round kerbs through the middle of the track.
+- Asphalt paths across the infield.
+- Car park asphalt with painted bays.
+- Line across the road before T12.
+- Distance boards can be knocked over.
+- Start gantry legs as on the real gantry.
+- No more steps between roads.
+- No more invisible walls on the asphalt.
+- Grass instead of asphalt round K1_T3 and K1_T4.
+- Asphalt texture no longer stretched on the pit lanes.
+
+### BeamNG.drive
+
+- New download name: `techspeed-fueltech-velopark-0.7.0-beamng.zip`.
+- AI race on every layout, against up to 35 karts.
+- Time trials listed in BeamNG's Time Trials.
+- Every layout's cones and boards in free roam.
+- Pole lights on at night only.
+- Softer grass, so tyres don't sink.
+- Infield paths and pit lanes on the map.
+- Cones with a white band.
+- Karts face the right way on the grid.
+- Races no longer show 1969 as their date.
+
 ## 0.6.0
 
 The track for BeamNG.drive, with races and a working start gantry, and a few fixes.

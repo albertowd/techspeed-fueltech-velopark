@@ -8,7 +8,7 @@
 		"-51.323484"
 	],
 	"length": "1004",
-	"name": "Techspeed Velopark 1000",
+	"name": "Techspeed FuelTech Velopark 1000",
 	"pitboxes": "24",
 	"run": "clockwise",
 	"tags": [
@@ -18,5 +18,5 @@
 	],
 	"year": "2020",
 	"width": "10",
-	"version": "0.6.0"
+	"version": "0.7.0"
 }

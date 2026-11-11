@@ -1,0 +1,76 @@
+{
+ "google_file": "google_2026-11-10.json",
+ "compared": "2026-11-10",
+ "offset_m": 9.723,
+ "note": "track y + offset_m is the height Google gives, at the median on the roads; difference is Google less that; regions: road (1ROAD_ of velopark.glb), trees (build_trees.band, off the roads), ground (the rest)",
+ "track_y": {
+  "min": -2.148,
+  "max": 3.54
+ },
+ "google": {
+  "min": 6.795,
+  "max": 30.611,
+  "resolution_m": [
+   9.54
+  ]
+ },
+ "difference": {
+  "road": {
+   "points": 341,
+   "mean": 0.013,
+   "rms": 0.291,
+   "min": -0.7,
+   "max": 0.955,
+   "p05": -0.452,
+   "p95": 0.532
+  },
+  "ground": {
+   "points": 1448,
+   "mean": 0.053,
+   "rms": 0.48,
+   "min": -1.201,
+   "max": 2.265,
+   "p05": -0.61,
+   "p95": 0.996
+  },
+  "trees": {
+   "points": 977,
+   "mean": 3.45,
+   "rms": 6.736,
+   "min": -1.92,
+   "max": 18.521,
+   "p05": -0.69,
+   "p95": 16.001
+  }
+ },
+ "tilt": {
+  "per_100m_x": -0.049,
+  "per_100m_z": -0.087,
+  "degrees": 0.057,
+  "falls_toward_bearing": 330.6
+ },
+ "difference_less_tilt": {
+  "road": {
+   "points": 341,
+   "mean": 0.0,
+   "rms": 0.279,
+   "min": -0.668,
+   "max": 0.872,
+   "p05": -0.441,
+   "p95": 0.459
+  },
+  "ground": {
+   "points": 1448,
+   "mean": -0.061,
+   "rms": 0.472,
+   "min": -1.271,
+   "max": 2.063,
+   "p05": -0.751,
+   "p95": 0.813
+  }
+ },
+ "correlation": {
+  "road": 0.9282,
+  "ground": 0.8308
+ }
+}

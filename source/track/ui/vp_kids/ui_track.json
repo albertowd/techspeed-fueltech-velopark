@@ -8,7 +8,7 @@
 		"-51.323484"
 	],
 	"length": "227",
-	"name": "Techspeed Velopark Kids",
+	"name": "Techspeed FuelTech Velopark Kids",
 	"pitboxes": "3",
 	"run": "anticlockwise",
 	"tags": [
@@ -18,5 +18,5 @@
 	],
 	"year": "2020",
 	"width": "6",
-	"version": "0.6.0"
+	"version": "0.7.0"
 }

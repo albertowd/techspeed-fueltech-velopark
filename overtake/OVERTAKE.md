@@ -1,14 +1,14 @@
-Title: Techspeed Velopark
+Title: Techspeed FuelTech Velopark
 Version: 0.5.0
-Tag line: The Techspeed Velopark kart circuit in Nova Santa Rita, Brazil, with 8 layouts and a live start gantry.
+Tag line: The Techspeed FuelTech Velopark kart circuit in Nova Santa Rita, Brazil, with 8 layouts and a live start gantry.
 
 ----- paste everything below into the description -----
 
-[HEADING=1]Techspeed Velopark[/HEADING]
+[HEADING=1]Techspeed FuelTech Velopark[/HEADING]
 
-The Techspeed Velopark karting circuit in Nova Santa Rita, Brazil, built for go-karts. Eight layouts, from a 227 m kids track to a 2.5 km endurance layout, on ground traced from satellite imagery.
+The Techspeed FuelTech Velopark karting circuit in Nova Santa Rita, Brazil, built for go-karts. Eight layouts, from a 227 m kids track to a 2.5 km endurance layout, on ground traced from satellite imagery.
 
-[SCREENSHOT: ../docs/screens/1-grid.jpg]
+[SCREENSHOT: ../docs/screens/ac/1-grid-night.jpg]
 
 [MEDIA=youtube]YOUTUBE_VIDEO_ID[/MEDIA]
 
@@ -16,14 +16,14 @@ The Techspeed Velopark karting circuit in Nova Santa Rita, Brazil, built for go-
 
 [TABLE]
 [TR][TH]Layout[/TH][TH]Length[/TH][TH]Direction[/TH][TH]Max karts[/TH][/TR]
-[TR][TD]Techspeed Velopark 1000[/TD][TD]1004 m[/TD][TD]Clockwise[/TD][TD]24[/TD][/TR]
-[TR][TD]Techspeed Velopark 1500[/TD][TD]1517 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
-[TR][TD]Techspeed Velopark 1500 Amateur[/TD][TD]1477 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
-[TR][TD]Techspeed Velopark 1500 Short[/TD][TD]1217 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
-[TR][TD]Techspeed Velopark 1500 Short Amateur[/TD][TD]1180 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
-[TR][TD]Techspeed Velopark 1500 Hotlap[/TD][TD]1517 m[/TD][TD]Clockwise[/TD][TD]36[/TD][/TR]
-[TR][TD]Techspeed Velopark 2500[/TD][TD]2541 m[/TD][TD]Clockwise[/TD][TD]32[/TD][/TR]
-[TR][TD]Techspeed Velopark Kids[/TD][TD]227 m[/TD][TD]Anticlockwise[/TD][TD]3[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark 1000[/TD][TD]1004 m[/TD][TD]Clockwise[/TD][TD]24[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark 1500[/TD][TD]1517 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark 1500 Amateur[/TD][TD]1477 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark 1500 Short[/TD][TD]1217 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark 1500 Short Amateur[/TD][TD]1180 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark 1500 Hotlap[/TD][TD]1517 m[/TD][TD]Clockwise[/TD][TD]36[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark 2500[/TD][TD]2541 m[/TD][TD]Clockwise[/TD][TD]32[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark Kids[/TD][TD]227 m[/TD][TD]Anticlockwise[/TD][TD]3[/TD][/TR]
 [/TABLE]
 
 [LIST]
@@ -36,8 +36,6 @@ The Techspeed Velopark karting circuit in Nova Santa Rita, Brazil, built for go-
 [*][B]Velopark 2500:[/B] a long race layout that combines the 1500 and the 1000, used in 2h, 4h, 6h and 12h races overnight.
 [*][B]Velopark Kids:[/B] a kids track managed by a professor, teaching kids who are not old enough to race on the real track.
 [/LIST]
-
-[SCREENSHOT: ../docs/screens/2-kids.jpg]
 
 [HEADING=2]Features[/HEADING]
 
@@ -53,9 +51,7 @@ The Techspeed Velopark karting circuit in Nova Santa Rita, Brazil, built for go-
 [*]3D grass, rain effects and night lights with Custom Shaders Patch.
 [/LIST]
 
-[SCREENSHOT: ../docs/screens/3-gantry-night.jpg]
-
-[SCREENSHOT: ../docs/screens/4-night-overview.jpg]
+[SCREENSHOT: ../docs/screens/ac/2-night-overview.jpg]
 
 [HEADING=2]Requirements[/HEADING]
 
@@ -63,7 +59,7 @@ Custom Shaders Patch is recommended. It adds the grass, rain effects, night ligh
 
 [HEADING=2]Installing[/HEADING]
 
-Copy the [B]techspeed_velopark[/B] folder into [B]assettocorsa/content/tracks[/B]. If you have an older version in a [B]velopark[/B] or [B]kart_velopark[/B] folder, delete that folder.
+Copy the [B]techspeed_fueltech_velopark[/B] folder into [B]assettocorsa/content/tracks[/B]. If you have an older version in a [B]techspeed_velopark[/B], [B]velopark[/B] or [B]kart_velopark[/B] folder, delete that folder.
 
 Servers need this same version of the track. The Kids layout must be added to the server as its own layout.
 

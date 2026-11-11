@@ -1,0 +1,370 @@
+{
+ "google_file": "google_2026-11-10.json",
+ "compared": "2026-11-10",
+ "note": "How near Google's heights come to the track's ground, interpolated each of the ways a terrain is commonly made from points, from points SPACINGS apart: so whether the way the points were interpolated, or how far apart they were, is what the track's ground has from them. The points in the plantation are left out, being its tops; each way is measured against the track's top surface half a grid cell off the points, on the roads and the open ground, less the median difference.",
+ "measured_points": 1722,
+ "track_relief_m": 5.438,
+ "relief": "the 1st to 99th percentile of the heights at the points measured",
+ "results": [
+  {
+   "spacing_m": 10,
+   "way": "nearest",
+   "points_in": 1914,
+   "measured": 1722,
+   "rms_m": 1.184,
+   "p95_abs_m": 2.472,
+   "correlation": 0.2164,
+   "relief_m": 3.653
+  },
+  {
+   "spacing_m": 10,
+   "way": "linear (Delaunay triangles)",
+   "points_in": 1914,
+   "measured": 1679,
+   "rms_m": 1.186,
+   "p95_abs_m": 2.622,
+   "correlation": 0.2086,
+   "relief_m": 3.587
+  },
+  {
+   "spacing_m": 10,
+   "way": "cubic (Clough-Tocher)",
+   "points_in": 1914,
+   "measured": 1679,
+   "rms_m": 1.188,
+   "p95_abs_m": 2.594,
+   "correlation": 0.2064,
+   "relief_m": 3.656
+  },
+  {
+   "spacing_m": 10,
+   "way": "inverse distance (power 2, 8 nearest)",
+   "points_in": 1914,
+   "measured": 1722,
+   "rms_m": 1.18,
+   "p95_abs_m": 2.537,
+   "correlation": 0.2236,
+   "relief_m": 3.503
+  },
+  {
+   "spacing_m": 10,
+   "way": "thin plate spline",
+   "points_in": 1914,
+   "measured": 1722,
+   "rms_m": 1.189,
+   "p95_abs_m": 2.523,
+   "correlation": 0.2227,
+   "relief_m": 3.646
+  },
+  {
+   "spacing_m": 10,
+   "way": "thin plate spline, smoothed",
+   "points_in": 1914,
+   "measured": 1722,
+   "rms_m": 1.182,
+   "p95_abs_m": 2.567,
+   "correlation": 0.2263,
+   "relief_m": 3.524
+  },
+  {
+   "spacing_m": 20,
+   "way": "nearest",
+   "points_in": 481,
+   "measured": 1722,
+   "rms_m": 1.189,
+   "p95_abs_m": 2.533,
+   "correlation": 0.218,
+   "relief_m": 3.687
+  },
+  {
+   "spacing_m": 20,
+   "way": "linear (Delaunay triangles)",
+   "points_in": 481,
+   "measured": 1634,
+   "rms_m": 1.188,
+   "p95_abs_m": 2.668,
+   "correlation": 0.1912,
+   "relief_m": 3.468
+  },
+  {
+   "spacing_m": 20,
+   "way": "cubic (Clough-Tocher)",
+   "points_in": 481,
+   "measured": 1634,
+   "rms_m": 1.195,
+   "p95_abs_m": 2.693,
+   "correlation": 0.1883,
+   "relief_m": 3.655
+  },
+  {
+   "spacing_m": 20,
+   "way": "inverse distance (power 2, 8 nearest)",
+   "points_in": 481,
+   "measured": 1722,
+   "rms_m": 1.179,
+   "p95_abs_m": 2.584,
+   "correlation": 0.221,
+   "relief_m": 3.429
+  },
+  {
+   "spacing_m": 20,
+   "way": "thin plate spline",
+   "points_in": 481,
+   "measured": 1722,
+   "rms_m": 1.188,
+   "p95_abs_m": 2.584,
+   "correlation": 0.2211,
+   "relief_m": 3.628
+  },
+  {
+   "spacing_m": 20,
+   "way": "thin plate spline, smoothed",
+   "points_in": 481,
+   "measured": 1722,
+   "rms_m": 1.182,
+   "p95_abs_m": 2.585,
+   "correlation": 0.2249,
+   "relief_m": 3.536
+  },
+  {
+   "spacing_m": 40,
+   "way": "nearest",
+   "points_in": 133,
+   "measured": 1722,
+   "rms_m": 1.188,
+   "p95_abs_m": 2.62,
+   "correlation": 0.2203,
+   "relief_m": 3.698
+  },
+  {
+   "spacing_m": 40,
+   "way": "linear (Delaunay triangles)",
+   "points_in": 133,
+   "measured": 1634,
+   "rms_m": 1.181,
+   "p95_abs_m": 2.797,
+   "correlation": 0.1899,
+   "relief_m": 3.468
+  },
+  {
+   "spacing_m": 40,
+   "way": "cubic (Clough-Tocher)",
+   "points_in": 133,
+   "measured": 1634,
+   "rms_m": 1.185,
+   "p95_abs_m": 2.803,
+   "correlation": 0.1964,
+   "relief_m": 3.744
+  },
+  {
+   "spacing_m": 40,
+   "way": "inverse distance (power 2, 8 nearest)",
+   "points_in": 133,
+   "measured": 1722,
+   "rms_m": 1.166,
+   "p95_abs_m": 2.664,
+   "correlation": 0.2142,
+   "relief_m": 3.145
+  },
+  {
+   "spacing_m": 40,
+   "way": "thin plate spline",
+   "points_in": 133,
+   "measured": 1722,
+   "rms_m": 1.172,
+   "p95_abs_m": 2.618,
+   "correlation": 0.2347,
+   "relief_m": 3.671
+  },
+  {
+   "spacing_m": 40,
+   "way": "thin plate spline, smoothed",
+   "points_in": 133,
+   "measured": 1722,
+   "rms_m": 1.171,
+   "p95_abs_m": 2.636,
+   "correlation": 0.2352,
+   "relief_m": 3.629
+  },
+  {
+   "spacing_m": 60,
+   "way": "nearest",
+   "points_in": 55,
+   "measured": 1722,
+   "rms_m": 1.143,
+   "p95_abs_m": 2.346,
+   "correlation": 0.2334,
+   "relief_m": 3.166
+  },
+  {
+   "spacing_m": 60,
+   "way": "linear (Delaunay triangles)",
+   "points_in": 55,
+   "measured": 1441,
+   "rms_m": 1.194,
+   "p95_abs_m": 2.863,
+   "correlation": 0.1265,
+   "relief_m": 2.784
+  },
+  {
+   "spacing_m": 60,
+   "way": "cubic (Clough-Tocher)",
+   "points_in": 55,
+   "measured": 1441,
+   "rms_m": 1.199,
+   "p95_abs_m": 2.789,
+   "correlation": 0.1641,
+   "relief_m": 3.196
+  },
+  {
+   "spacing_m": 60,
+   "way": "inverse distance (power 2, 8 nearest)",
+   "points_in": 55,
+   "measured": 1722,
+   "rms_m": 1.12,
+   "p95_abs_m": 2.514,
+   "correlation": 0.1981,
+   "relief_m": 2.589
+  },
+  {
+   "spacing_m": 60,
+   "way": "thin plate spline",
+   "points_in": 55,
+   "measured": 1722,
+   "rms_m": 1.11,
+   "p95_abs_m": 2.424,
+   "correlation": 0.2985,
+   "relief_m": 3.304
+  },
+  {
+   "spacing_m": 60,
+   "way": "thin plate spline, smoothed",
+   "points_in": 55,
+   "measured": 1722,
+   "rms_m": 1.109,
+   "p95_abs_m": 2.423,
+   "correlation": 0.2984,
+   "relief_m": 3.293
+  },
+  {
+   "spacing_m": 80,
+   "way": "nearest",
+   "points_in": 40,
+   "measured": 1722,
+   "rms_m": 1.224,
+   "p95_abs_m": 2.64,
+   "correlation": 0.1886,
+   "relief_m": 4.145
+  },
+  {
+   "spacing_m": 80,
+   "way": "linear (Delaunay triangles)",
+   "points_in": 40,
+   "measured": 1634,
+   "rms_m": 1.195,
+   "p95_abs_m": 2.811,
+   "correlation": 0.1101,
+   "relief_m": 3.218
+  },
+  {
+   "spacing_m": 80,
+   "way": "cubic (Clough-Tocher)",
+   "points_in": 40,
+   "measured": 1634,
+   "rms_m": 1.226,
+   "p95_abs_m": 2.935,
+   "correlation": 0.1358,
+   "relief_m": 3.818
+  },
+  {
+   "spacing_m": 80,
+   "way": "inverse distance (power 2, 8 nearest)",
+   "points_in": 40,
+   "measured": 1722,
+   "rms_m": 1.171,
+   "p95_abs_m": 2.664,
+   "correlation": 0.1533,
+   "relief_m": 3.112
+  },
+  {
+   "spacing_m": 80,
+   "way": "thin plate spline",
+   "points_in": 40,
+   "measured": 1722,
+   "rms_m": 1.198,
+   "p95_abs_m": 2.803,
+   "correlation": 0.1983,
+   "relief_m": 3.718
+  },
+  {
+   "spacing_m": 80,
+   "way": "thin plate spline, smoothed",
+   "points_in": 40,
+   "measured": 1722,
+   "rms_m": 1.198,
+   "p95_abs_m": 2.802,
+   "correlation": 0.1982,
+   "relief_m": 3.71
+  },
+  {
+   "spacing_m": 120,
+   "way": "nearest",
+   "points_in": 17,
+   "measured": 1722,
+   "rms_m": 1.118,
+   "p95_abs_m": 2.005,
+   "correlation": 0.2917,
+   "relief_m": 3.487
+  },
+  {
+   "spacing_m": 120,
+   "way": "linear (Delaunay triangles)",
+   "points_in": 17,
+   "measured": 1414,
+   "rms_m": 1.155,
+   "p95_abs_m": 2.781,
+   "correlation": 0.15,
+   "relief_m": 3.01
+  },
+  {
+   "spacing_m": 120,
+   "way": "cubic (Clough-Tocher)",
+   "points_in": 17,
+   "measured": 1414,
+   "rms_m": 1.174,
+   "p95_abs_m": 2.786,
+   "correlation": 0.2028,
+   "relief_m": 3.366
+  },
+  {
+   "spacing_m": 120,
+   "way": "inverse distance (power 2, 8 nearest)",
+   "points_in": 17,
+   "measured": 1722,
+   "rms_m": 1.035,
+   "p95_abs_m": 2.041,
+   "correlation": 0.2717,
+   "relief_m": 2.552
+  },
+  {
+   "spacing_m": 120,
+   "way": "thin plate spline",
+   "points_in": 17,
+   "measured": 1722,
+   "rms_m": 1.074,
+   "p95_abs_m": 2.224,
+   "correlation": 0.3264,
+   "relief_m": 3.196
+  },
+  {
+   "spacing_m": 120,
+   "way": "thin plate spline, smoothed",
+   "points_in": 17,
+   "measured": 1722,
+   "rms_m": 1.074,
+   "p95_abs_m": 2.224,
+   "correlation": 0.3263,
+   "relief_m": 3.194
+  }
+ ]
+}

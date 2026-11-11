@@ -3,7 +3,7 @@ script in the track's ext_config.ini draws them in Assetto Corsa.
 
 BeamNG draws no text on a texture without a web page, so the board is made the way its own
 fuel price signs and drag strip timing boards are: a small shape for each character, glowing
-red like LEDs, which the level's Lua (beamng/lua/ge/extensions/techspeedVelopark/board.lua)
+red like LEDs, which the level's Lua (beamng/lua/ge/extensions/techspeedFueltechVelopark/board.lua)
 swaps as the times change. This writes those shapes, one per character, and board.json: where
 each character of each row stands on each face of each gantry, laid out as the patch script
 lays out its text on the board's texture (DISPLAY_POS and the row positions there), carried

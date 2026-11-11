@@ -1,6 +1,7 @@
-"""Turn the built track in content/ into the track's sources, once:
+"""Turn a built track into the track's sources, once: it made source/ from the 0.5.1 track, as
+released, in 0.6.0.
 
-    python tools/extract_sources.py [track folder] [--force]
+    python tools/extract_sources.py <track folder> [--force]
 
     source/models/<name>.glb     each kn5, as a glTF binary (see gltf_source.py)
     source/textures/<file>       their textures, each once; one that two models hold
@@ -22,7 +23,9 @@ SOURCE = os.path.join(ROOT, 'source')
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
-    track = args[0] if args else os.path.join(ROOT, 'content', 'tracks', 'techspeed_velopark')
+    if not args:
+        sys.exit('pass the built track folder to take the sources from')
+    track = args[0]
     if os.path.exists(SOURCE) and '--force' not in sys.argv:
         sys.exit('%s is there already: it is the track now. Pass --force to write over it.' % SOURCE)
     models, textures, rest = (os.path.join(SOURCE, d) for d in ('models', 'textures', 'track'))

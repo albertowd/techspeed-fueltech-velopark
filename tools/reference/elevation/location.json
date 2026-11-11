@@ -1,0 +1,36 @@
+{
+ "about": "AC's (x, z) to the Earth: east, north = R(theta) (-x, z) + (east, north), in metres from geotag; lat, lon from them on a sphere of radius 6378137 m",
+ "made": "2026-11-10",
+ "geotag": [
+  -29.821383,
+  -51.324252
+ ],
+ "theta": -0.01467011852150257,
+ "theta_degrees": -0.8405,
+ "east": -8.158,
+ "north": -117.492,
+ "origin_latlon": [
+  -29.8224384,
+  -51.3243365
+ ],
+ "osm_ways": [
+  94747826,
+  94747831,
+  94748799,
+  94748806,
+  161806598,
+  161806616,
+  629631250,
+  629631254,
+  629631258,
+  629631259,
+  629631260,
+  629631261,
+  629631263,
+  629631264,
+  737706581
+ ],
+ "osm_points": 1770,
+ "on_road": 0.9073,
+ "off_road_p95_m": 70.08
+}

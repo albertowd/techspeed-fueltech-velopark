@@ -1,4 +1,4 @@
-"""Render the 0.5.1 corners straight from the built kn5 files."""
+"""Render the 0.5.1 corners straight from the kn5 files build_051.py builds."""
 import math, os, sys
 
 import numpy as np
@@ -7,7 +7,7 @@ from PIL import Image
 import kn5io
 import build_preview as bp
 
-TRACK = os.path.join(bp.ROOT, 'content', 'tracks', 'techspeed_velopark')
+TRACK = os.path.join(bp.ROOT, 'build', 'ac', 'velopark-0.5.1', 'content', 'tracks', 'techspeed_velopark')
 OUT = os.path.join(bp.OUT, 'render', 'test051')
 CACHE = os.path.join(OUT, 'tex')
 

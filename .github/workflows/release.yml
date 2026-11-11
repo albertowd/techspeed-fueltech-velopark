@@ -1,8 +1,8 @@
 name: Release
 
-# Push a tag like v0.5.1 to build velopark-0.5.1.7z for Assetto Corsa (for overtake.gg) and
-# velopark-beamng-0.5.1.zip for BeamNG.drive, and attach both to a GitHub release, with that
-# version's CHANGELOG section as the release notes.
+# Push a tag like v0.6.1 to build techspeed-fueltech-velopark-0.6.1-ac.7z for Assetto Corsa (for overtake.gg) and
+# techspeed-fueltech-velopark-0.6.1-beamng.zip for BeamNG.drive from the track's sources, and attach both to a
+# GitHub release, with that version's CHANGELOG section as the release notes.
 
 on:
   push:
@@ -25,37 +25,39 @@ jobs:
         run: |
           set -e
           version="${GITHUB_REF_NAME#v}"
-          track=content/tracks/techspeed_velopark
+          track=source/track
           grep -q "^VERSION = $version\$" "$track/extension/ext_config.ini" \
             || { echo "ext_config.ini is not at $version: run release.ps1 -Version $version first"; exit 1; }
           awk -v v="## $version" '$0 == v {on = 1; next} /^## / {on = 0} on' "$track/CHANGELOG.md" > notes.md
           [ -s notes.md ] || { echo "CHANGELOG.md has no '## $version' section"; exit 1; }
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Build the archive
-        run: |
-          set -e
-          archive="velopark-${{ steps.version.outputs.version }}.7z"
-          7z a -t7z -mx=9 "$archive" content > /dev/null
-          7z t "$archive" > /dev/null
-          ls -la "$archive"
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
 
-      - name: Build the BeamNG archive
+      - name: Build both games
         run: |
           set -e
-          pip install numpy pillow
-          python tools/export_beamng.py
-          mv "build/velopark-beamng-${{ steps.version.outputs.version }}.zip" .
-          ls -la "velopark-beamng-${{ steps.version.outputs.version }}.zip"
+          # all but bpy, which only the preview renders use
+          grep -v '^bpy' tools/requirements.txt > requirements-build.txt
+          pip install -r requirements-build.txt
+          python tools/build_tracks.py ac beamng --all --pack
+
+      - name: Pack the archives
+        run: |
+          set -e
+          version="${{ steps.version.outputs.version }}"
+          archive="$PWD/techspeed-fueltech-velopark-$version-ac.7z"
+          (cd build/ac && 7z a -t7z -mx=9 "$archive" content > /dev/null)
+          7z t "$archive" > /dev/null
+          mv "build/dist/techspeed-fueltech-velopark-$version-beamng.zip" .
+          ls -la "techspeed-fueltech-velopark-$version-ac.7z" "techspeed-fueltech-velopark-$version-beamng.zip"
 
       - uses: softprops/action-gh-release@v2
         with:
-          name: Techspeed Velopark ${{ steps.version.outputs.version }}
+          name: Techspeed FuelTech Velopark ${{ steps.version.outputs.version }}
           body_path: notes.md
           files: |
-            velopark-${{ steps.version.outputs.version }}.7z
-            velopark-beamng-${{ steps.version.outputs.version }}.zip
+            techspeed-fueltech-velopark-${{ steps.version.outputs.version }}-ac.7z
+            techspeed-fueltech-velopark-${{ steps.version.outputs.version }}-beamng.zip
