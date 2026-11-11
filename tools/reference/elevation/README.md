@@ -42,3 +42,7 @@ Google gives 9.54 m resolution over the whole track. Over the eucalyptus plantat
 - **Open ground:** 0.47 m RMS, correlation 0.84.
 - **Tilt left:** 0.02°.
 
+
+## 2026-11-11, the south straight
+
+The vp_1500's south straight still rode over a crest of the old track at x ≈ 122, by the pit lane's junction: its grade turned from +0.6% to -1.3% in 5 m, and it then fell early, 10 to 15 cm under Google's ground, where Google's stays flat to x ≈ 145 and dips smoothly by about half a metre to x ≈ 170. The road beside it, at z ≈ 30, had one too, 29 cm over Google's at x ≈ 107. The levelling smoothed its field over 15 m, so crests that short stayed. `tools/smooth_south.py` brought the roads from x = 70 to 190 onto Google's heights smoothed over 8 m (not further west than T3's hairpin, where Google's has the plantation's tops): the straight now keeps within 1 to 7 cm of Google's from x = 100 to 160, and its grade changes by at most 0.8% over 6 m, from 2.0%.

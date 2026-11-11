@@ -48,6 +48,7 @@ The track's heights and what stands round it are made from the real ground's hei
 8. `python tools/settle_objects.py`: everything that stands on the ground (tyre walls, poles, buildings, trees) set back on it where the ground's large triangles did not follow the levelling; then `build_outside.py` again, which builds on the ground as it is.
 9. `python tools/split_tyres.py`: gaps in the tyre walls where something stands in them, as the vp_1000's flag marshal's tent and cones.
 10. `python tools/settle_kids.py`: the kids track's roads and kerbs, and its AI lines, set back 1 cm over the ground's large triangles round it, which had come to lie over them; then `python tools/lift_paint.py`, to bring its paint back over them.
+11. `python tools/smooth_south.py`: the vp_1500's south straight and the road beside it brought onto Google's heights, smooth: the levelling left a crest of the old track there, by the pit lane's junction. Everything there moves with the roads; then `build_outside.py` again.
 
 ## Making a release
 
