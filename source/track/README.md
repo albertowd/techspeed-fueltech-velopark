@@ -1,6 +1,6 @@
 # Techspeed FuelTech Velopark
 
-Version 0.7.0, by Alberto Wollmann Dietrich.
+Version 0.7.1, by Alberto Wollmann Dietrich.
 
 The Techspeed FuelTech Velopark karting circuit in Nova Santa Rita, Brazil, built for go-karts, for Assetto Corsa and BeamNG.drive.
 

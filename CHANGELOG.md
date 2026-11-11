@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.0
+## 0.7.1
 
 - Downloads keep the same file name in every version, so a new one replaces the old one.
 - BeamNG.drive: delete the old `techspeed-fueltech-velopark-0.7.0-beamng.zip` from your mods folder when you update.
