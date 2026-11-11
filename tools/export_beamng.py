@@ -14,7 +14,8 @@ BeamNG's mods/unpacked folder.
 The road, grass and kerb meshes AC drives on are solid, with the BeamNG ground model of their
 surface (the grass one of the level's own, its soft layer 1 cm deep); the invisible walls are
 solid and unseen, and so is a trunk for each tree; the cones AC knocks about are BeamNG's own
-loose cones, every layout's, which the level's Lua spawns in free roam, and each race its own layout's;
+loose cones, which each race spawns, its own layout's (free roam has none, as they cost as much as a car
+to simulate, standing or not);
 all else is only seen, as in AC. A mesh AC
 swaps for a simpler copy further away (the tyre stacks) is a shape of its own with both as its
 detail levels, for BeamNG to swap about as far away. Karts
@@ -193,7 +194,6 @@ def loose_cones(model):
     return feet, np.array(middles).reshape(-1, 3)
 
 
-SAME = .3                           # metres apart two layouts' cones or boards are the same one
 BOARD_MATERIAL = 'MarkerBoards'     # the distance boards', as their loose boxes have it
 
 
@@ -1063,7 +1063,6 @@ def export(layout, track, out=None, pack=True):
     layouts = sorted(x for x in os.listdir(track) if os.path.exists(os.path.join(track, x, 'ai', 'fast_lane.ai'))
                      and os.path.exists(os.path.join(track, 'models_%s.ini' % x)))
     spawns, roads, races = [], {}, []
-    every_cone, every_board = [], []    # every layout's, for free roam
     for lay in layouts:
         lc = configparser.ConfigParser()
         lc.read(os.path.join(track, 'models_%s.ini' % lay))
@@ -1074,8 +1073,6 @@ def export(layout, track, out=None, pack=True):
             found.update(m.dummies)
             lay_cones += loose_cones(m)[0]
             lay_boards += loose_boards(m)
-        every_cone += lay_cones
-        every_board += lay_boards
         line, sides = racing_line(os.path.join(track, lay, 'ai', 'fast_lane.ai'))
         roads[lay] = (line, sides)
 
@@ -1118,19 +1115,10 @@ def export(layout, track, out=None, pack=True):
                               grid=[(at_ + (0, 0, LIFT), f_) for at_, f_ in slots]))
     if 'spawn_' + layout not in [x[0] for x in spawns]:
         raise SystemExit('layout %s has no start' % layout)
-    # the loose cones and distance boards of every layout, which the level's Lua spawns in free
-    # roam, each once where layouts share it (within SAME metres); a race spawns its own
-    # layout's instead
-    free_cones, free_boards = [], []
-    for cone in every_cone:
-        if all(np.hypot(cone[0] - q[0], cone[1] - q[1]) > SAME for q in free_cones):
-            free_cones.append(cone)
-    for board in every_board:
-        if all(np.linalg.norm(board[0].mean(0) - q[0].mean(0)) > SAME for q in free_boards):
-            free_boards.append(board)
-    beamng_races.cone_prefab(os.path.join(level, 'cones.prefab.json'), [on_ground(c) for c in free_cones], LEVEL + '/cones',
-                             free_boards)
-    print('%-28s %-5s %4d loose cones and %d boards of every layout' % ('cones', 'lua', len(free_cones), len(free_boards)))
+    # free roam has no cones nor boards: they all cost as much as a car to simulate, standing
+    # or not (BeamNG never puts a vehicle to sleep); each race spawns its own layout's
+    if os.path.exists(os.path.join(level, 'cones.prefab.json')):
+        os.remove(os.path.join(level, 'cones.prefab.json'))
     # each start's picture: a map of where it is on the track, its layout's racing line on it
     road_map = np.concatenate(road_map)
     frame = (road_map.reshape(-1, 2).min(0), road_map.reshape(-1, 2).max(0))
