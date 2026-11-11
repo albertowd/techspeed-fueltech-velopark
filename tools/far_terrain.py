@@ -8,7 +8,8 @@ satellite pictures' edges (tools/reference/surroundings/surroundings.json's area
 STEP metres, at the real ground's heights: every height there is (tools/reference/elevation's
 google_*.json and google_wide_*.json, tools/reference/surroundings' google_heights_*.json), less
 the levelling's offset, but where they are the tops of trees or buildings, as tools/level_ground.py
-leaves them out: where the satellite pictures show trees round them (dark and uneven both), within level_ground.BUILDING metres of
+leaves them out: where the satellite pictures show trees round them (dark and uneven both), or
+the ground photo does (as tools/level_ground.py finds them there), within level_ground.BUILDING metres of
 OpenStreetMap's buildings, or over the heights' opening round them; the ground round them fills
 in, smoothed over FILLS metres, the finest where there are points enough.
 
@@ -88,6 +89,12 @@ def real_ground(info):
     inside = (col >= 0) & (col < trees.shape[1]) & (row >= 0) & (row < trees.shape[0])
     share = np.ones(len(x))
     share[inside] = trees[row[inside], col[inside]]
+    # and in the ground photo, its trees as tools/level_ground.py finds them there, which the
+    # pictures' rule misses in the photo's colours
+    import gltf_source
+    in_photo = (np.abs(x) < lg.PHOTO_SIZE / 2) & (np.abs(z) < lg.PHOTO_SIZE / 2)
+    photo = lg.tree_share(gltf_source.load_kn5(bp.TRACK))
+    share[in_photo] = np.maximum(share[in_photo], lg.photo_at(photo, x[in_photo], z[in_photo]))
     ground = share < lg.TREE_SHARE
     for b in buildings(loc):
         ground &= ~contains_xy(b, x, z)

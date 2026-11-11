@@ -1,6 +1,6 @@
 """The track's heights brought to the real ground's, from Google's (tools/reference/elevation), in every source.
 
-    python tools/level_ground.py [--dry-run]
+    python tools/level_ground.py [--dry-run] [--again]
 
 The track's ground was made from a few points of the old elevation data, smoothed, and has
 swells the real ground has not: it climbs 3 to 5 m north towards the plantation (the old data's
@@ -24,6 +24,13 @@ over SIGMA metres, less the track's top surface smoothed the same way, on a CELL
 fading out over FADE metres to the edge of the near ground, so the far ground still meets it.
 It is saved in tools/reference/elevation/level_ground.npz; a summary in level_ground.json,
 which marks it done: run again, it finds the ground levelled and changes nothing.
+
+--again levels it again, after: the same, but onto the real ground as tools/far_terrain.py finds
+it for the far ground (from every height there is, tools/reference/surroundings' too, its trees
+found in the satellite pictures round the track), so the track, its ground and the far ground
+all keep to one real ground; made the same across every road as tools/flatten_roads.py made the
+first, so it twists none. Then tools/far_terrain.py again, to meet the near ground as it is now.
+Saved in level_ground_again.npz and level_ground_again.json.
 """
 import datetime, glob, io, json, os, re, struct, sys
 
@@ -54,6 +61,9 @@ WIDE_OVER, WIDE_OPENING = 4., 250.   # and over a wide one, for woods too wide f
 CELL = 5.                    # metres, the field's grid
 SIGMA = 15.                  # metres the field is smoothed over
 FILLS = (15., 30., 60., 125.)    # metres, the smoothing that fills where no ground is, finest first
+# --again, the second pass: onto the real ground as tools/far_terrain.py finds it for the far ground
+AGAIN_FIELD = os.path.join(ev.OUT, 'level_ground_again.npz')
+AGAIN_DONE = os.path.join(ev.OUT, 'level_ground_again.json')
 ENOUGH = .04                 # points a cell, smoothed, a smoothing needs to be taken alone
 EXTENT = ((-640., 640.), (-560., 560.))  # AC's x and z the field covers: the near ground and the far's first ring
 FADE = 60.                   # metres it fades out over to its edge
@@ -104,7 +114,12 @@ def splat(X, Z, x, z, v):
     return A, W
 
 
-def field():
+def real_ground(fills=FILLS):
+    """The real ground from Google's heights, as the track's y: its grid's x and z, the heights on
+    it, Google's points (x, z, h), which of them are the ground, and the offset. Google's points on
+    trees, buildings and over the opening round them are left out; where none is left, the
+    ground round it fills in, from the finest smoothing of fills where there are points enough to
+    the coarsest."""
     loc = json.load(open(ev.LOCATION))
     offset = json.load(open(latest('compare_2*.json')))['offset_m']
     rows = np.array(json.load(open(latest('google_2*.json')))['rows'] + json.load(open(latest('google_wide_*.json')))['rows'], float)
@@ -127,16 +142,28 @@ def field():
     # from the coarsest smoothing to the finest, each where it has points enough, eased into the
     # coarser where it has fewer, so no seam shows where one hands over to the next
     real = np.full(A.shape, float(np.mean(h[ground])))
-    for s in FILLS[::-1]:
+    for s in fills[::-1]:
         a, w = gaussian_filter(A, s / CELL), gaussian_filter(W, s / CELL)
         t = np.clip(w / ENOUGH, 0, 1)
         real += t * t * (3 - 2 * t) * (a / np.maximum(w, 1e-9) - real)
+    return X, Z, real, (x, z, h), ground, offset
+
+
+def field(sigma=SIGMA, fills=FILLS, again=False):
+    X, Z, real, (x, z, h), ground, offset = real_ground(fills)
+    if again:
+        # the real ground as the far ground has it, from every height there is
+        import far_terrain as ft
+        info = json.load(open(os.path.join(ft.SURROUNDINGS, 'surroundings.json')))
+        XX, ZZ = np.meshgrid(X, Z)
+        real = ft.real_ground(info)(XX, ZZ)
+    (xa, xb), (za, zb) = EXTENT
     # the track's top surface, smoothed the same
     XX, ZZ = np.meshgrid(X, Z)
     y = surface().ys(np.c_[XX.ravel(), ZZ.ravel()]).reshape(XX.shape)
     has = ~np.isnan(y)
-    mine = gaussian_filter(np.where(has, y, 0), SIGMA / CELL) / np.maximum(gaussian_filter(has.astype(float), SIGMA / CELL), 1e-9)
-    dy = np.where(gaussian_filter(has.astype(float), SIGMA / CELL) > .05, real - mine, 0.)
+    mine = gaussian_filter(np.where(has, y, 0), sigma / CELL) / np.maximum(gaussian_filter(has.astype(float), sigma / CELL), 1e-9)
+    dy = np.where(gaussian_filter(has.astype(float), sigma / CELL) > .05, real - mine, 0.)
     # faded out to the edge
     edge = np.minimum.reduce([XX - xa, xb - XX, ZZ - za, zb - ZZ])
     t = np.clip(edge / FADE, 0, 1)
@@ -231,11 +258,24 @@ def move_forest(path, F):
 
 def main():
     dry = '--dry-run' in sys.argv
-    if os.path.exists(DONE):
-        print('the ground is levelled (%s); to level it again, restore the sources and delete it' % os.path.relpath(DONE, ROOT))
+    again = '--again' in sys.argv
+    done, saved = (AGAIN_DONE, AGAIN_FIELD) if again else (DONE, FIELD)
+    if again and not os.path.exists(DONE):
+        sys.exit('level the ground first, without --again')
+    if os.path.exists(done):
+        print('the ground is levelled (%s); to level it again, restore the sources and delete it' % os.path.relpath(done, ROOT))
         return
-    X, Z, dy, info = field()
+    X, Z, dy, info = field(again=again)
     F = (X, Z, dy)
+    if again:
+        # made the same across every road, as tools/flatten_roads.py made the first pass, so no
+        # road is twisted by it
+        import flatten_roads as fr
+        grid, even = F, fr.change(F)
+        F = lambda x, z: at(grid, x, z) + even(x, z)
+        L = fr.lines()
+        on = F(L[:, 0], L[:, 1])
+        print('on the AI lines it moves things by %+.2f to %+.2f m' % (on.min(), on.max()))
     near = (np.abs(X)[None, :] < 260) & (np.abs(Z - 130)[:, None] < 230)
     gy, gx = np.gradient(dy, CELL)
     print('the field: %+.2f to %+.2f m over the track, steepest %.2f%%' % (dy[near].min(), dy[near].max(), np.hypot(gx, gy)[near].max() * 100))
@@ -252,10 +292,10 @@ def main():
     print('  %d AI lines' % len(ai))
     print('  %d lights in %s' % (move_csp(CSP, F), os.path.basename(CSP)))
     print('  %d trees of the forest' % move_forest(FOREST, F))
-    np.savez_compressed(FIELD, x=X, z=Z, dy=dy)
+    np.savez_compressed(saved, x=X, z=Z, dy=dy)
     json.dump(dict(info, levelled=datetime.date.today().isoformat(), cell_m=CELL, sigma_m=SIGMA,
                    track_min_m=round(float(dy[near].min()), 3), track_max_m=round(float(dy[near].max()), 3),
-                   field=os.path.basename(FIELD)), open(DONE, 'w'), indent=1)
+                   field=os.path.basename(saved)), open(done, 'w'), indent=1)
 
 
 if __name__ == '__main__':

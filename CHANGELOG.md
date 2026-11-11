@@ -19,6 +19,7 @@
 - Tall eucalyptus grove south of the fuel station.
 - Smoother south straight on the 1500, without the bump by the pit lane exit.
 - The land round the track, out to 1.5 km, shows what is really there, at its real heights, no longer flat copies of the track's photo.
+- The whole track and its ground follow the real heights more closely, matching the land round them.
 
 ## 0.7.0
 

@@ -51,6 +51,7 @@ The track's heights and what stands round it are made from the real ground's hei
 11. `python tools/smooth_south.py`: the vp_1500's south straight and the road beside it brought onto Google's heights, smooth: the levelling left a crest of the old track there, by the pit lane's junction. Everything there moves with the roads; then `build_outside.py` again.
 12. `python tools/far_ground.py`: the far ground (`GRASS_1`, out to 1.5 km) given its own texture from the satellite pictures round the track in `tools/reference/surroundings` (`tools/surroundings.py photo`), its colours matched to the ground photo's, where it took the ground photo repeated.
 13. `python tools/far_terrain.py`: the far ground made again at the real ground's heights, from every height in `tools/reference/elevation` and `tools/reference/surroundings` but the tops of trees and buildings, a point every 20 m out to the satellite pictures' edges, meeting the near ground's edge with no gap. Run again, it makes it again, the same.
+14. `python tools/level_ground.py --again`: the whole track and its ground levelled again, onto the same real ground the far ground is made from (trees found in the satellite pictures and the ground photo both), even across every road; then `far_terrain.py` and `build_outside.py` again.
 
 ## Making a release
 
