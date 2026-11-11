@@ -26,7 +26,7 @@ ground. Each layout's race is a time trial mission (beamng_races.py); the gantry
 lamps are run by the level's Lua (beamng_board.py). The other layouts' models
 are not converted.
 """
-import configparser, hashlib, io, json, math, os, re, shutil, sys, uuid, zipfile
+import configparser, hashlib, io, json, math, os, re, shutil, sys, time, uuid, zipfile
 from xml.sax.saxutils import escape
 
 import numpy as np
@@ -1206,12 +1206,17 @@ def export(layout, track, out=None, pack=True):
     os.makedirs(dist, exist_ok=True)
     # no version in its name (BeamNG's rule: letters, digits, - and _), so a new one replaces the old
     zip_path = os.path.join(dist, 'techspeed_fueltech_velopark_beamng.zip')
+    # every file dated now: BeamNG keeps the shapes it converted (its temp folder) while they are
+    # newer than the zip's, so a shape this build kept as it was, from before the last time it was
+    # converted, would go on showing the old one, with materials that may be gone
+    now = time.localtime()[:6]
     with zipfile.ZipFile(zip_path + '.new', 'w', zipfile.ZIP_DEFLATED) as z:
         for top in (level, os.path.join(out, 'gameplay'), os.path.join(out, 'lua'), os.path.join(out, 'scripts'), os.path.join(out, 'vehicles')):
             for base, _, fs in os.walk(top):
                 for f in fs:
                     full = os.path.join(base, f)
-                    z.write(full, os.path.relpath(full, out))
+                    info = zipfile.ZipInfo(os.path.relpath(full, out).replace(os.sep, '/'), now)
+                    z.writestr(info, open(full, 'rb').read(), compress_type=zipfile.ZIP_DEFLATED)
     os.replace(zip_path + '.new', zip_path)
     print('%d materials, %d starts, %d waypoints; packed %s (%.1f MB)' % (len(materials), len(spawns), len(waypoints), zip_path, os.path.getsize(zip_path) / 2 ** 20))
     return zip_path
