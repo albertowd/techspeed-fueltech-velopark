@@ -1,4 +1,4 @@
-"""The paddock's buildings as they are: grey block walls, salmon red pillars, in
+"""The paddock's buildings as they are: grey block walls, salmon red pillars, darker roofs, in
 source/models/velopark_paddock.glb.
 
     python tools/restyle_paddock.py
@@ -7,10 +7,14 @@ The paddock's buildings were all white, walls and posts alike. The real ones (th
 of the vp_1500's start and the south) have walls of grey painted block and pillars and posts
 painted salmon red. This takes every pillar and post out of the walls' mesh (a piece of it
 narrower than PILLAR and taller than TALL) into a mesh of its own, BLD_PILLARS, of a material of
-its own; and paints the walls grey (BuildingWallGrey.dds, made here). It takes out too the
-buildings tools/build_outside.py makes again (REMADE: the race control tower, the fuel station),
-each piece of the buildings' meshes whose middle stands in one, and their walls to hit. Run
-again, it finds the paddock restyled.
+its own; and paints the walls grey (BuildingWallGrey.dds, made here). The roofs' sheets are made
+darker (BuildingRoofDark.dds, ROOF_SHADE of BuildingRoof.dds).
+
+It takes out too the buildings tools/build_outside.py makes again (REMADE: the race control
+tower, the fuel station, the buildings in the middle of the track and the garage annex, now the
+big tent by the pit boxes), each piece of the buildings' meshes whose middle stands in one, and
+the walls to hit of those that have none now. Run again, it finds the paddock restyled, and does
+only what is left to do.
 """
 import os
 
@@ -25,9 +29,14 @@ from plant_trees import pieces
 
 TEX = os.path.join(bp.ROOT, 'source', 'textures')
 PILLAR, TALL = .8, 2.         # metres: a piece narrower than this and taller than that is a pillar
+ROOF_SHADE = .68
 # the buildings made again by tools/build_outside.py: (x0, x1, z0, z1), and their walls to hit
+# that go with them (the others' stay, as the new buildings stand where they did)
 REMADE = {'tower': ((-52., -42., 75., 86.), ('1WALL_BLD_C3',)),
-          'fuel station': ((178., 214., -23., -5.), ('1WALL_BLD_W1', '1WALL_BLD_W2'))}
+          'fuel station': ((178., 214., -23., -5.), ('1WALL_BLD_W1', '1WALL_BLD_W2')),
+          'paddock building': ((-65.9, -33.5, 15.6, 74.5), ()),
+          'garage': ((-45.7, -37.2, 141.4, 169.7), ()),
+          'pit tent': ((-46.5, -41.5, 123.9, 133.7), ('1WALL_BLD_C2',))}
 BUILDING_MESHES = ('BLD_WALLS', 'BLD_ROOFS', 'BLD_DARK', 'BLD_DOORS', 'BLD_SOLAR')
 
 
@@ -56,19 +65,21 @@ def inside(c, box, pad=1.):
     return (c[:, 0] > x0 - pad) & (c[:, 0] < x1 + pad) & (c[:, 1] > z0 - pad) & (c[:, 1] < z1 + pad)
 
 
-def main():
-    k = gltf_source.load_kn5(bp.PADDOCK)
-    if any(n['name'] == 'BLD_PILLARS' for n, m in bp.meshes(k)):
-        print('the paddock is restyled already')
-        return
-    nodes = {n['name']: (n, m) for n, m in bp.meshes(k)}
-    # the remade buildings out
-    gone_walls = {w for _, walls in REMADE.values() for w in walls}
+def add_texture(k, name, img, fmt='DXT1'):
+    data = kn5io.dds(img, fmt)
+    open(os.path.join(TEX, name), 'wb').write(data)
+    k['textures'] = [t for t in k['textures'] if t['name'] != name] + [dict(name=name, active=1, data=data)]
+
+
+def take_remade(k, nodes):
+    """The pieces of the buildings tools/build_outside.py makes again out, and their walls to hit."""
     taken = 0
     for name in BUILDING_MESHES:
         if name not in nodes:
             continue
         n, m = nodes[name]
+        if not len(n['faces']):
+            continue
         V = n['verts'][:, :3].astype(float) + m[3, :3]
         F = n['faces'].astype(int)
         lab = pieces(F, len(V))
@@ -81,9 +92,17 @@ def main():
         if out.any():
             bp.split(n, np.isin(flab, ids[out]))
             taken += out.sum()
+    gone_walls = {w for _, walls in REMADE.values() for w in walls}
+    walls = 0
     for parent, _ in kn5tree.walk(k['root']):
+        before = len(parent['children'])
         parent['children'] = [ch for ch in parent['children'] if ch['name'] not in gone_walls]
-    # the pillars out of the walls, into their own mesh
+        walls += before - len(parent['children'])
+    return taken, walls
+
+
+def paint(k, nodes):
+    """The pillars out of the walls, into their own mesh, and the walls grey."""
     n, m = nodes['BLD_WALLS']
     V = n['verts'][:, :3].astype(float) + m[3, :3]
     F = n['faces'].astype(int)
@@ -98,11 +117,8 @@ def main():
             pillar.append(t)
     sel = np.isin(flab, pillar)
     verts, faces = bp.split(n, sel)
-    # the new materials and textures
-    for name, img in (('BuildingWallGrey.dds', grey_wall()), ('BuildingPillar.dds', pillar_paint())):
-        data = kn5io.dds(img, 'DXT1')
-        open(os.path.join(TEX, name), 'wb').write(data)
-        k['textures'] = [t for t in k['textures'] if t['name'] != name] + [dict(name=name, active=1, data=data)]
+    add_texture(k, 'BuildingWallGrey.dds', grey_wall())
+    add_texture(k, 'BuildingPillar.dds', pillar_paint())
     wall_mat = next(i for i, mt in enumerate(k['materials']) if mt['name'] == 'BuildingWall')
     k['materials'][wall_mat]['textures'] = [dict(sampler='txDiffuse', slot=0, name='BuildingWallGrey.dds')]
     base = k['materials'][wall_mat]
@@ -112,7 +128,37 @@ def main():
     bp.sphere(pnode)
     parent = next(p for p, _ in kn5tree.walk(k['root']) if any(ch is n for ch in p.get('children', [])))
     parent['children'].append(pnode)
-    # the texture no mesh uses any more out
+    return len(pillar)
+
+
+def darken_roofs(k):
+    """The roofs' material onto a darker copy of its sheets; False when it is already."""
+    mt = next(mt for mt in k['materials'] if mt['name'] == 'BuildingRoof')
+    if mt['textures'][0]['name'] == 'BuildingRoofDark.dds':
+        return False
+    data = next(t['data'] for t in k['textures'] if t['name'] == mt['textures'][0]['name'])
+    import io
+    img = Image.open(io.BytesIO(data)).convert('RGB')
+    add_texture(k, 'BuildingRoofDark.dds', Image.fromarray((np.asarray(img, float) * ROOF_SHADE).astype(np.uint8)))
+    mt['textures'] = [dict(mt['textures'][0], name='BuildingRoofDark.dds')]
+    return True
+
+
+def main():
+    k = gltf_source.load_kn5(bp.PADDOCK)
+    nodes = {n['name']: (n, m) for n, m in bp.meshes(k)}
+    done = []
+    taken, walls = take_remade(k, nodes)
+    if taken or walls:
+        done.append('%d pieces of the remade buildings out, %d of their walls to hit' % (taken, walls))
+    if 'BLD_PILLARS' not in nodes:
+        done.append('%d pillars and posts painted, the walls grey' % paint(k, nodes))
+    if darken_roofs(k):
+        done.append('the roofs darker')
+    if not done:
+        print('the paddock is restyled already')
+        return
+    # the textures no mesh uses any more out
     used = {t['name'] for mt in k['materials'] for t in mt['textures']}
     k['textures'] = [t for t in k['textures'] if t['name'] in used]
     doc, _ = gltf_source.read_glb(bp.PADDOCK)
@@ -120,7 +166,7 @@ def main():
     uris = {i['name']: urllib.parse.unquote(i['uri']) for i in doc.get('images', [])}
     doc, binary = gltf_source.to_gltf(k, lambda t: uris.get(t['name'], '../textures/' + t['name']))
     gltf_source.write_glb(bp.PADDOCK, doc, binary)
-    print('%d pieces of the remade buildings out, %d of their walls; %d pillars and posts painted' % (taken, len(gone_walls), len(pillar)))
+    print('; '.join(done))
 
 
 if __name__ == '__main__':

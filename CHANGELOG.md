@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.8.0
+
+### Both games
+
+- Curved metal roofs on the buildings in the middle of the track.
+- Glass bands along the paddock buildings.
+- Darker roofs on the paddock buildings.
+- Race control tower windows with top lights opened out.
+- Big white tent by the pit boxes.
+- Flagpoles at the 1500 start moved to where the real ones stand.
+
 ## 0.7.0
 
 ### Both games

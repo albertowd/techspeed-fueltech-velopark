@@ -83,7 +83,8 @@ NAMES = [('TOWER_CONTROL', 'race control tower'), ('TOWER_', "judges' tower"), (
          ('MARSHAL_', None), ('BANNER_STAND', 'banner'), ('BANNER_FENCE', 'banner'), ('COURT_', 'sports court'),
          ('VELOGRILL_A', 'Velogrill'), ('VELOGRILL_', None), ('FARM_LEANTO', None), ('FARM_HOUSE', 'farm house'),
          ('FARM_BARN', 'barn'), ('FARM_LOW', 'farm building'), ('BINS', 'round bins'), ('TENT_', 'white tent'),
-         ('EAST_SHED', 'east shed'), ('HOUSE_', 'house'), ('FLAGPOLES', 'flagpoles'), ('GATE_', 'gate')]
+         ('EAST_SHED', 'east shed'), ('HOUSE_', 'house'), ('FLAGPOLES', 'flagpoles'), ('GATE_', 'gate'),
+         ('PADDOCK_BUILDING', 'paddock building'), ('GARAGE', 'garage'), ('PIT_TENT', 'pit tent'), ('SOLAR_CURL', None)]
 
 
 def canon(name):
@@ -98,7 +99,7 @@ def canon(name):
 
 
 def pretty(name):
-    return re.sub(r'_(WALLS|ROOF|OPENINGS|PILLARS|GLASS|STEEL|CABIN|WINDOWS|TOP|POLES|CONES|POSTS|ISLANDS|PUMPS|CANOPY|MESH|SLAB|TIMBER|BLUE_WALL|TURF|_\d+)$', '', name)
+    return re.sub(r'_(WALLS|ROOF|OPENINGS|PILLARS|GLASS|STEEL|CABIN|WINDOWS|TOP|POLES|CONES|POSTS|ISLANDS|PUMPS|CANOPY|MESH|SLAB|TIMBER|BLUE_WALL|TURF|VALANCE|OPEN|_\d+)$', '', name)
 
 
 def main(out):
