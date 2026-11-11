@@ -21,8 +21,6 @@ Each pit box holds a team of two karts, so the number of karts is twice the numb
 
 In hotlap mode you start just after the last sector line, so you reach the start line quickly and your first full lap is timed.
 
-See [CHANGELOG.md](CHANGELOG.md) for what is new.
-
 ## Installing
 
 ### Assetto Corsa

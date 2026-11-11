@@ -2,7 +2,7 @@
 
 How the track is made, for anyone changing it. Playing it? See the [README](README.md).
 
-The track is made from its sources in [source/](source), its layouts and changelog in [source/track](source/track); its [README](source/track/README.md) is the one that ships with it. `tools/build_tracks.py` builds both games from the sources (see [Sources](#sources)), and `release.ps1` packs the release (see [Making a release](#making-a-release)).
+The track is made from its sources in [source/](source), its layouts in [source/track](source/track); its [README](source/track/README.md) is the one that ships with it. What changed in each version of the repository is in the [CHANGELOG](CHANGELOG.md): note each change under the next version's section at its top. `tools/build_tracks.py` builds both games from the sources (see [Sources](#sources)), and `release.ps1` packs the release (see [Making a release](#making-a-release)).
 
 ## Folders
 
@@ -51,7 +51,7 @@ The track's heights and what stands round it are made from the real ground's hei
 
 ## Making a release
 
-1. Make the changes in `source/` and add a `## <version>` section at the top of `source/track/CHANGELOG.md`.
+1. Make the changes in `source/` and add a `## <version>` section at the top of [CHANGELOG.md](CHANGELOG.md), at the root of the repository; the release stops without one, and the Release action uses it as the release notes.
 2. Run `.\release.ps1 -Version <version>`. It sets the version in the track's README, layout files and Custom Shaders Patch config in `source/track`, builds both games from the sources with `tools/build_tracks.py`, and packs `build\dist\techspeed-fueltech-velopark-<version>-ac.7z` for Assetto Corsa and `build\dist\techspeed-fueltech-velopark-<version>-beamng.zip` for BeamNG.drive. The build runs the Python in `.venv`, or the one on the path; pass `-Python <path>` to use another. Add `-Install` to copy the track into the game, or `-DryRun` to see what it would change.
 3. Commit, then tag and push the tag:
 
@@ -87,7 +87,7 @@ From 0.6.0 the track is made from its sources in `source/`, for every game, inst
 |---|---|
 | `source/models/<name>.glb` | Each model of the track as a glTF binary, which Blender opens. Everything Assetto Corsa needs that glTF has no place for (shaders, material values, mesh flags, LOD distances) is kept in the glTF custom properties under `kn5`. |
 | `source/textures/` | The textures, each once, which the models point at. A texture two models hold different versions of goes in a folder named after the model, as `velopark_paddock/TarmacDark.dds`. |
-| `source/track/` | The rest of the track as it ships: layouts, AI lines, ui, the Custom Shaders Patch config, README and changelog. |
+| `source/track/` | The rest of the track as it ships: layouts, AI lines, ui, the Custom Shaders Patch config and README. |
 
 `python tools/build_tracks.py` builds both games from them:
 

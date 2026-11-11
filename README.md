@@ -38,7 +38,7 @@ Download the latest version from [GitHub's releases](https://github.com/albertow
 - `techspeed-fueltech-velopark-<version>-ac.7z` for Assetto Corsa;
 - `techspeed-fueltech-velopark-<version>-beamng.zip` for BeamNG.drive.
 
-See the [changelog](source/track/CHANGELOG.md) for what is new in each version.
+See the [changelog](CHANGELOG.md) for what is new in each version.
 
 ## Installing
 

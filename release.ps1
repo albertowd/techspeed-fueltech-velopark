@@ -9,7 +9,7 @@
     build\dist\techspeed-fueltech-velopark-<version>-ac.7z for Assetto Corsa and
     build\dist\techspeed-fueltech-velopark-<version>-beamng.zip for BeamNG.drive.
 
-    Add a "## <version>" section to source\track\CHANGELOG.md first: the release
+    Add a "## <version>" section to CHANGELOG.md first: the release
     stops without one. Then commit, tag v<version> and push the tag: the Release
     action builds the same two archives from source\ and attaches them to a
     GitHub release, ready to upload to overtake.gg.
@@ -76,10 +76,10 @@ Write-Host "Current version: $oldVersion, new version: $Version"
 if ($oldVersion -and [version]$Version -lt [version]$oldVersion) { throw "$Version is older than $oldVersion." }
 
 # Nothing is changed until these checks pass.
-$changelog = Join-Path $track 'CHANGELOG.md'
+$changelog = Join-Path $root 'CHANGELOG.md'
 $heading = '(?m)^## ' + [regex]::Escape($Version) + '\s*$'
 if ([IO.File]::ReadAllText($changelog) -notmatch $heading) {
-    throw "source\track\CHANGELOG.md has no '## $Version' section. Add one first."
+    throw "CHANGELOG.md has no '## $Version' section. Add one first."
 }
 
 $build = Join-Path $root 'build'
