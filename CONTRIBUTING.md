@@ -49,6 +49,7 @@ The track's heights and what stands round it are made from the real ground's hei
 9. `python tools/split_tyres.py`: gaps in the tyre walls where something stands in them, as the vp_1000's flag marshal's tent and cones.
 10. `python tools/settle_kids.py`: the kids track's roads and kerbs, and its AI lines, set back 1 cm over the ground's large triangles round it, which had come to lie over them; then `python tools/lift_paint.py`, to bring its paint back over them.
 11. `python tools/smooth_south.py`: the vp_1500's south straight and the road beside it brought onto Google's heights, smooth: the levelling left a crest of the old track there, by the pit lane's junction. Everything there moves with the roads; then `build_outside.py` again.
+12. `python tools/far_ground.py`: the far ground (`GRASS_1`, out to 1.5 km) given its own texture from the satellite pictures round the track in `tools/reference/surroundings` (`tools/surroundings.py photo`), its colours matched to the ground photo's, where it took the ground photo repeated.
 
 ## Making a release
 

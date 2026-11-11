@@ -6,7 +6,8 @@ roads, fields, water), until the far terrain is made. In tools/reference/surroun
     python tools/surroundings.py osm         # OpenStreetMap's roads, land use, woods and water
     python tools/surroundings.py relief      # all the heights as one picture, with contours
 
-AREA is AC's x and z (x runs west, z north), round the origin as the ground photo is.
+AREA is AC's x and z (x runs west, z north), round the origin as the ground photo is; the pictures
+cover PHOTO_AREA, which reaches as far west as the track's far ground (GRASS_1) does.
 
 heights: Google's Elevation API every GRID metres over AREA, but where tools/elevation.py's
 google_*.json or google_wide_*.json already has them; saved as google_heights_<date>.json, as
@@ -40,6 +41,7 @@ import elevation as ev
 OUT = os.path.join(bp.ROOT, 'tools', 'reference', 'surroundings')
 TILES = os.path.join(OUT, 'tiles')
 AREA = ((-1500., 1500.), (-1500., 1500.))   # AC's x and z
+PHOTO_AREA = ((-1500., 1800.), (-1500., 1500.))   # and the pictures', as far west as the far ground reaches
 GRID = 20.                  # metres between the heights
 ZOOM = 17                   # the pictures' zoom; with scale 2, as fine as zoom 18
 SIZE, LOGO = 1280, 60       # a picture's pixels a side (640 at scale 2), and the bottom ones cut off
@@ -104,14 +106,21 @@ def heights():
 
 
 def tile_grid(loc):
-    """The pictures' middles in world pixels, covering AREA."""
-    (xa, xb), (za, zb) = AREA
-    lat, lon = ev.to_latlon(loc, [xa, xa, xb, xb], [za, zb, za, zb])
-    px, py = world(lat, lon)
+    """The pictures' middles in world pixels covering PHOTO_AREA, and their first ones' numbers: the
+    grid is laid from AREA's corner, so the pictures it had keep their numbers when it grows."""
+    def corners(area):
+        (xa, xb), (za, zb) = area
+        lat, lon = ev.to_latlon(loc, [xa, xa, xb, xb], [za, zb, za, zb])
+        return world(lat, lon)
     w, h = SIZE, SIZE - LOGO
-    xs = np.arange(px.min() + w / 2 - 20, px.max() - w / 2 + STEP[0] + 20, STEP[0])
-    ys = np.arange(py.min() + h / 2 - 20, py.max() - h / 2 + STEP[1] + 20, STEP[1])
-    return xs, ys
+    px, py = corners(AREA)
+    x0, y0 = px.min() + w / 2 - 20, py.min() + h / 2 - 20
+    qx, qy = corners(PHOTO_AREA)
+    j0 = int(np.floor((qx.min() + w / 2 - x0) / STEP[0]))
+    j1 = int(np.ceil((qx.max() - w / 2 - x0) / STEP[0])) + 1
+    i0 = int(np.floor((qy.min() + h / 2 - y0) / STEP[1]))
+    i1 = int(np.ceil((qy.max() - h / 2 - y0) / STEP[1])) + 1
+    return x0 + STEP[0] * np.arange(j0, j1 + 1), y0 + STEP[1] * np.arange(i0, i1 + 1), (i0, j0)
 
 
 def in_photo(loc, cx, cy):
@@ -125,11 +134,11 @@ def in_photo(loc, cx, cy):
 def photo():
     loc = json.load(open(ev.LOCATION))
     os.makedirs(TILES, exist_ok=True)
-    xs, ys = tile_grid(loc)
+    xs, ys, (i0, j0) = tile_grid(loc)
     k = None
     fetched = kept = skipped = 0
-    for i, cy in enumerate(ys):
-        for j, cx in enumerate(xs):
+    for i, cy in enumerate(ys, i0):
+        for j, cx in enumerate(xs, j0):
             path = os.path.join(TILES, '%d_%d.png' % (i, j))
             if in_photo(loc, cx, cy):
                 skipped += 1
@@ -149,12 +158,12 @@ def photo():
             fetched += 1
             print('  picture %d, %d' % (i, j))
     print('%d pictures fetched, %d had already, %d in the ground photo' % (fetched, kept, skipped))
-    lay(loc, xs, ys)
+    lay(loc, xs, ys, (i0, j0))
 
 
-def lay(loc, xs, ys):
+def lay(loc, xs, ys, first):
     """The pictures and the ground photo laid onto AC's x and z: surroundings.jpg."""
-    (xa, xb), (za, zb) = AREA
+    (xa, xb), (za, zb) = PHOTO_AREA
     W, H = int((xb - xa) / PIXEL), int((zb - za) / PIXEL)
     out = np.zeros((H, W, 3), np.uint8)
     # the track's ground photo first, under the pictures: its edges are smeared, and the pictures
@@ -178,7 +187,7 @@ def lay(loc, xs, ys):
         j = np.clip(np.round((px - xs[0]) / STEP[0]).astype(int), 0, len(xs) - 1)
         block = out[rows[0]:rows[-1] + 1].reshape(-1, 3).copy()
         for key in set(zip(i.tolist(), j.tolist())):
-            path = os.path.join(TILES, '%d_%d.png' % key)
+            path = os.path.join(TILES, '%d_%d.png' % (key[0] + first[0], key[1] + first[1]))
             if not os.path.exists(path):
                 continue
             sel = (i == key[0]) & (j == key[1])
@@ -188,7 +197,7 @@ def lay(loc, xs, ys):
             block[sel] = np.stack([map_coordinates(img[..., c], [v, u], order=1, mode='nearest') for c in range(3)], -1).astype(np.uint8)
         out[rows[0]:rows[-1] + 1] = block.reshape(len(rows), W, 3)
     Image.fromarray(out).save(os.path.join(OUT, 'surroundings.jpg'), quality=88)
-    json.dump(dict(image='surroundings.jpg', metres_a_pixel=PIXEL, area_x_z=AREA,
+    json.dump(dict(image='surroundings.jpg', metres_a_pixel=PIXEL, area_x_z=PHOTO_AREA,
                    pixel='column = (%g - x) / %g, row = (%g - z) / %g' % (xb, PIXEL, zb, PIXEL),
                    sources=['Google Maps Static API, satellite, zoom %d scale 2, fetched %s' % (ZOOM, datetime.date.today().isoformat()),
                             'the track\'s ground photo (%s) in the middle, %g m square' % (PHOTO, PHOTO_SIZE)]),
