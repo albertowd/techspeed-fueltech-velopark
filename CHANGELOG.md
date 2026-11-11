@@ -5,10 +5,10 @@
 ### Both games
 
 - Rounded metal roofs on the buildings in the middle of the track.
-- Steel framed windows along the paddock buildings and the garage.
 - Darker roofs on the paddock buildings.
 - Race control tower windows with top lights opened out.
-- Lit rooms behind the windows at night, with ceiling lamps.
+- See-through windows in steel frames on every building, with rooms behind them.
+- Rooms lit at night by their ceiling lamps.
 - Big white tent by the pit boxes.
 - Flagpoles at the 1500 start moved to where the real ones stand.
 

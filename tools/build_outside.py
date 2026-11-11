@@ -96,6 +96,7 @@ ROOF_UP, ROOF_RISE, ROOF_OVER, ROOF_THICK, ROOF_STEPS = .3, .12, .6, .14, 25
 BAND, BAND_PANE, BAND_END = (1.5, .4), 1.6, .3   # the band of windows: from and to under the eaves,
                                                  # its panes' width, and the wall left at each end
 FRAME = .06              # the windows' steel frames, their side
+WALL = .15               # the walls' thickness, where they have windows
 # the ceiling lamps: their side and depth, about how far apart, and their night lights' colour
 # (brightness last) and reach
 LAMP, LAMP_EVERY, LAMP_LIGHT, LAMP_RANGE = (.6, .08), 7., '1, 0.84, 0.62, 0.15', 8.
@@ -261,7 +262,7 @@ def textures():
     cone[(y > .42) & (y < .62)] = 238
     T['OUT_cone.dds'] = (rgb(cone), 'DXT1')
     # window glass: a little grey blue, mostly clear
-    gl = np.zeros((n, n, 4)) + np.array([150., 168., 182., 70.])
+    gl = np.zeros((n, n, 4)) + np.array([150., 168., 182., 48.])
     gl[..., :3] *= (.95 + .1 * noise(n, 4, 21))[..., None]
     T['OUT_glass.dds'] = (Image.fromarray(np.clip(gl, 0, 255).astype(np.uint8), 'RGBA'), 'DXT5')
     # the windows' steel frames, painted dark grey
@@ -557,11 +558,23 @@ def building(model, name, cx, cz, w, d, yaw, ground, wall_h, roof, mat_wall='Pla
              ridge=2.5, windows=(), doors=(), over=.5):
     """A house: walls w by d round cx, cz turned by yaw, on its floor at the lowest ground under
     it (a plinth down to the ground round it), a roof of roof kind ('gable', 'hip', 'flat'), the
-    windows (side, at along it, sill, w, h) and doors (side, at, w, h) on its walls."""
+    windows (side, at along it, sill, w, h) and doors (side, at, w, h) on its walls. The windows
+    are steel framed glass in holes in the walls, with a plastered room behind them, its ceiling
+    lamps lit at night; the doors are painted on."""
     corners = rect(cx, cz, w, d, yaw)
     y0 = ground.low(corners)
     # walls and plinth, built at the origin and turned and moved after
-    parts = sh.walls([(-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2), (-w / 2, d / 2)], 0, wall_h, tile=(2., 2.))
+    P = np.array([(-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2), (-w / 2, d / 2)])
+    holes, wins = {}, []
+    for side, at, sill, ww, hh in windows:
+        i = {'s': 0, 'w': 1, 'n': 2, 'e': 3}[side]
+        hole = (at - ww / 2, at + ww / 2, sill, sill + hh)
+        holes.setdefault(i, []).append(hole)
+        wins.append((i, hole, dict(bars=(at,) if ww > 1. else (), transoms=(sill + hh * .62,) if hh > 1.05 else ())))
+    if wins:
+        parts, inner = holed_walls(P, 0, wall_h, holes)
+    else:
+        parts = sh.walls(P, 0, wall_h, tile=(2., 2.))
     plinth = sh.walls([(-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2), (-w / 2, d / 2)], -1.5, 0, tile=(2., 2.))
     if roof == 'gable':
         top = sh.gable_roof(-w / 2, w / 2, -d / 2, d / 2, wall_h, wall_h + ridge, over=over, tile=(2., 2.))
@@ -573,7 +586,7 @@ def building(model, name, cx, cz, w, d, yaw, ground, wall_h, roof, mat_wall='Pla
     ops = []
     sides = {'s': ((-w / 2, -d / 2), (w / 2, -d / 2), (0, -1)), 'n': ((w / 2, d / 2), (-w / 2, d / 2), (0, 1)),
              'w': ((w / 2, -d / 2), (w / 2, d / 2), (1, 0)), 'e': ((-w / 2, d / 2), (-w / 2, -d / 2), (-1, 0))}
-    for side, at, sill, ww, hh in list(windows) + [(s_, a, 0., ww, hh) for s_, a, ww, hh in doors]:
+    for side, at, sill, ww, hh in [(s_, a, 0., ww, hh) for s_, a, ww, hh in doors]:
         a, b, nrm = sides[side]
         a, b = np.array(a, float), np.array(b, float)
         dirv = (b - a) / np.linalg.norm(b - a)
@@ -581,9 +594,8 @@ def building(model, name, cx, cz, w, d, yaw, ground, wall_h, roof, mat_wall='Pla
         o = np.array(nrm) * .02
         p0 = p - dirv * ww / 2 + o
         p1 = p + dirv * ww / 2 + o
-        # uv: windows the left half of the texture, doors the right
-        door = (side, at, ww, hh) in doors
-        u0, u1 = (.5, 1.) if door else (0., .5)
+        # uv: the doors the right half of the texture
+        u0, u1 = .5, 1.
         V = np.array([(p0[0], sill, p0[1]), (p1[0], sill, p1[1]), (p1[0], sill + hh, p1[1]), (p0[0], sill + hh, p0[1])])
         U = np.array([(u0, 0), (u1, 0), (u1, 1), (u0, 1)])
         Nn = np.tile([nrm[0], 0, nrm[1]], (4, 1))
@@ -593,7 +605,28 @@ def building(model, name, cx, cz, w, d, yaw, ground, wall_h, roof, mat_wall='Pla
     model.add(name + '_ROOF', mat_roof, sh.place(top, yaw, (cx, y0, cz)))
     if ops:
         model.add(name + '_OPENINGS', 'Openings', sh.place(ops, yaw, (cx, y0, cz)))
+    if wins:
+        room(model, name, P, 0., wall_h, inner, wins, yaw, (cx, y0, cz))
     return y0
+
+
+def room(model, name, P, floor, ceiling, inner, wins, yaw=0., at=(0, 0, 0)):
+    """Behind the windows wins of the walls round P: the windows, the walls' inner faces inner,
+    a ceiling and a floor, and its ceiling lamps in rows, about LAMP_EVERY apart; built round the
+    origin, turned by yaw and moved to at."""
+    P = np.asarray(P, float)
+    glazing(model, name, P, wins, yaw, at)
+    model.add(name + '_INSIDE', 'Plaster', sh.place(inner + sh.poly([(x, ceiling, z) for x, z in P], n=np.array([0., -1., 0.]), tile=(2., 2.)), yaw, at))
+    model.add(name + '_FLOOR', 'Concrete', sh.place(sh.poly([(x, floor + .02, z) for x, z in P], n=np.array([0., 1., 0.]), tile=(2., 2.)), yaw, at))
+    nu = max(1, int(round(np.linalg.norm(P[1] - P[0]) / LAMP_EVERY)))
+    nv = max(1, int(round(np.linalg.norm(P[3] - P[0]) / LAMP_EVERY)))
+    spots = []
+    for i in range(nu):
+        for j in range(nv):
+            u, v = (i + .5) / nu, (j + .5) / nv
+            x, z = (1 - u) * (1 - v) * P[0] + u * (1 - v) * P[1] + u * v * P[2] + (1 - u) * v * P[3]
+            spots.append((x, ceiling, z))
+    lamps(model, name, spots, yaw, at)
 
 
 def blue_shed(model, ground):
@@ -684,15 +717,15 @@ def tower(model, ground, cx, cz):
             legs += sh.beam(p, p + (0, 1., 0), .035, tile=(.5, 1.))
     legs += sh.beam(foot + (0, -.3, -.5), foot + (0, 1.2, -.5), .06) + sh.beam(foot + (0, -.3, .5), foot + (0, 1.2, .5), .06)
     model.add('TOWER_STEEL', 'Steel', legs + tread)
-    # the floor slab, the cabin's walls with a band of windows, its roof reaching over
-    model.add('TOWER_CABIN', 'White', sh.box((cx - s / 2, y + floor - .15, cz - s / 2), (cx + s / 2, y + floor, cz + s / 2), tile=(2., 2.)))
-    model.add('TOWER_CABIN', 'White', sh.walls(rect(cx, cz, s, s, 0), y + floor, y + floor + 1.0, tile=(2., 2.)))
-    model.add('TOWER_CABIN', 'White', sh.walls(rect(cx, cz, s, s, 0), y + floor + 2.1, y + floor + cab, tile=(2., 2.)))
-    win = sh.walls(rect(cx, cz, s - .02, s - .02, 0), y + floor + 1.0, y + floor + 2.1, tile=(1., 1.1))
-    # each side the window's half of the texture across it
-    win = [sh._part(V, N, np.c_[.02 + .44 * (U[:, 0] - U[:, 0].min()) / np.ptp(U[:, 0]), (U[:, 1] - U[:, 1].min()) / np.ptp(U[:, 1])], F)
-           for V, N, U, F in win]
-    model.add('TOWER_WINDOWS', 'Openings', win)
+    # the floor slab, the cabin's walls with a band of windows all round, its roof reaching over
+    model.add('TOWER_CABIN', 'White', sh.box((cx - s / 2, y + floor - .15, cz - s / 2), (cx + s / 2, y + floor, cz + s / 2), tile=(2., 2.), faces='nsewb'))
+    P = np.array([(-s / 2, -s / 2), (s / 2, -s / 2), (s / 2, s / 2), (-s / 2, s / 2)])
+    hole = (.12, s - .12, 1., 2.1)
+    holes = {i: [hole] for i in range(4)}
+    wins = [(i, hole, dict(bars=(s / 2,))) for i in range(4)]
+    walls, inner = holed_walls(P, 0., cab, holes)
+    model.add('TOWER_CABIN', 'White', sh.place(walls, 0., (cx, y + floor, cz)))
+    room(model, 'TOWER_CABIN', P, 0., cab, inner, wins, 0., (cx, y + floor, cz))
     model.add('TOWER_ROOF', 'Roof', sh.box((cx - s / 2 - .4, y + floor + cab, cz - s / 2 - .4), (cx + s / 2 + .4, y + floor + cab + .12, cz + s / 2 + .4), tile=(1., 1.)))
 
 
@@ -754,7 +787,7 @@ def control_tower(model, ground, cx, cz, w=5.6, d=5.6, front='w'):
         wins.append((side, hole, dict(bars=(s,), transoms=(y + 1.7,))))
     outer, inner = holed_walls(corners, y - .3, y + 8.1, holes)
     model.add('TOWER_CONTROL_WALLS', 'GreyWall', outer)
-    glazing(model, 'TOWER_CONTROL', corners, wins)
+    glazing(model, 'TOWER_CONTROL', np.asarray(corners, float), wins)
     # the two rooms: the ground floor's up to the upper floor's slab, the upper one's to the roof
     rooms = [(y + .02, y + 3.6), (y + 4.1, y + 8.1)]
     inside = inner + [p for f, c in rooms for p in sh.poly([(x, c, z) for x, z in corners], n=np.array([0., -1., 0.]), tile=(2., 2.))]
@@ -796,13 +829,23 @@ def wall_quad(a, along, n, s0, s1, h0, h1, tile=2.):
     return sh._part(V, np.tile(nn, (4, 1)), U, sh._facing(V, [(0, 1, 2), (0, 2, 3)], nn))
 
 
-def holed_walls(P, y0, y1, holes):
+def holed_walls(P, y0, y1, holes, thick=WALL):
     """Walls round P from y0 to y1 with holes in them: holes[i] the (s0, s1, h0, h1) on the side
-    from P[i], s along it. Their faces outside, and inside."""
+    from P[i], s along it. Their faces outside, and inside (thick in from them, with the holes'
+    reveals between)."""
     outer, inner = [], []
     for i in range(len(P)):
         a, along, L, n = side_of(P, i)
         hs = holes.get(i, [])
+        b = a - n * thick
+        for s0, s1, h0, h1 in hs:
+            at = lambda s, h, o: (a[0] + along[0] * s - n[0] * o, h, a[1] + along[1] * s - n[1] * o)
+            for V, f in (([at(s0, h0, 0), at(s1, h0, 0), at(s1, h0, thick), at(s0, h0, thick)], (0., 1., 0.)),
+                         ([at(s0, h1, 0), at(s1, h1, 0), at(s1, h1, thick), at(s0, h1, thick)], (0., -1., 0.)),
+                         ([at(s0, h0, 0), at(s0, h1, 0), at(s0, h1, thick), at(s0, h0, thick)], (along[0], 0., along[1])),
+                         ([at(s1, h0, 0), at(s1, h1, 0), at(s1, h1, thick), at(s1, h0, thick)], (-along[0], 0., -along[1]))):
+                V, f = np.array(V, float), np.array(f)
+                inner.append(sh._part(V, np.tile(f, (4, 1)), np.zeros((4, 2)), sh._facing(V, [(0, 1, 2), (0, 2, 3)], f)))
         xs = sorted({0., L} | {v for h in hs for v in h[:2]})
         ys = sorted({y0, y1} | {v for h in hs for v in h[2:]})
         for xa, xb in zip(xs, xs[1:]):
@@ -811,7 +854,7 @@ def holed_walls(P, y0, y1, holes):
                 if any(s0 < xm < s1 and h0 < ym < h1 for s0, s1, h0, h1 in hs):
                     continue
                 outer.append(wall_quad(a, along, n, xa, xb, ya, yb))
-                inner.append(wall_quad(a, along, -n, xa, xb, ya, yb))
+                inner.append(wall_quad(b, along, -n, xa, xb, ya, yb))
     return outer, inner
 
 
@@ -862,26 +905,30 @@ def window(a, along, n, hole, bars=(), transoms=(), open_top=None):
     return frame, glass
 
 
-def glazing(model, name, P, wins):
-    """The windows wins, each (side of P, hole, window's options), into the model."""
+def glazing(model, name, P, wins, yaw=0., at=(0, 0, 0)):
+    """The windows wins, each (side of P, hole, window's options), into the model, turned by yaw
+    and moved to at."""
     frame, glass = [], []
     for i, hole, kw in wins:
         a, along, L, n = side_of(P, i)
         fr, gl = window(a, along, n, hole, **kw)
         frame += fr
         glass += gl
-    model.add(name + '_FRAMES', 'Frame', frame)
-    model.add(name + '_GLASS', 'Glass', glass)
+    model.add(name + '_FRAMES', 'Frame', sh.place(frame, yaw, at))
+    model.add(name + '_GLASS', 'Glass', sh.place(glass, yaw, at))
 
 
-def lamps(model, name, spots):
+def lamps(model, name, spots, yaw=0., at=(0, 0, 0)):
     """Ceiling lamps, a flat white box under the ceiling at each spot (x, ceiling, z), which glows
-    at night, and a night light under it in the Custom Shaders Patch config."""
+    at night, and a night light under it in the Custom Shaders Patch config; turned by yaw and
+    moved to at."""
     out = []
     for x, c, z in spots:
         out += sh.box((x - LAMP[0] / 2, c - LAMP[1], z - LAMP[0] / 2), (x + LAMP[0] / 2, c, z + LAMP[0] / 2), faces='nsewb')
-        LAMP_SPOTS.append((x, c - LAMP[1] - .05, z))
-    model.add(name + '_LAMPS', 'Lamp', out)
+    model.add(name + '_LAMPS', 'Lamp', sh.place(out, yaw, at))
+    S = np.array([(x, c - LAMP[1] - .05, z) for x, c, z in spots], float)
+    S = sh.place([sh._part(S, np.zeros_like(S), np.zeros((len(S), 2)), np.zeros((0, 3), int))], yaw, at)[0][0]
+    LAMP_SPOTS.extend(map(tuple, S))
 
 
 def write_lights():
@@ -1004,19 +1051,7 @@ def middle_building(model, name, P, eave, ground):
     roof, gables = barrel_roof(P, eave)
     model.add(name + '_ROOF', 'RoofDark', roof)
     model.add(name + '_WALLS', 'GreyWall', gable_walls(gables, P.mean(0)))
-    glazing(model, name, P, wins)
-    model.add(name + '_INSIDE', 'Plaster', inner + sh.poly([(x, eave, z) for x, z in P], n=np.array([0., -1., 0.]), tile=(2., 2.)))
-    model.add(name + '_FLOOR', 'Concrete', sh.poly([(x, y0 + .02, z) for x, z in P], n=np.array([0., 1., 0.]), tile=(2., 2.)))
-    # the lamps in rows, about LAMP_EVERY apart
-    nu = max(1, int(round(np.linalg.norm(P[1] - P[0]) / LAMP_EVERY)))
-    nv = max(1, int(round(np.linalg.norm(P[3] - P[0]) / LAMP_EVERY)))
-    spots = []
-    for i in range(nu):
-        for j in range(nv):
-            u, v = (i + .5) / nu, (j + .5) / nv
-            x, z = (1 - u) * (1 - v) * P[0] + u * (1 - v) * P[1] + u * v * P[2] + (1 - u) * v * P[3]
-            spots.append((x, eave, z))
-    lamps(model, name, spots)
+    room(model, name, P, y0, eave, inner, wins)
     return y0
 
 
