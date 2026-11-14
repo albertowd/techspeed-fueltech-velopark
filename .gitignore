@@ -22,3 +22,6 @@ venv/
 
 # the raw satellite pictures surroundings.jpg is laid from (68 MB); kept locally, fetched again by tools/surroundings.py photo
 tools/reference/surroundings/tiles/
+
+# the scanned materials tools/scan_materials.py fetches from Poly Haven (CC0); kept locally, fetched again when missing
+tools/reference/materials/

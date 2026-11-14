@@ -20,6 +20,58 @@
 - Smoother south straight on the 1500, without the bump by the pit lane exit.
 - The land round the track, out to 1.5 km, shows what is really there, at its real heights, no longer flat copies of the track's photo.
 - The whole track and its ground follow the real heights more closely, matching the land round them.
+- Sharper asphalt everywhere, worn, with tyre marks and relief.
+- Concrete pavers by the 1500's top hairpin and on the run-offs laid as the real light grey interlocking blocks, with relief.
+- The track and the grass round it follow the real ground's heights closely and smoothly, no more bumps and hollows the real ground has not.
+- Every edge of the track and the kerbs eases down onto the grass, with no hidden steps that stopped a kart like a wall or made it jump.
+- The land round the track meets the track's ground all round, with no gaps or steps.
+- The middle buildings stand on their raised ground, the pit lanes ramping down from it to the tracks.
+- The pit building is a kart workshop, as the real one, with doorways onto both pit lanes under a curved roof on orange columns.
+- Rental karts parked in the workshop and under the white tent.
+- The bar's terrace by the 1500's pit entry, under the paddock building's roof, with tables and chairs.
+- Race control tower with a cream front, a band of windows on its ground floor and round orange columns standing straight up.
+- The stand by the south straight remade in wood, with the Techspeed banner on its front.
+- A small raised wooden stand north of it, by the 1500's straight.
+- The pits and the shed's kart platform stand a metre up: the 1000's pit lane climbs a smooth ramp to them past the storage building, beside the platform's steep concrete edge.
+- The tyre wall along the 1000's pit lane against the storage building and on to the shed, as the real one, and grass on the lane's other side.
+- The storage building by the 1000's pit lane is a garage, with open bays on both sides to drive into.
+- A road from the storage building's garage across the path from the north into the end of the 1500's pit exit, the path straight into the middle of the exit's curve, grass between them; a straight ramp down from the shed's smaller kart platform to the exit, and grass round them.
+- The 1500's pit exit wider on the inside of its curve, out under its tyre wall, curving into the track where the tyres end.
+- Asphalt in both pits out to the columns under the pit building's roof, the tyre walls along them, the columns standing in the tyres.
+- The asphalt runs into the pit building's workshop and the storage building's garage, with no step at their doors.
+- Grass again in place of a stray patch of asphalt by the 1000's pit entry.
+- Yellow lines along both sides of the 1000's pit lane, from the track to the pits, the track's old line across its entry gone.
+- Yellow lines along both sides of the 1500's pit entry, from the track to its pit boxes.
+- Yellow lines along both sides of the hotlap's pit lane, from where it forks off the track to the fence, straight along the building from a white line across its start, and a third between the pit boxes and the lane.
+- The track's white edge line unbroken past the 1500's two pit entries.
+- The hotlap's and the 2500's pit boxes in a row in front of the building, the pit lane running along the middle of the road past them instead of across the car park.
+- The building by the hotlap's pit lane stands where the photos show it, its front no longer over the pit lane.
+- Its open end: open to the pit lane between its columns, walled at its east end, mesh fence over its low back wall up to the roof.
+- The paddock buildings' orange columns round.
+- The building by the hotlap's pit lane under one rounded metal roof as the middle buildings, the solar panels on its north half, its walls inside up to it.
+- The session's times live on the TV by the HotLap Velopark one (with the Custom Shaders Patch).
+- The pits' tyre walls one straight row each along the columns, each column standing in a stack.
+- The shed's tent on its concrete, and the concrete's edges closed all round.
+- The 1000's pit boxes along the lane's yellow line, clear of it.
+- White lines along the road south from the 1500's pit entry to the car park.
+- No grass edges lying over the asphalt where two roads meet.
+- A long table with two TVs in the open end of that building, facing the crowd: one with the times, one with the HotLap Velopark site's times, your best lap shown among them (with the Custom Shaders Patch).
+- The pit building's workshop wider on the 1500's side, out to its pit lane, and the storage building in line with it on the 1000's.
+- The 1000's pit lane about 5 m wide from the track to the pits, its mouth curving in from the track on the side the karts come from, its pit boxes in one straight row along the pit building and the storage building, so a kart passes one standing in its box.
+- The raised ground goes on south past race control and the bar to the wooden stands, falling gently.
+- A tall mesh fence along the road by the 1500's pit entry, from the changing rooms past the bar and the wooden stands to the dirt path.
+- A walkway between the changing rooms and the bar, under their roof.
+- Tyre stacks sit on the ground, tilted with it, with no gaps under them and no tyres coming apart.
+- Posts, beams, frames and rails no longer drawn inside out; some asphalt, paint and kerb edges that were missing from one side drawn again.
+- No invisible wall past the end of the tyres at the 1500's pit entry.
+
+### Assetto Corsa
+
+- Replay cameras on every layout: from the race control room, over the start grid and round the corners.
+
+### BeamNG.drive
+
+- Kerbs, tyre walls and cones show their bumps the right way out.
 
 ## 0.7.0
 

@@ -1,6 +1,6 @@
 """Draw what stands round the track from above, each thing by name, to talk about it by name:
 python tools/objects_map.py [out.png]. Reads the Assetto Corsa build in build/ac (python
-tools/build_tracks.py ac first) and the forest's stands (source/models/velopark_extra_trees.json),
+tools/build_tracks.py ac first) and the forest's stands (source/models/velopark_trees.json),
 x to the left and z up, as it lies on the ground, as tools/track_map.py draws the roads.
 
 The grass, the trees, the dirt roads, the pond and the roads are background colours (the trees
@@ -28,7 +28,7 @@ def triangles(m):
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'docs', 'objects_map.png')
-FOREST = os.path.join(ROOT, 'source', 'models', 'velopark_extra_trees.json')
+FOREST = os.path.join(ROOT, 'source', 'models', 'velopark_trees.json')
 SCALE = 4.            # pixels a metre
 X0, X1, Z0, Z1 = -290., 270., -140., 360.
 COLOURS = dict(grass=(204, 220, 178), trees=(120, 160, 104), dirt=(206, 182, 140), water=(130, 170, 205),

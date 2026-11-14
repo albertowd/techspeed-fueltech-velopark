@@ -37,6 +37,8 @@ by location.json) and screenshots of the vp_1000 driven from K1_S_LEFT to K1_T1:
 Everything stands on the ground as it is (after tools/level_ground.py). Its textures are made
 here, into source/textures (OUT_*.dds), but the old roofs' sheets, which are BuildingRoof.dds. Run
 again, it makes the model again, the same.
+- the pit building between the two tracks' pits (pit_building), and the bar's terrace under the
+  middle paddock building's roof by the vp_1500's pit entry (bar).
 """
 import glob, io, json, math, os, re, sys
 
@@ -86,9 +88,9 @@ SEED = 7
 # the buildings in the middle of the track, made again as the screenshots show them: each its
 # corners (as its walls to hit in velopark_paddock.glb) and its eaves' height
 MIDDLE = {'PADDOCK_BUILDING_N': ([(-58.58, 54.83), (-40.63, 53.68), (-39.44, 73.32), (-57.03, 74.48)], 5.0),
-          'PADDOCK_BUILDING_M': ([(-65.86, 32.09), (-35.7, 29.76), (-33.55, 53.09), (-63.46, 55.42)], 4.8),
+          'PADDOCK_BUILDING_M': ([(-65.86, 32.09), (-36.7, 29.76), (-34.8, 53.09), (-63.46, 55.42)], 4.8),
           'PADDOCK_BUILDING_S': ([(-62.54, 17.37), (-45.08, 15.61), (-43.88, 30.09), (-61.59, 31.25)], 4.2),
-          'GARAGE': ([(-45.67, 142.03), (-39.81, 141.45), (-37.18, 168.83), (-42.92, 169.66)], 4.1)}
+          'GARAGE': ([(-47.26, 142.03), (-39.81, 141.45), (-37.18, 168.83), (-44.64, 169.66)], 4.1)}   # (its east wall on the pit building's)
 # their roofs, each one rounded sheet of metal arched from west to east: ROOF_UP over the eaves
 # over the walls, rising ROOF_RISE of the width between them in the middle, ROOF_OVER beyond
 # them, ROOF_THICK thick, the arc in ROOF_STEPS
@@ -109,8 +111,69 @@ TOWER_OPEN = [8., 22., 0., 30., 15., 35., 12., 25.]
 # the big tent by the pit boxes, north of the solar shed, from the ground photo: its middle, width
 # and depth, its depth's way (as the solar shed's posts run), its eaves, and how high its fabric
 # rises over them
-PIT_TENT = ((-41., 130.4), (10.4, 8.6), (.087, .996))
+PIT_TENT = ((-41., 130.4), (10.4, 8.6), (.087, .996))   # (made again from the shed's floor by tent_on_floor())
+SHED_TENT_IN = .3
+
+
+def tent_on_floor():
+    """The tent on the shed's floor: its middle (x, z), its size across and along, its direction along
+    (x, z), SHED_TENT_IN in from the concrete's edges all round."""
+    import drape_track as dt
+    (xa, za), (xb, zb) = dt.LANE_EDGE
+    edge = lambda z: xa + (xb - xa) * (z - za) / (zb - za)
+    z_n = dt.SHED_NORTH + dt.SHED_EDGE + 1.3
+    ez = np.array([xb - xa, zb - za], float)
+    ez /= np.linalg.norm(ez)
+    zm = (SLAB_SOUTH + z_n) / 2
+    c = ((edge(zm) + SLAB_WEST) / 2, zm)
+    w = (SLAB_WEST - edge(zm)) * ez[1] - 2 * SHED_TENT_IN
+    return c, (w, (z_n - SLAB_SOUTH) - 2 * SHED_TENT_IN), tuple(ez)
 PIT_TENT_EAVE, PIT_TENT_DOME = 3.2, 2.6
+# the pit building between the two tracks' pits (screenshots 15-17 and 25-27 in
+# tools/reference/site): a workshop for the karts in its middle, its walls cream over a grey
+# skirt, a band of dark windows high in them, two big doorways on each pit lane; one roof of
+# shallow curved metal sheets over it and over both pit lanes, on salmon red columns where the
+# old ones stood, steel trusses under it, strip lights, and its signs at both ends over each lane:
+# Techspeed over the vp_1000's (east), "curta vencer" over the vp_1500's. Its middle and its way north
+PIT_BUILDING = ((-45.55, 110.3), (.0945, .9955))
+PIT_CORE = (9.4, 25.8)          # the workshop's width (across) and length (along)
+PIT_CORE_WEST = 2.5             # metres more of it on its west side, out to the 1500's pit lane (screenshot 17)
+PIT_ROOF = (31.2, 30.5)         # the roof's, over both lanes
+PIT_RISE = .045                 # the roof's rise over its width
+PIT_EAVE = 4.4                  # metres from the columns' feet to the eaves
+PIT_COLUMNS = [(-30.05, 122.6), (-30.65, 116.05), (-31.2, 109.45), (-31.75, 102.85), (-32.35, 96.25),
+               (-58.75, 124.55), (-59.35, 118.05), (-59.9, 111.6), (-60.45, 105.1), (-61.05, 98.6)]
+PIT_DOORS = (-6.3, 6.3)         # the doorways' middles along the workshop, on both its sides
+PIT_DOOR = (4.4, 3.4)           # their width and height
+PIT_SKIRT, PIT_BAND = 1.2, (2.4, 3.4)   # the grey skirt's height, the windows' band
+# (the bar's west side, its posts, stands back off the road along it, R26, behind its fence)
+# the fence along the road by the vp_1500's pit entry and the hotlap's pit lane (screenshots 13 and
+# 14): along the side of these roads away from the track, PIT_FENCE_OFF off them, from in front of
+# the changing rooms (the north paddock building) south past the bar and the wooden stands to the
+# dirt path from the kids track to the car park, from z to z
+PIT_FENCE_ROADS = ('1ROAD_25', '1ROAD_26')
+PIT_FENCE_Z = (74., -45.)
+PIT_FENCE_OFF = .35
+# the storage building as a garage: its open bays on the lane's side and the road's, metres from its
+# north end, their height, its louvred doors and its fire hose box on the lane's side
+GARAGE_BAYS_LANE = ((.8, 4.2), (4.7, 8.1), (8.6, 12.), (12.5, 15.9))
+GARAGE_BAYS_ROAD = ((6., 9.4), (9.9, 13.3), (13.8, 17.2))
+GARAGE_BAY_H = 2.9
+GARAGE_DOORS = ((18.5, 19.9), (23., 24.4))
+GARAGE_HOSE = 21.3
+WALKWAY = 2.5                   # metres between the changing rooms' walls and the bar's, under their roofs
+BAR_DEPTH = 4.5                 # metres the bar's terrace reaches in under the middle paddock building's roof
+# the stand by R26 (screenshot 09): a low stand of timber, its front along the banner, three tiers
+# rising back from it: its middle, its way along, length, depth, the tiers' heights over its foot
+STAND = ((-19.14, -32.58), (.509, -.861), 19.6, 5.4, (1.4, 1.8, 2.2))
+# the other wooden stand (screenshot 08): a small raised one on posts, east of the vp_1500's straight
+# north of that one, past the tyre wall and the grass, before the fence and the wood: its front's
+# middle, its way along (as the tyre wall runs there), length, depth, its tiers' heights
+STAND_2 = ((-28.7, -2.3), (.371, -.928), 8., 3., (1., 1.4))
+STUB_WALL, STUB_BOX = '1WALL_161', ((0., 3.5), (-42.5, -37.5))   # the old wall's piece past the pit entry's tyres
+SLAB_SOUTH, SLAB_WEST = 125., -35.6   # z, x: where the shed's floor's concrete begins from the pits, and ends at the ramp to the pit exit
+FACE_FROM = .2                  # metres the shed's floor stands over the 1000's pit lane where its concrete face starts
+PIT_WALL = 4.2                  # the cream walls' height; white panels braced with steel over them to the roof
 # the prices on the fuel station's sign, in reais: the averages in Rio Grande do Sul in ANP's
 # survey of early November 2026, written as the stations' lit boards show them, a dot between
 # the reais and the centavos. The Custom Shaders Patch shows them from its config's script,
@@ -281,6 +344,9 @@ def textures():
     fa = np.zeros((n, n, 3)) + 70 + 10 * noise(n, 6, 20)[..., None]
     fa[(y > .7) & (y < .76)] = (200, 205, 210)
     T['OUT_fascia.dds'] = (rgb(fa), 'DXT1')
+    # painted orange steel (tool cabinets), and black rubber (tyres)
+    T['OUT_orange.dds'] = (rgb(np.array([214., 98., 34.]) * (.92 + .1 * noise(n, 6, 25))[..., None]), 'DXT1')
+    T['OUT_rubber.dds'] = (rgb((34 + 10 * noise(n, 30, 26) + 8 * (np.sin(x * 2 * np.pi * 24) > .6))[..., None] * np.ones(3)), 'DXT1')
     return {k: (img if img.size == (n, n) else img.resize((n, n)), fmt) for k, (img, fmt) in T.items()}
 
 
@@ -311,6 +377,56 @@ def banner_texture():
         d.polygon([(x0 + flip * 30, 215), (x0 + flip * 300, 92), (x0 + flip * 320, 100), (x0 + flip * 80, 222)], fill=(170, 30, 30))
     d.text((1310, 112), 'TECHSPEED', fill=(250, 250, 250), font=font(150), anchor='mm')
     d.text((1310, 212), 'CIRCUITOS DE KART', fill=(220, 220, 225), font=font(40), anchor='mm')
+    return img
+
+
+def pit_signs_texture():
+    """The pit building's signs, 4 wide to 1 high each: Techspeed on the top half, "curta VENCER"
+    on the bottom, white on charcoal with the orange and red swoosh."""
+    from PIL import ImageDraw
+    W, H = 1024, 512
+    img = Image.new('RGB', (W, H), (34, 34, 38))
+    d = ImageDraw.Draw(img)
+    for y0, words in ((0, (('TECHSPEED', 118),)), (256, (('curta', 46), ('VENCER', 110)))):
+        for x0, flip in ((24, 1), (W - 24, -1)):
+            d.polygon([(x0, y0 + 220), (x0 + flip * 150, y0 + 60), (x0 + flip * 190, y0 + 66), (x0 + flip * 48, y0 + 226)], fill=(226, 92, 38))
+            d.polygon([(x0 + flip * 20, y0 + 236), (x0 + flip * 190, y0 + 92), (x0 + flip * 204, y0 + 100), (x0 + flip * 56, y0 + 242)], fill=(170, 30, 30))
+        if len(words) == 1:
+            d.text((W // 2, y0 + 128), words[0][0], fill=(250, 250, 250), font=sign_font(words[0][1]), anchor='mm')
+        else:
+            d.text((W // 2 - 150, y0 + 62), words[0][0], fill=(230, 230, 232), font=sign_font(words[0][1]), anchor='mm')
+            d.text((W // 2, y0 + 150), words[1][0], fill=(250, 250, 250), font=sign_font(words[1][1]), anchor='mm')
+    return img
+
+
+def timing_texture():
+    """The timing screen, 16 wide to 9 high: a hot lap session's times, the karts in order, white on
+    near black, the best of each in green."""
+    from PIL import ImageDraw
+    W, H = 1024, 576
+    img = Image.new('RGB', (W, H), (10, 12, 18))
+    d = ImageDraw.Draw(img)
+    small, big, row_f = sign_font(16), sign_font(28), sign_font(20)
+    d.text((24, 16), 'Session:', fill=(200, 200, 205), font=small)
+    d.text((110, 16), 'HOT LAP', fill=(245, 245, 245), font=small)
+    d.text((24, 38), 'Timing:', fill=(200, 200, 205), font=small)
+    d.text((110, 32), '01:26:21', fill=(245, 245, 245), font=big)
+    d.text((24, 66), 'Time to go:', fill=(200, 200, 205), font=small)
+    d.text((130, 66), '00:00:00', fill=(245, 245, 245), font=small)
+    d.line((20, 92, W - 20, 92), fill=(220, 220, 225), width=2)
+    rng = np.random.RandomState(26)
+    best = 75.15
+    for i in range(13):
+        y = 100 + i * 33
+        t = best + i * .35 + rng.uniform(0., .3)
+        d.text((24, y + 4), str(i + 1), fill=(245, 245, 245), font=row_f)
+        d.text((70, y), '#%02d  KART %d' % (rng.randint(1, 99), i + 1), fill=(245, 245, 245), font=row_f)
+        d.text((70, y + 18), 'Laps: %d' % rng.randint(2, 8), fill=(190, 190, 195), font=sign_font(12))
+        d.text((420, y + 6), 'Best Lap: %d' % rng.randint(1, 6), fill=(190, 190, 195), font=sign_font(13))
+        d.text((560, y + 6), 'Best Time: 01:%06.3f' % (t - 60.), fill=(120, 220, 120) if i in (0, 7, 10) else (230, 230, 232), font=sign_font(13))
+        d.text((780, y + 6), 'Diff: %.3f' % (t - best), fill=(190, 190, 195), font=sign_font(13))
+        d.line((20, y + 32, W - 20, y + 32), fill=(90, 92, 100), width=1)
+    d.text((24, H - 22), 'Timing and results are not official', fill=(235, 200, 60), font=sign_font(12))
     return img
 
 
@@ -420,6 +536,12 @@ MATERIALS = {
     'Banner': ('OUT_banner.dds', dict(spec=.1, amb=.35, dif=.65)),
     'Pylon': ('OUT_pylon.dds', dict(spec=.2, exp=20., amb=.35, dif=.65)),
     'FuelPrices': ('OUT_fuel_prices.dds', dict(spec=.3, exp=40., amb=.35, dif=.65)),
+    'Orange': ('OUT_orange.dds', dict(spec=.3, exp=30.)),
+    'Rubber': ('OUT_rubber.dds', dict(spec=.05, exp=8.)),
+    'PitSigns': ('OUT_pit_signs.dds', dict(spec=.2, exp=20., amb=.35, dif=.65)),
+    'Timing': ('OUT_timing.dds', dict(spec=.4, exp=60., amb=.2, dif=.3, emissive=.9)),
+    'Solar': ('BuildingSolar.dds', dict(spec=.5, exp=60.)),
+    'HotlapPage': ('OUT_hotlap_page.dds', dict(spec=.4, exp=60., amb=.2, dif=.3, emissive=.9)),
 }
 
 
@@ -821,6 +943,63 @@ def marshal(model, ground, cx, cz, side=1., tag='', w=3.):
     model.add('MARSHAL_CONES' + tag, 'Cone', cones)
 
 
+def tube(foot, head, r0, r1, seg=16):
+    """A round column from foot to head, along its own slant, r0 thick at its foot tapering to r1:
+    one smooth piece, its rings square to its axis, its top capped."""
+    ax = (head - foot) / np.linalg.norm(head - foot)
+    e1 = np.cross(ax, [0., 0., 1.] if abs(ax[2]) < .9 else [1., 0., 0.])
+    e1 /= np.linalg.norm(e1)
+    e2 = np.cross(ax, e1)
+    a = np.linspace(0, 2 * np.pi, seg + 1)
+    ring = np.outer(np.cos(a), e1) + np.outer(np.sin(a), e2)
+    L = np.linalg.norm(head - foot)
+    slope = (r0 - r1) / L
+    N = ring + ax * slope
+    N /= np.linalg.norm(N, axis=1, keepdims=True)
+    V = np.r_[foot + ring * r0, head + ring * r1]
+    U = np.r_[np.c_[a / (2 * np.pi), np.zeros(seg + 1)], np.c_[a / (2 * np.pi), np.full(seg + 1, L)]]
+    k = seg + 1
+    F = [(i, i + k, i + 1) for i in range(seg)] + [(i + 1, i + k, i + k + 1) for i in range(seg)]
+    out = [sh._part(V, np.r_[N, N], U, F)]
+    # facing out
+    v0, v1, v2 = V[F[0][0]], V[F[0][1]], V[F[0][2]]
+    if np.cross(v1 - v0, v2 - v0) @ N[0] < 0:
+        out = [sh._part(V, np.r_[N, N], U, [(i, c, b) for i, b, c in F])]
+    cap = np.r_[[head], head + ring[:-1] * r1]
+    Fc = [(0, 1 + (i + 1) % seg, 1 + i) for i in range(seg)]
+    if np.cross(cap[Fc[0][1]] - cap[0], cap[Fc[0][2]] - cap[0]) @ ax < 0:
+        Fc = [(i, c, b) for i, b, c in Fc]
+    out.append(sh._part(cap, np.tile(ax, (len(cap), 1)), cap[:, [0, 2]] / .5, Fc))
+    return out
+
+
+def under(parts, x, z):
+    """The lowest of the faces of PARTS over (x, z): where a column under them must stop; nan
+    where none is over it."""
+    best = np.nan
+    for V, _, _, F in parts:
+        T = V[F]
+        a, b, c = T[:, 0, [0, 2]], T[:, 1, [0, 2]], T[:, 2, [0, 2]]
+        d = (b[:, 1] - c[:, 1]) * (a[:, 0] - c[:, 0]) + (c[:, 0] - b[:, 0]) * (a[:, 1] - c[:, 1])
+        ok = np.abs(d) > 1e-12
+        l1 = np.where(ok, ((b[:, 1] - c[:, 1]) * (x - c[:, 0]) + (c[:, 0] - b[:, 0]) * (z - c[:, 1])) / np.where(ok, d, 1.), -1.)
+        l2 = np.where(ok, ((c[:, 1] - a[:, 1]) * (x - c[:, 0]) + (a[:, 0] - c[:, 0]) * (z - c[:, 1])) / np.where(ok, d, 1.), -1.)
+        l3 = 1 - l1 - l2
+        hit = ok & (l1 >= -1e-9) & (l2 >= -1e-9) & (l3 >= -1e-9)
+        if hit.any():
+            y = (l1 * T[:, 0, 1] + l2 * T[:, 1, 1] + l3 * T[:, 2, 1])[hit].min()
+            best = y if np.isnan(best) else min(best, y)
+    return best
+
+
+def column_to(roof, foot, top, r0, r1, gap=.02):
+    """A round column from FOOT leaning to TOP's x and z, up to GAP under the roof all round its
+    head (or to TOP's height where the roof is not over it)."""
+    ring = [under(roof, top[0] + r1 * math.cos(a), top[2] + r1 * math.sin(a)) for a in np.linspace(0, 2 * np.pi, 8, endpoint=False)]
+    y = np.nanmin(ring) - gap if not np.all(np.isnan(ring)) else top[1]
+    return tube(np.asarray(foot, float), np.array([top[0], y, top[2]]), r0, r1)
+
+
 def control_tower(model, ground, cx, cz, w=5.6, d=5.6, front='w'):
     """The race control tower by the vp_1500's start: grey block walls, salmon red pillars at its
     corners, a rounded roof over it. Its upper floor has two windows a side, each a pane and a top
@@ -838,13 +1017,20 @@ def control_tower(model, ground, cx, cz, w=5.6, d=5.6, front='w'):
             hole = (s0, s0 + ww, y + TOWER_SILL, y + TOWER_HINGE)
             holes.setdefault(i, []).append(hole)
             wins.append((i, hole, dict(transoms=(y + TOWER_HINGE - TOWER_TOP,), open_top=(TOWER_TOP, TOWER_OPEN[2 * i + j]))))
+    # its front's ground floor one band of windows across it, steel framed, as the screenshots
+    # (13 to 15 in tools/reference/site) show
     side = {'s': 0, 'w': 1, 'n': 2, 'e': 3}[front]
-    for s in (1.6, 4.0):
-        hole = (s - .7, s + .7, y + 1., y + 2.4)
-        holes.setdefault(side, []).append(hole)
-        wins.append((side, hole, dict(bars=(s,), transoms=(y + 1.7,))))
+    L = np.linalg.norm(corners[(side + 1) % 4] - corners[side])
+    hole = (.35, L - .35, y + .5, y + 3.)
+    holes.setdefault(side, []).append(hole)
+    k = 4
+    wins.append((side, hole, dict(bars=tuple(.35 + (L - .7) * j / k for j in range(1, k)), transoms=(y + 1.9,))))
     outer, inner = holed_walls(corners, y - .3, y + 8.1, holes)
-    model.add('TOWER_CONTROL_WALLS', 'GreyWall', outer)
+    # the front cream, the rest dark grey
+    a_, along_, L_, n_ = side_of(np.asarray(corners, float), side)
+    fn = np.array([n_[0], 0., n_[1]])
+    model.add('TOWER_CONTROL_WALLS', 'Plaster', [p for p in outer if p[1][0] @ fn > .9])
+    model.add('TOWER_CONTROL_WALLS', 'GreyWall', [p for p in outer if not p[1][0] @ fn > .9])
     glazing(model, 'TOWER_CONTROL', np.asarray(corners, float), wins)
     # the two rooms: the ground floor's up to the upper floor's slab, the upper one's to the roof
     rooms = [(y + .02, y + 3.6), (y + 4.1, y + 8.1)]
@@ -852,12 +1038,13 @@ def control_tower(model, ground, cx, cz, w=5.6, d=5.6, front='w'):
     model.add('TOWER_CONTROL_INSIDE', 'Plaster', inside)
     model.add('TOWER_CONTROL_FLOOR', 'Concrete', [p for f, c in rooms for p in sh.poly([(x, f, z) for x, z in corners], n=np.array([0., 1., 0.]), tile=(2., 2.))])
     lamps(model, 'TOWER_CONTROL', [(cx, c, cz) for f, c in rooms])
-    pillars = []
-    for x, z in rect(cx, cz, w + .1, d + .1, 0):
-        pillars += sh.beam((x, y - .3, z), (x, y + 8.15, z), .36, tile=(.5, 1.))
-    model.add('TOWER_CONTROL_PILLARS', 'Pillar', pillars)
     # the roof, as the middle's buildings' are, arched from west to east
     roof, gables = barrel_roof(corners, y + 8.1, over=.9)
+    # round orange columns at its corners, straight up from the ground to under the roof's edge
+    pillars = []
+    for x, z in rect(cx, cz, w + .5, d + .5, 0):
+        pillars += column_to(roof, (x, y - .3, z), (x, y + 8.35, z), .28, .24)
+    model.add('TOWER_CONTROL_PILLARS', 'Orange', pillars)
     model.add('TOWER_CONTROL_ROOF', 'RoofDark', roof)
     model.add('TOWER_CONTROL_WALLS', 'GreyWall', gable_walls(gables, (cx, cz)))
     model.add('1WALL_TOWER_CONTROL', 'GreyWall', sh.walls(corners, y - .3, y + 3., tile=(2., 2.)))
@@ -1054,15 +1241,15 @@ def write_lights():
 
 
 # ---- the buildings in the middle of the track ---------------------------------------------------
-def barrel_roof(P, eave, rise=ROOF_RISE, over=ROOF_OVER, thick=ROOF_THICK, tile=2.):
+def barrel_roof(P, eave, rise=ROOF_RISE, over=ROOF_OVER, thick=ROOF_THICK, tile=2., eaves=None):
     """One rounded metal roof over the four corners P, arched from its west side to its east side
     (across x) and straight along its north to south: an arc of a circle from eave + ROOF_UP over
     the walls on each side, rising by rise of the width between them in its middle, carrying on
     over beyond them by over. Its parts, and the gable walls' outlines under it (each a list of
     points (x, y, z) from one side's eave over to the other's)."""
     P = np.asarray(P, float)
-    # the sides along z are the eaves: A to B one, D to C the other across from it
-    e = max(range(4), key=lambda i: abs(P[(i + 1) % 4][1] - P[i][1]) - abs(P[(i + 1) % 4][0] - P[i][0]))
+    # the sides along z are the eaves (or P[eaves] to the next, when given): A to B one, D to C the other across from it
+    e = eaves if eaves is not None else max(range(4), key=lambda i: abs(P[(i + 1) % 4][1] - P[i][1]) - abs(P[(i + 1) % 4][0] - P[i][0]))
     A, B, C, D = P[e], P[(e + 1) % 4], P[(e + 2) % 4], P[(e + 3) % 4]
     ov = over / np.linalg.norm(B - A)
     y_eave = eave + ROOF_UP
@@ -1130,12 +1317,14 @@ def gable_walls(gables, centre, tile=(2., 2.)):
     return out
 
 
-def middle_building(model, name, P, eave, ground):
+def middle_building(model, name, P, eave, ground, roof_P=None):
     """One of the buildings in the middle of the track: grey block walls round the corners P up to
     eave, a band of steel framed windows along them under it, plastered inside with ceiling lamps
-    in rows, and one rounded roof arched over it from west to east, its gables walled up to it."""
+    in rows, and one rounded roof arched over it from west to east, its gables walled up to it;
+    over roof_P, when given, which the walls stand in (a terrace under the roof outside them)."""
     P = np.asarray(P, float)
-    y0 = ground.low(P)
+    R = P if roof_P is None else np.asarray(roof_P, float)
+    y0 = ground.low(R)
     holes, wins = {}, []
     for i in range(4):
         a, along, L, n = side_of(P, i)
@@ -1146,17 +1335,466 @@ def middle_building(model, name, P, eave, ground):
         wins.append((i, hole, dict(bars=tuple(s0 + (s1 - s0) * j / k for j in range(1, k)))))
     outer, inner = holed_walls(P, y0 - .3, eave, holes)
     model.add(name + '_WALLS', 'GreyWall', outer)
-    roof, gables = barrel_roof(P, eave)
+    roof, gables = barrel_roof(R, eave)
     model.add(name + '_ROOF', 'RoofDark', roof)
-    model.add(name + '_WALLS', 'GreyWall', gable_walls(gables, P.mean(0)))
+    model.add(name + '_WALLS', 'GreyWall', gable_walls(gables, R.mean(0)))
     room(model, name, P, y0, eave, inner, wins)
     return y0
+
+
+def garage(model, ground):
+    """The storage building north of the shed, by the 1000's pit lane, a garage as the screenshots
+    show it (01, 02, 18 to 22 in tools/reference/site): cream walls, salmon red pillars between wide
+    open bays on both its long sides, on the lane's from its north end (GARAGE_BAYS_LANE, metres from
+    it) and on the road's to the pit exit (GARAGE_BAYS_ROAD), louvred doors and a fire hose box on
+    the lane's further south; its rooms plastered, lit, under one rounded roof as the middle's."""
+    name = 'GARAGE'
+    P, eave = MIDDLE[name]
+    P = np.asarray(P, float)
+    y0 = ground.low(P)
+    eave = max(eave, y0 + 3.2)
+    sides = [side_of(P, i) for i in range(4)]
+    lane = min(range(4), key=lambda i: (P[i][0] + P[(i + 1) % 4][0]))        # (x grows west)
+    road = max(range(4), key=lambda i: (P[i][0] + P[(i + 1) % 4][0]))
+    holes, pillars, doors, box = {}, [], [], []
+    for i, bays in ((lane, GARAGE_BAYS_LANE), (road, GARAGE_BAYS_ROAD)):
+        a, along, L, out = sides[i]
+        s_of = (lambda d: d) if along[1] < 0 else (lambda d: L - d)            # metres from the north end
+        at = lambda s, h, o=0.: (a[0] + along[0] * s + out[0] * o, h, a[1] + along[1] * s + out[1] * o)
+        for d0, d1 in bays:
+            s0, s1 = sorted((s_of(d0), s_of(d1)))
+            holes.setdefault(i, []).append((s0, s1, y0 - .3, y0 + GARAGE_BAY_H))
+        edges = sorted({d for b in bays for d in b})
+        for d in [bays[0][0] - .25] + [(bays[k][1] + bays[k + 1][0]) / 2 for k in range(len(bays) - 1)] + [bays[-1][1] + .25]:
+            s = s_of(d)
+            pillars += sh.beam(at(s, y0 - .3, .2), at(s, eave - .05, .2), .4)
+        if i == lane:
+            for d0, d1 in GARAGE_DOORS:
+                s0, s1 = sorted((s_of(d0), s_of(d1)))
+                doors += sh.quad(at(s0, y0, .03), at(s1, y0, .03), at(s1, y0 + 2.3, .03), at(s0, y0 + 2.3, .03), tile=(1.2, 2.3), both=True)
+            s = s_of(GARAGE_HOSE)
+            c = np.array(at(s, y0 + 1.6, .14))
+            box += sh.box(c - (.3, .4, .3), c + (.3, .4, .3), tile=(.6, .8))
+    outer, inner = holed_walls(P, y0 - .3, eave, holes)
+    model.add(name + '_WALLS', 'Plaster', outer)
+    roof, gables = barrel_roof(P, eave)
+    model.add(name + '_ROOF', 'RoofDark', roof)
+    model.add(name + '_WALLS', 'Plaster', gable_walls(gables, P.mean(0)))
+    model.add(name + '_PILLARS', 'Pillar', pillars)
+    model.add(name + '_DOORS', 'Openings', doors)
+    model.add(name + '_HOSE_BOX', 'Orange', box)
+    room(model, name, P, y0, eave, inner, [])
+    model.parts.pop((name + '_FLOOR', 'Concrete'), None)          # (its floor the paddock's asphalt, no step in)
+    model.add('1WALL_' + name, 'Plaster', outer)                  # (its walls, open where its bays are)
+
+
+def bar(model, ground):
+    """The bar: the middle paddock building's west end, by the vp_1500's pit entry, open as a
+    terrace under its roof (screenshots 06, 07 and 13 in tools/reference/site): its walls stand
+    BAR_DEPTH in from the roof's west side; along that side salmon red posts leaning out to the
+    roof's edge (the fence along its front is middle_fence's); on its concrete floor white
+    plastic tables, four chairs at each, and lamps under the roof."""
+    name = 'PADDOCK_BUILDING_M'
+    P, eave = MIDDLE[name]
+    P = np.asarray(P, float)
+    # the west side is the one of the most x: from A to B; the walls BAR_DEPTH in from it
+    i = max(range(4), key=lambda j: P[j][0] + P[(j + 1) % 4][0])
+    A, B = P[i], P[(i + 1) % 4]
+    Ain, Bin = P[(i - 1) % 4], P[(i + 2) % 4]
+    v_a, v_b = (Ain - A) / np.linalg.norm(Ain - A), (Bin - B) / np.linalg.norm(Bin - B)
+    walls = P.copy()
+    walls[i], walls[(i + 1) % 4] = A + v_a * BAR_DEPTH, B + v_b * BAR_DEPTH
+    y0 = middle_building(model, name, walls, eave, ground, roof_P=P)
+    L = np.linalg.norm(B - A)
+    u = (B - A) / L
+    v = (v_a + v_b) / 2
+    at = lambda s, d, h: (A[0] + u[0] * s + v[0] * d, y0 + h, A[1] + u[1] * s + v[1] * d)
+    floor = [at(0, 0, .03), at(L, 0, .03), at(L, BAR_DEPTH, .03), at(0, BAR_DEPTH, .03)]
+    model.add('BAR_FLOOR', 'Concrete', sh.poly(np.array(floor, float), n=np.array([0., 1., 0.]), tile=(2., 2.)))
+    # the posts, round, leaning out to the roof's edge and stopping under it (the roof stands at
+    # EAVE, whatever the floor's height)
+    roof, _ = barrel_roof(P, eave)
+    k = max(2, int(round(L / 3.4)))
+    ss = np.linspace(.3, L - .3, k + 1)
+    posts = []
+    for s in ss:
+        top = at(s, -.05, 0.)
+        posts += column_to(roof, at(s, .55, -.3), (top[0], eave, top[2]), .12, .1)
+    gap = (L / 2 - .9, L / 2 + .9)
+    model.add('BAR_POSTS', 'Pillar', posts)
+    # the tables and chairs, in two rows along it
+    furniture = []
+    for d in (1.5, 3.2):
+        for s in np.arange(1.6, L - 1.2, 2.5):
+            if gap[0] - .6 < s < gap[1] + .6 and d < 2:
+                continue
+            x, y, z = at(s, d, 0.)
+            furniture += sh.cylinder((x, y + .70, z), .4, .03, seg=14, bottom=True)
+            furniture += sh.cylinder((x, y, z), .04, .70, seg=6, top=False)
+            for du, dv in ((.65, 0.), (-.65, 0.), (0., .65), (0., -.65)):
+                c = np.array([x + u[0] * du + v[0] * dv, z + u[1] * du + v[1] * dv])
+                back = c + (u * np.sign(du) + v * np.sign(dv)) * .2
+                furniture += sh.box((c[0] - .21, y + .42, c[1] - .21), (c[0] + .21, y + .46, c[1] + .21))
+                for lx, lz in ((-.18, -.18), (.18, -.18), (.18, .18), (-.18, .18)):
+                    furniture += sh.beam((c[0] + lx, y, c[1] + lz), (c[0] + lx, y + .42, c[1] + lz), .03)
+                furniture += sh.beam((back[0], y + .46, back[1]), (back[0], y + .9, back[1]), .4 if du == 0 else .04, .04 if du == 0 else .4)
+    model.add('BAR_FURNITURE', 'White', furniture)
+    lamps(model, 'BAR', [at(s, BAR_DEPTH / 2, eave - .02) for s in np.arange(2., L - 1., 4.)])
+
+
+# the open end of the building along the hotlap's pit lane (its east half, along it from its east end
+# to OPEN_TO, metres along its front from its first column): its front open, its columns only; its
+# east end walled up to the roof; along its back, over its low wall, mesh fence up to the roof
+OPEN_FROM, OPEN_TO, OPEN_BACK = -5.6, 45.6, -11.35    # along its front from its first column; its back wall, out from its front
+
+
+def hotlap_building(ground):
+    """The building along the hotlap's pit lane as it stands: its front (a point on it, its direction west
+    to east, its normal out of it), its ends along its front, its depth, its eave's height (its
+    columns' tops) and the paddock's model."""
+    import restyle_paddock as rp
+    from grade_paths import pieces as parts
+    pad = gltf_source.load_kn5(bp.PADDOCK)
+    track = gltf_source.load_kn5(bp.TRACK)
+    foot, p0, d, nrm, xa, xb = rp.garages(pad, track)
+    Fp = np.array(foot.exterior.coords)
+    a, o = (Fp - p0) @ d, (Fp - p0) @ nrm
+    col = next(n for n, _ in bp.meshes(pad) if n['name'] == rp.HOTLAP_COLUMNS)
+    V = col['verts'][:, :3].astype(float)
+    lab = parts(col['faces'].astype(int), len(V))
+    tops = [V[lab == t][:, 1].max() for t in np.unique(lab)
+            if abs((V[lab == t][:, [0, 2]].mean(0) - p0) @ nrm) < 1.]       # (the front's)
+    return dict(p0=p0, d=d, nrm=nrm, ends=(OPEN_FROM, float(a.max())), depth=float(-o.min()),
+                eave=float(np.median(tops)) - ROOF_UP + ROOF_THICK, pad=pad)
+
+
+def hotlap_roof(model, ground):
+    """The building along the hotlap's pit lane roofed as the middle buildings are: one rounded roof of
+    dark metal arched over it from its front to its back (north to south), on its columns, its
+    gables walled up to it, the solar panels on its north half."""
+    b = hotlap_building(ground)
+    p0, d, nrm, (s0, s1), D, eave = b['p0'], b['d'], b['nrm'], b['ends'], b['depth'], b['eave']
+    P = np.array([p0 + d * s0, p0 + d * s1, p0 + d * s1 - nrm * D, p0 + d * s0 - nrm * D])
+    roof, gables = barrel_roof(P, eave, eaves=0)
+    model.add('HOTLAP_BUILDING_ROOF', 'RoofDark', roof)
+    model.add('HOTLAP_BUILDING_GABLES', 'GreyWall', gable_walls(gables, P.mean(0)))
+    # the solar panels: rows over its north half, a hand over the sheets
+    W, r = D, ROOF_RISE * D
+    R = (W * W / 4 + r * r) / (2 * r)
+    yc = eave + ROOF_UP + r - R
+    solar = []
+    ss = np.linspace(W / 2 + .4, W - .3, 7)
+    for t0, t1 in ((.4, s1 - s0 - .4),):
+        for w0, w1 in zip(ss[:-1], ss[1:]):
+            pts = []
+            for w in (w0, w1):
+                dx = w - W / 2
+                y = yc + math.sqrt(R * R - dx * dx) + .05
+                pts.append([p0 + d * (s0 + t) - nrm * w for t in (t0, t1)] + [y])
+            (a0, a1, ya), (b0, b1, yb) = pts
+            solar += sh.quad((a0[0], ya, a0[1]), (a1[0], ya, a1[1]), (b1[0], yb, b1[1]), (b0[0], yb, b0[1]), tile=(4., 4.))
+    model.add('HOTLAP_BUILDING_SOLAR', 'Solar', solar)
+    return b
+
+
+def open_area(model, ground, b):
+    """The building along the hotlap's pit lane's open end: the mesh fence over its back's low wall up to
+    the roof, and its east end walled up to its eave (its gable over it), with its wall to hit. The
+    low wall's top from the paddock's model as it lies."""
+    pad, p0, d, nrm, eave = b['pad'], b['p0'], b['d'], b['nrm'], b['eave']
+    under = eave + ROOF_UP - ROOF_THICK                                 # (the roof's underside at its eaves)
+    W = np.concatenate([bp.triangles(n, m) for n, m in bp.meshes(pad) if n['name'] in ('BLD_WALLS', 'BLD_ROOFS') and len(n['faces'])])
+    P = W.reshape(-1, 3)
+    a, o = (P[:, [0, 2]] - p0) @ d, (P[:, [0, 2]] - p0) @ nrm
+
+    def low_top(s_):
+        near = (np.abs(a - s_) < .8) & (np.abs(o - OPEN_BACK) < .4)
+        g = float(ground(*(p0 + d * s_ + nrm * OPEN_BACK))[0])
+        y = P[near, 1]
+        y = y[y < g + 2.]
+        return y.max() if len(y) else g + 1.
+    ss = np.linspace(OPEN_FROM + .3, OPEN_TO - .3, int((OPEN_TO - OPEN_FROM) / 1.5) + 1)
+    lows = np.array([low_top(s_) for s_ in ss])
+    lows = np.convolve(np.pad(lows, 2, mode='edge'), np.ones(5) / 5, 'valid')      # (its top a straight run)
+    fence_, rail = [], []
+    for s0_, s1_, l0, l1 in zip(ss[:-1], ss[1:], lows[:-1], lows[1:]):
+        q0, q1 = p0 + d * s0_ + nrm * (OPEN_BACK + .12), p0 + d * s1_ + nrm * (OPEN_BACK + .12)
+        fence_ += sh.quad((q0[0], l0, q0[1]), (q1[0], l1, q1[1]), (q1[0], under, q1[1]), (q0[0], under, q0[1]), tile=(1., 1.), both=True)
+        rail += sh.beam((q0[0], l0 + .02, q0[1]), (q1[0], l1 + .02, q1[1]), .05)
+    model.add('OPEN_AREA_FENCE', 'Wire', fence_)
+    model.add('OPEN_AREA_FENCE_RAIL', 'Steel', rail)
+    # the east end walled up to its eave, from the back to the front
+    wall, hit = [], []
+    D = b['depth']
+    oo = np.linspace(-D, 0., 9)
+    for o0, o1 in zip(oo[:-1], oo[1:]):
+        q0, q1 = p0 + d * (OPEN_FROM + .1) + nrm * o0, p0 + d * (OPEN_FROM + .1) + nrm * o1
+        g0, g1 = float(ground(*q0)[0]) - .2, float(ground(*q1)[0]) - .2
+        wall += sh.quad((q0[0], g0, q0[1]), (q1[0], g1, q1[1]), (q1[0], eave, q1[1]), (q0[0], eave, q0[1]), tile=(2., 2.), both=True)
+        hit += sh.quad((q0[0], g0, q0[1]), (q1[0], g1, q1[1]), (q1[0], eave, q1[1]), (q0[0], eave, q0[1]), both=True)
+    model.add('OPEN_AREA_EAST_WALL', 'GreyWall', wall)
+    model.add('1WALL_OPEN_AREA_EAST', 'GreyWall', hit)
+
+
+# the timing screens in the open end of the building along the hotlap's pit lane, in its north east
+# corner, facing the crowd (south west): a long table (TIMING_AT, x, z, its middle) and on it two TVs,
+# the times on the left as they look at it, the HotLap Velopark site's times on the right, the
+# player's best lap among them
+TIMING_AT, TIMING_YAW = (19.95, -31.8), math.radians(45.)
+TIMING_TABLE, TIMING_TV = (2.9, .8, .75), (1.24, .72, .04)   # its top's width, depth, height; each TV's width, height, depth
+TIMING_SCREENS = ((.72, 'Timing'), (-.72, 'HotlapPage'))   # each TV's middle across the table (+ on the left seen from in front), its screen
+# the HotLap Velopark site's times (hotlap.albertowd.dev's results/results.json, a copy), each driver's
+# best with each car, in order; on the TV HOTLAP_SHOW of them at a time under the site's header
+HOTLAP_RESULTS = os.path.join(ROOT, 'tools', 'reference', 'site', 'hotlap_results.json')
+HOTLAP_SHOW, HOTLAP_ROW, HOTLAP_TOP = 14, 30, 150      # rows shown, their height and where they begin on the 1024 x 576 screen
+HOTLAP_COLS = ((24, '#'), (80, 'Marca'), (230, 'Modelo'), (470, 'Ano'), (540, 'Piloto(a)'), (900, 'Tempo'), (930, 'Edicao'))
+
+
+def hotlap_rows():
+    """The site's times: each driver's best with each car, fastest first, as (place in that list, brand,
+    car, year, driver, time in ms, edition)."""
+    import unicodedata
+    plain = lambda t: unicodedata.normalize('NFKD', str(t or '')).encode('ascii', 'ignore').decode().replace("'", '').replace('"', '')
+    rows = []
+    for r in json.load(open(HOTLAP_RESULTS, encoding='utf-8')):
+        m = re.match(r'(\d+):(\d+(?:\.\d+)?)$', str(r.get('time') or ''))
+        if not m:
+            continue
+        rows.append((int(m.group(1)) * 60000 + int(round(float(m.group(2)) * 1000)), r))
+    rows.sort(key=lambda t: t[0])
+    out, seen = [], set()
+    for ms, r in rows:
+        key = (r.get('name'), r.get('brand'), r.get('car'))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((len(out) + 1, plain(r.get('brand')), plain(r.get('car')), str(r.get('year') or ''), plain(r.get('name')) or '-', ms,
+                    int(r.get('edition') or 0)))
+    return out
+
+
+def lap(ms):
+    return '%d:%06.3f' % (ms // 60000, (ms % 60000) / 1000.)
+
+
+def hotlap_page_texture():
+    """The HotLap Velopark site's classification, 16 wide to 9 high, its fastest HOTLAP_SHOW as the site
+    shows them (what the TV shows without the Custom Shaders Patch, and in BeamNG)."""
+    from PIL import ImageDraw
+    W, H = 1024, 576
+    img = Image.new('RGB', (W, H), (18, 18, 18))
+    d = ImageDraw.Draw(img)
+    d.rectangle((0, 0, W, 64), fill=(33, 33, 33))
+    d.polygon([(16, 22), (30, 40), (44, 14), (34, 42), (24, 44)], fill=(230, 110, 30))
+    d.text((60, 32), 'HotLap', fill=(240, 240, 240), font=sign_font(26), anchor='lm')
+    d.text((W // 2, 105), 'Classificação', fill=(255, 128, 0), font=sign_font(34), anchor='mm')
+    f, fb = sign_font(17), sign_font(17)
+    y0 = HOTLAP_TOP - HOTLAP_ROW
+    d.rectangle((16, y0, W - 16, HOTLAP_TOP), fill=(30, 30, 31))
+    for x, t in HOTLAP_COLS:
+        d.text((x, y0 + HOTLAP_ROW // 2), 'Edição' if t == 'Edicao' else t, fill=(235, 235, 235), font=fb, anchor='rm' if t == 'Tempo' else 'lm')
+    for i, (rank, brand, car, year, name, ms, ed) in enumerate(hotlap_rows()[:HOTLAP_SHOW]):
+        y = HOTLAP_TOP + i * HOTLAP_ROW
+        col = (255, 128, 0) if i < 3 else (40, 200, 180)
+        d.rectangle((16, y, W - 16, y + HOTLAP_ROW - 1), fill=(30, 30, 31))
+        d.line((16, y + HOTLAP_ROW - 1, W - 16, y + HOTLAP_ROW - 1), fill=(55, 55, 58))
+        cy = y + HOTLAP_ROW // 2
+        for (x, _), t in zip(HOTLAP_COLS, (str(rank), brand, car, year, '@ ' + name, lap(ms), '%d.' % ed)):
+            d.text((x, cy), t.replace('.', 'ª') if x == 930 else t, fill=(240, 240, 240) if x == 930 else col, font=f, anchor='rm' if x == 900 else 'lm')
+    return img
+
+
+def write_timing_display():
+    """The session's times on the TV beside the site's, as a display of the Custom Shaders Patch: a
+    script that draws every car of the session in order of its best lap (its laps, its last and its
+    best lap, how far behind the fastest), under the session's clock. Written into the track's
+    config; without the patch the TV shows timing_texture() painted."""
+    path = os.path.join(LAYOUTS, 'extension', 'ext_config.ini')
+    text = open(path, encoding='utf-8', newline='').read()
+    lua = '\n'.join([
+        '-- the session: every car in order of its best lap, from tools/build_outside.py',
+        'local WHITE, GREY, GREEN, AMBER = rgbm(.95, .95, .95, 1), rgbm(.7, .7, .74, 1), rgbm(.45, .86, .45, 1), rgbm(.92, .78, .24, 1)',
+        'local L, S = vec2(11, 20), vec2(8, 14)',
+        'local function get(o, k) local ok, v = pcall(function() return o[k] end) if ok then return v end return nil end',
+        'local function fmt(ms) if not ms or ms <= 0 then return "--:--.---" end return string.format("%02d:%06.3f", math.floor(ms / 60000), (ms % 60000) / 1000) end',
+        'local function clock(s) s = math.max(0, math.floor(s or 0)) return string.format("%02d:%02d:%02d", math.floor(s / 3600), math.floor(s / 60) % 60, s % 60) end',
+        'local function put(x, y, t, c, l) display.text{ pos = vec2(x, y), letter = l or S, text = t, font = "aria", color = c } end',
+        'function update(dt)',
+        '\tlocal ok, sim = pcall(ac.getSim)',
+        '\tif not ok or not sim then return end',
+        '\tlocal n = get(sim, "carsCount") or 1',
+        '\tlocal rows = {}',
+        '\tfor i = 0, n - 1 do',
+        '\t\tlocal okc, car = pcall(ac.getCar, i)',
+        '\t\tif okc and car then',
+        '\t\t\tlocal okn, name = pcall(ac.getDriverName, i)',
+        '\t\t\trows[#rows + 1] = { name = okn and name or ("CAR " .. (i + 1)), best = get(car, "bestLapTimeMs") or 0,',
+        '\t\t\t\tlast = get(car, "previousLapTimeMs") or 0, laps = get(car, "lapCount") or 0 }',
+        '\t\tend',
+        '\tend',
+        '\ttable.sort(rows, function(a, b) if (a.best > 0) ~= (b.best > 0) then return a.best > 0 end return a.best < b.best end)',
+        '\tlocal left = get(sim, "sessionTimeLeft")',
+        '\tput(24, 16, "Session:", GREY) put(110, 16, "HOT LAP", WHITE)',
+        '\tput(24, 40, "Timing:", GREY) put(110, 34, clock((get(sim, "timeHours") or 0) * 3600 + (get(sim, "timeMinutes") or 0) * 60 + (get(sim, "timeSeconds") or 0)), WHITE, vec2(15, 28))',
+        '\tput(24, 68, "Time to go:", GREY) put(130, 68, clock(left and left / 1000 or 0), WHITE)',
+        '\tdisplay.rect{ pos = vec2(20, 92), size = vec2(984, 2), color = rgbm(.86, .86, .88, 1) }',
+        '\tlocal fastest = rows[1] and rows[1].best or 0',
+        '\tfor k = 1, math.min(#rows, 13) do',
+        '\t\tlocal r, y = rows[k], 100 + (k - 1) * 33',
+        '\t\tput(24, y + 4, tostring(k), WHITE, L)',
+        '\t\tput(70, y, string.upper(r.name), WHITE, L)',
+        '\t\tput(70, y + 20, "Laps: " .. r.laps, GREY, vec2(6, 11))',
+        '\t\tput(400, y + 6, "Last Time: " .. fmt(r.last), GREY)',
+        '\t\tput(600, y + 6, "Best Time: " .. fmt(r.best), k == 1 and r.best > 0 and GREEN or WHITE)',
+        '\t\tif k > 1 and r.best > 0 and fastest > 0 then put(820, y + 6, string.format("Diff: %.3f", (r.best - fastest) / 1000), GREY) end',
+        '\t\tdisplay.rect{ pos = vec2(20, y + 32), size = vec2(984, 1), color = rgbm(.35, .36, .4, 1) }',
+        '\tend',
+        '\tput(24, 554, "Timing and results are not official", AMBER, vec2(7, 12))',
+        'end'])
+    block = '\n'.join([
+        "; The session's times on the TV in the open end of the building by the hotlap's pit lane, drawn",
+        "; by this script, written by tools/build_outside.py. Without the patch the TV shows them painted.",
+        '[SCRIPTABLE_DISPLAY_...]', 'MATERIALS = OutTiming', 'RESOLUTION = 1024, 576',
+        'DISPLAY_POS = 0, 0', 'DISPLAY_SIZE = 1024, 576', "SCRIPT = '", lua + "'", 'BACKGROUND = 0.04, 0.05, 0.07, 1',
+        "; (the end of the session's times)"]) + '\n\n'
+    old = re.search(r"; The session's times on the TV.*?; \(the end of the session's times\)\n\n", text, re.S)
+    if old:
+        text = text[:old.start()] + block + text[old.end():]
+    else:
+        at = text.index('; ---- Start gantry board')
+        text = text[:at] + block + text[at:]
+    open(path, 'w', encoding='utf-8', newline='').write(text)
+
+
+def write_hotlap_display():
+    """The HotLap Velopark site's times on the TV as a display of the Custom Shaders Patch: a script
+    that draws them as the site shows them and, once the player has a best lap, puts it in among
+    them, its place in the middle, the times either side round it; till then the whole list rolls
+    by. Written into the track's config from hotlap_rows()."""
+    path = os.path.join(LAYOUTS, 'extension', 'ext_config.ini')
+    text = open(path, encoding='utf-8', newline='').read()
+    rows = hotlap_rows()
+    data = ',\n'.join('{%d,"%s","%s","%s","%s",%d,%d}' % (r, b[:12], c[:22], y, n[:30], ms, e) for r, b, c, y, n, ms, e in rows)
+    cols = ', '.join(str(x) for x, _ in HOTLAP_COLS)
+    lua = '\n'.join([
+        '-- the HotLap Velopark times (rank, brand, car, year, driver, ms, edition), from tools/build_outside.py',
+        'local R = {', data, '}',
+        'local X = { %s }' % cols,
+        'local SHOW, ROW, TOP = %d, %d, %d' % (HOTLAP_SHOW, HOTLAP_ROW, HOTLAP_TOP),
+        'local ORANGE, TEAL, WHITE = rgbm(1, .5, 0, 1), rgbm(.16, .78, .7, 1), rgbm(.94, .94, .94, 1)',
+        'local L = vec2(10, 18)',
+        'local scroll = 0',
+        'local function fmt(ms) return string.format("%d:%06.3f", math.floor(ms / 60000), (ms % 60000) / 1000) end',
+        'local function put(x, y, t, c, right) if right then x = x - #t * L.x end display.text{ pos = vec2(x, y), letter = L, text = t, font = "aria", color = c } end',
+        'function update(dt)',
+        '\tdisplay.rect{ pos = vec2(0, 0), size = vec2(1024, 64), color = rgbm(.13, .13, .13, 1) }',
+        '\tdisplay.text{ pos = vec2(60, 18), letter = vec2(15, 28), text = "HotLap", font = "aria", color = WHITE }',
+        '\tdisplay.text{ pos = vec2(512 - 13 * 11, 84), letter = vec2(22, 38), text = "Classificacao", font = "aria", color = ORANGE }',
+        '\tdisplay.rect{ pos = vec2(16, TOP - ROW), size = vec2(992, ROW), color = rgbm(.12, .12, .12, 1) }',
+        '\tfor i, h in ipairs({ "#", "Marca", "Modelo", "Ano", "Piloto(a)", "Tempo", "Edicao" }) do put(X[i], TOP - ROW + 6, h, WHITE, i == 6) end',
+        '\tlocal best = 0',
+        '\tlocal ok, car = pcall(ac.getCar, 0)',
+        '\tif ok and car and car.bestLapTimeMs and car.bestLapTimeMs > 0 then best = car.bestLapTimeMs end',
+        '\tlocal you = nil',
+        '\tif best > 0 then you = #R + 1 for i = 1, #R do if R[i][6] > best then you = i break end end end',
+        '\tlocal n = #R + (you and 1 or 0)',
+        '\tif you then',
+        '\t\tlocal target = math.max(0, math.min(n - SHOW, you - 1 - math.floor(SHOW / 2)))',
+        '\t\tscroll = scroll + (target - scroll) * math.min(1, dt * 2)',
+        '\telse',
+        '\t\tscroll = (scroll + dt * .7) % n',
+        '\tend',
+        '\tlocal first = math.floor(scroll)',
+        '\tfor j = 0, SHOW - 1 do',
+        '\t\tlocal p = (first + j) % n + 1',
+        '\t\tlocal y = TOP + j * ROW',
+        '\t\tif you and p == you then',
+        '\t\t\tdisplay.rect{ pos = vec2(16, y), size = vec2(992, ROW - 1), color = rgbm(1, .5, 0, .35) }',
+        '\t\t\tput(X[1], y + 6, tostring(you), WHITE) put(X[5], y + 6, "@ VOCE", WHITE) put(X[6], y + 6, fmt(best), WHITE, true)',
+        '\t\telse',
+        '\t\t\tlocal r = R[(you and p > you) and p - 1 or p]',
+        '\t\t\tlocal c = r[1] <= 3 and ORANGE or TEAL',
+        '\t\t\tdisplay.rect{ pos = vec2(16, y), size = vec2(992, ROW - 1), color = rgbm(.12, .12, .12, 1) }',
+        '\t\t\tput(X[1], y + 6, tostring(r[1]), c) put(X[2], y + 6, r[2], c) put(X[3], y + 6, r[3], c) put(X[4], y + 6, r[4], c)',
+        '\t\t\tput(X[5], y + 6, "@ " .. r[5], c) put(X[6], y + 6, fmt(r[6]), c, true) put(X[7], y + 6, r[7] .. ".", WHITE)',
+        '\t\tend',
+        '\tend',
+        'end'])
+    block = '\n'.join([
+        "; The HotLap Velopark site's times on the TV in the open end of the building by the hotlap's pit",
+        "; lane, drawn by this script, the player's best lap among them: written by tools/build_outside.py",
+        "; from the site's results. Without the patch the TV shows the fastest painted.",
+        '[SCRIPTABLE_DISPLAY_...]', 'MATERIALS = OutHotlapPage', 'RESOLUTION = 1024, 576',
+        'DISPLAY_POS = 0, 0', 'DISPLAY_SIZE = 1024, 576', "SCRIPT = '", lua + "'", 'BACKGROUND = 0.07, 0.07, 0.07, 1',
+        "; (the end of the HotLap Velopark site's times)"]) + '\n\n'
+    old = re.search(r"; The HotLap Velopark site's times on the TV.*?; \(the end of the HotLap Velopark site's times\)\n\n", text, re.S)
+    if old:
+        text = text[:old.start()] + block + text[old.end():]
+    else:
+        at = text.index('; ---- Start gantry board')
+        text = text[:at] + block + text[at:]
+    open(path, 'w', encoding='utf-8', newline='').write(text)
+    return len(rows)
+
+
+def timing_screen(model, ground):
+    """A long table and two TVs on it, at TIMING_AT, their screens to TIMING_YAW (0 is south, the
+    local -z the front)."""
+    x, z = TIMING_AT
+    y = float(ground(x, z)[0]) + .02
+    w, dp, h = TIMING_TABLE
+    table = sh.box((-w / 2, h - .04, -dp / 2), (w / 2, h, dp / 2), tile=(1., 1.))
+    for lx, lz in ((-w / 2 + .06, -dp / 2 + .06), (w / 2 - .06, -dp / 2 + .06), (w / 2 - .06, dp / 2 - .06), (-w / 2 + .06, dp / 2 - .06)):
+        table += sh.box((lx - .03, 0., lz - .03), (lx + .03, h - .04, lz + .03))
+    model.add('TIMING_TABLE', 'Wood', sh.place(table, TIMING_YAW, (x, y, z)))
+    tw, th, td = TIMING_TV
+    lift = h + .12                                                  # (its foot on the table, the screen over it)
+    b = .02                                                         # (the bezel round the screen)
+    nn = np.array([0., 0., -1.])
+    for cx, mat in TIMING_SCREENS:
+        tv = sh.box((cx - tw / 2, lift, -td / 2), (cx + tw / 2, lift + th, td / 2), faces='nsewtb')
+        tv += sh.box((cx - .04, h, -.02), (cx + .04, lift + .1, .02))       # (its stand)
+        tv += sh.box((cx - .3, h, -.12), (cx + .3, h + .015, .12))           # (its foot)
+        model.add('TIMING_TV', 'Frame', sh.place(tv, TIMING_YAW, (x, y, z)))
+        V = np.array([(cx + tw / 2 - b, lift + th - b, -td / 2 - .002), (cx - tw / 2 + b, lift + th - b, -td / 2 - .002),
+                      (cx - tw / 2 + b, lift + b, -td / 2 - .002), (cx + tw / 2 - b, lift + b, -td / 2 - .002)])
+        U = np.array([(0., 0.), (1., 0.), (1., 1.), (0., 1.)])      # (seen from the front, -x on the right)
+        screen = [sh._part(V, np.tile(nn, (4, 1)), U, sh._facing(V, [(0, 1, 2), (0, 2, 3)], nn))]
+        model.add('TIMING_SCREEN_' + mat.upper(), mat, sh.place(screen, TIMING_YAW, (x, y, z)))
+
+
+def middle_fence(model, ground):
+    """One tall mesh fence on thin steel posts, as the south ones, along the road by the vp_1500's
+    pit entry and on beside the hotlap's pit lane (screenshots 13 and 14 in tools/reference/site):
+    in front of the changing rooms and the bar, the race control's side and the wooden stands, to
+    the dirt path from the kids track to the car park. On the side of the roads away from the
+    track, PIT_FENCE_OFF off their edge."""
+    k = gltf_source.load_kn5(bp.TRACK)
+    tris = [bp.triangles(n, m)[:, :, [0, 2]] for n, m in bp.meshes(k) if n['name'] in PIT_FENCE_ROADS and len(n['faces'])]
+    road = unary_union([Polygon(t).buffer(.01) for t in np.concatenate(tris) if Polygon(t).area > 1e-6])
+    P = []
+    for z in np.arange(PIT_FENCE_Z[0], PIT_FENCE_Z[1] - .01, -1.):
+        cut = road.intersection(LineString([(-60., z), (20., z)]))
+        if cut.is_empty:
+            continue
+        P.append((min(x for g in getattr(cut, 'geoms', [cut]) for x, _ in g.coords) - PIT_FENCE_OFF, z))
+    P = np.array(P)
+    # in front of the changing rooms, where the road runs up to their wall, half a metre out from it
+    N = np.asarray(MIDDLE['PADDOCK_BUILDING_N'][0], float)
+    (ax_, az_), (bx_, bz_) = N[1], N[2]                    # its west side, south to north
+    on = (P[:, 1] >= az_) & (P[:, 1] <= bz_)
+    P[on, 0] = np.maximum(P[on, 0], ax_ + (bx_ - ax_) * (P[on, 1] - az_) / (bz_ - az_) + .5)
+    # its kinks eased where one road meets the other
+    for _ in range(3):
+        P[1:-1] = (P[:-2] + 2 * P[1:-1] + P[2:]) / 4
+    fence(model, 'PIT_ENTRY', [tuple(p) for p in P], ground, metal=True)
 
 
 def pit_tent(model, ground):
     """The big white tent north of the solar shed, by the pit boxes: on steel posts, all white
     fabric, rising from the square the posts make like a ball, open under it."""
-    c, (w, d), ez = np.array(PIT_TENT[0]), PIT_TENT[1], np.array(PIT_TENT[2], float)
+    c, (w, d), ez = tent_on_floor()
+    c, ez = np.array(c, float), np.array(ez, float)
     ez /= np.linalg.norm(ez)
     ex = np.array([ez[1], -ez[0]])
     corners = np.array([c - ex * w / 2 - ez * d / 2, c + ex * w / 2 - ez * d / 2, c + ex * w / 2 + ez * d / 2, c - ex * w / 2 + ez * d / 2])
@@ -1189,6 +1827,313 @@ def pit_tent(model, ground):
     F[flip] = F[flip][:, ::-1]
     U = V[:, [0, 2]] / 3.
     model.add('PIT_TENT_TOP', 'Fabric', [sh._part(V, N, U, F), sh._part(V, -N, U, F[:, ::-1])])
+
+
+def pit_building(model, ground):
+    """The pit building, as PIT_BUILDING and the rest above say: built round its middle, its x
+    across it (east), its z along it (north), and turned and moved to where it stands."""
+    c = np.array(PIT_BUILDING[0], float)
+    ez = np.array(PIT_BUILDING[1], float)
+    ez /= np.linalg.norm(ez)
+    ex = np.array([ez[1], -ez[0]])
+    yaw = math.atan2(-ez[0], ez[1])
+    at = (c[0], 0., c[1])
+    local = lambda p: np.array([(np.asarray(p) - c) @ ex, (np.asarray(p) - c) @ ez])
+    world = lambda P: np.asarray(P, float) @ np.array([ex, ez]) + c
+    place = lambda parts: sh.place(parts, yaw, at)
+    cw, cl = PIT_CORE
+    rw, rl = PIT_ROOF
+    xe, xw = -cw / 2, cw / 2 + PIT_CORE_WEST      # its sides across: the 1000's (east), the 1500's (west, out to that lane)
+    side_x = lambda side: xw if side > 0 else xe
+    core = np.array([(xe, -cl / 2), (xw, -cl / 2), (xw, cl / 2), (xe, cl / 2)])
+    # its floor over the highest ground under it, the paddock's asphalt not showing through it; its
+    # walls down to the lowest
+    gx, gz = np.meshgrid(np.linspace(xe, xw, 10), np.linspace(-cl / 2, cl / 2, 27))
+    inside = world(np.c_[gx.ravel(), gz.ravel()])
+    floor = float(np.max(ground(inside[:, 0], inside[:, 1]))) + .03
+    foot = float(ground.low(world(core))) - .3
+    cols = [local(p) for p in PIT_COLUMNS]
+    feet = [float(ground.low(world(np.array([q + (-.2, -.2), q + (.2, -.2), q + (.2, .2), q + (-.2, .2)])))) for q in cols]
+    eave = max(max(feet), floor) + PIT_EAVE
+    # the roof's underside over a point across it, as barrel_roof arches it
+    rr = PIT_RISE * rw
+    R = (rw * rw / 4 + rr * rr) / (2 * rr)
+    yc = eave + ROOF_UP + rr - R
+    under = lambda x: yc + math.sqrt(max(R * R - x * x, 0.)) - ROOF_THICK
+    outer = np.array([(-rw / 2, -rl / 2), (rw / 2, -rl / 2), (rw / 2, rl / 2), (-rw / 2, rl / 2)])
+    roof, _ = barrel_roof(outer, eave, rise=PIT_RISE)
+    model.add('PIT_BUILDING_ROOF', 'RoofDark', place(roof))
+    # the workshop: walls up to the roof, doorways and the band of windows in them
+    top = min(under(xe), under(xw)) - .02
+    holes, wins = {}, []
+    for i in range(4):
+        a, along, L, n = side_of(core, i)
+        hs, doors = [], []
+        if abs(along[1]) > .9:
+            for zd in PIT_DOORS:
+                s = (zd - a[1]) / along[1]
+                doors.append((s - PIT_DOOR[0] / 2, s + PIT_DOOR[0] / 2))
+                hs.append((s - PIT_DOOR[0] / 2, s + PIT_DOOR[0] / 2, foot, floor + PIT_DOOR[1]))   # (open to the ground: the asphalt runs in)
+        # the windows, in runs between the doorways and the corners
+        cuts = sorted([(0., .6)] + [(d0 - .5, d1 + .5) for d0, d1 in doors] + [(L - .6, L)])
+        for (_, e0), (s1, _) in zip(cuts, cuts[1:]):
+            if s1 - e0 > 1.5:
+                k = max(1, int(round((s1 - e0) / BAND_PANE)))
+                hole = (e0, s1, floor + PIT_BAND[0], floor + PIT_BAND[1])
+                hs.append(hole)
+                wins.append((i, hole, dict(bars=tuple(e0 + (s1 - e0) * j / k for j in range(1, k)))))
+        holes[i] = hs
+    band = floor + PIT_WALL                 # the cream walls' top; white braced panels over it
+    outer_w, inner_w = holed_walls(core, foot, band, holes)
+    model.add('PIT_BUILDING_WALLS', 'Plaster', place(outer_w))
+    model.add('PIT_BUILDING_INSIDE', 'GreyWall', place(inner_w))
+    glazing(model, 'PIT_BUILDING', core, wins, yaw, at)
+
+    def runs(i):
+        """The side's stretches but its doorways."""
+        a, along, L, n = side_of(core, i)
+        edges = [0.]
+        for s0, s1, h0, h1 in sorted(holes[i]):
+            if h0 <= floor + .01:
+                edges += [s0, s1]
+        edges.append(L)
+        return a, along, n, [(s0, s1) for s0, s1 in zip(edges[::2], edges[1::2]) if s1 - s0 > .05]
+    # the grey skirt over the walls' feet, but in the doorways
+    skirt = []
+    for i in range(4):
+        a, along, n, rs = runs(i)
+        for s0, s1 in rs:
+            skirt.append(wall_quad(a + n * .012, along, n, s0, s1, foot, floor + PIT_SKIRT))
+    model.add('PIT_BUILDING_SKIRT', 'GreyWall', place(skirt))
+    # the doorways: their rolled up doors' boxes over them, inside and out
+    rolls = []
+    for zd in PIT_DOORS:
+        for xs in (-1, 1):
+            x = side_x(xs)
+            rolls += sh.box((x - .25, floor + PIT_DOOR[1], zd - PIT_DOOR[0] / 2 - .1), (x + .25, floor + PIT_DOOR[1] + .45, zd + PIT_DOOR[0] / 2 + .1))
+    model.add('PIT_BUILDING_DOORS', 'Steel', place(rolls))
+    # over the cream walls up to the roof, all round: white panels, dark steel crossed on them in
+    # bays, as the screenshots show it
+    gables, braces = [], []
+    for i in range(4):
+        a, along, L, n = side_of(core, i)
+        k = max(2, int(round(L / 2.6)))
+        ss = np.linspace(0., L, 2 * k + 1)
+        pt = lambda s, o=0.: (a[0] + along[0] * s + n[0] * o, a[1] + along[1] * s + n[1] * o)
+        roof_at = lambda s: under(pt(s)[0]) - .01
+        P3 = [(pt(0.)[0], band, pt(0.)[1])] + [(pt(s)[0], roof_at(s), pt(s)[1]) for s in ss] + [(pt(L)[0], band, pt(L)[1])]
+        gables += sh.poly(np.array(P3, float), n=np.array([n[0], 0., n[1]]), tile=(2., 2.),
+                          axes=(np.array([along[0], 0., along[1]]), np.array([0, 1., 0])))
+        q = lambda s, y: (pt(s, .05)[0], y, pt(s, .05)[1])
+        for s0, s1 in zip(ss[::2], ss[2::2]):
+            braces += sh.beam(q(s0, band), q(s1, roof_at(s1) - .05), .1) + sh.beam(q(s1, band), q(s0, roof_at(s0) - .05), .1)
+            braces += sh.beam(q(s1, band), q(s1, roof_at(s1) - .05), .1)
+        braces += sh.beam(q(0., band), q(L, band), .12)
+    model.add('PIT_BUILDING_GABLES', 'White', place(gables))
+    # the columns, and the trusses from each to the workshop's wall, under the roof
+    columns = []
+    for q, foot in zip(cols, feet):
+        columns += sh.cylinder((q[0], foot - .2, q[1]), .19, eave - foot + .2, seg=12, top=False)
+    model.add('PIT_BUILDING_COLUMNS', 'Pillar', place(columns))
+
+    def truss(x0, x1, z, low):
+        """A lattice truss across, from x0 to x1 at z: its bottom chord at low, its top under the roof."""
+        n = max(2, int(round(abs(x1 - x0) / 1.25)))
+        xx = np.linspace(x0, x1, n + 1)
+        bot = [(x, low, z) for x in xx]
+        tp = [(x, under(x) - .08, z) for x in xx]
+        out = []
+        for i in range(n):
+            out += sh.beam(bot[i], bot[i + 1], .1) + sh.beam(tp[i], tp[i + 1], .1)
+            out += sh.beam(bot[i], tp[i + 1] if i % 2 == 0 else tp[i], .06) + sh.beam(bot[i + 1], tp[i + 1], .06)
+        return out + sh.beam(bot[0], tp[0], .06)
+    steel = braces
+    for q in cols:
+        steel += truss(q[0], side_x(np.sign(q[0])), q[1], eave)
+    for z in np.linspace(-cl / 2 + 2., cl / 2 - 2., 6):
+        steel += truss(xe, xw, z, top - 1.)
+    # purlins along under the roof, and the eaves' beams over the columns
+    for x in np.arange(-rw / 2 + 1., rw / 2 - .5, 2.6):
+        steel += sh.beam((x, under(x) - .07, -rl / 2 + .3), (x, under(x) - .07, rl / 2 - .3), .06, .1)
+    for side in (-1, 1):
+        q = sorted([p for p in cols if np.sign(p[0]) == side], key=lambda p: p[1])
+        steel += sh.beam((q[0][0], eave, -rl / 2 + .3), (q[-1][0], eave, rl / 2 - .3), .2, .3)
+    model.add('PIT_BUILDING_STEEL', 'Frame', place(steel))
+    # strip lights: over each lane between the trusses, and in rows in the workshop
+    tubes, spots = [], []
+    for x in [side_x(side) + side * d for side in (-1, 1) for d in (3., 7.)]:
+        for z in np.arange(-rl / 2 + 3., rl / 2 - 2.5, 4.4):
+            tubes += sh.box((x - .05, eave - .1, z - .6), (x + .05, eave - .03, z + .6), faces='nsewb')
+            spots.append((x, eave - .12, z))
+    for x in (-2.3, 2.3):
+        for z in np.arange(-cl / 2 + 2.2, cl / 2 - 1.5, 3.):
+            tubes += sh.box((x - .05, top - 1.1, z - .6), (x + .05, top - 1.03, z + .6), faces='nsewb')
+            spots.append((x, top - 1.12, z))
+    model.add('PIT_BUILDING_LAMPS', 'Lamp', place(tubes))
+    S = np.array(spots, float)
+    S = sh.place([sh._part(S, np.zeros_like(S), np.zeros((len(S), 2)), np.zeros((0, 3), int))], yaw, at)[0][0]
+    LAMP_SPOTS.extend(map(tuple, S))
+    # the signs over each lane at both ends: Techspeed over the vp_1000's (east: AC's x grows to
+    # the west, so its x here is less), "curta vencer" over the vp_1500's, each read left to right
+    # from outside
+    signs = []
+    for zs in (-1, 1):
+        z = zs * (rl / 2 + .02)
+        for side, v0 in ((-1, 0.), (1, .5)):
+            xa, xb = side_x(side) + side * .3, side * (rw / 2 - .3)
+            lo, hi = eave - .15, under(rw / 2 - .3) - .02
+            V = np.array([(xa, lo, z), (xb, lo, z), (xb, hi, z), (xa, hi, z)])
+            # seen from the south (zs -1), east (less x) is on the right; from the north, west
+            right_is_b = (side < 0) == (zs < 0)
+            u_a, u_b = (0., 1.) if right_is_b else (1., 0.)
+            U = np.array([(u_a, v0 + .5), (u_b, v0 + .5), (u_b, v0), (u_a, v0)])
+            nn = np.array([0., 0., float(zs)])
+            signs.append(sh._part(V, np.tile(nn, (4, 1)), U, sh._facing(V, [(0, 1, 2), (0, 2, 3)], nn)))
+    model.add('PIT_BUILDING_SIGNS', 'PitSigns', place(signs))
+    # inside: the floor, benches along the walls, tool cabinets, racks of tyres and parts
+    # (its floor the pits' asphalt, running in through its doorways with no step)
+    benches, cabinets, tyres = [], [], []
+    for side in (-1, 1):
+        x = side_x(side) - side * .5
+        for z0, z1 in ((-cl / 2 + 1.6, PIT_DOORS[0] - PIT_DOOR[0] / 2 - .5),
+                       (PIT_DOORS[0] + PIT_DOOR[0] / 2 + .5, PIT_DOORS[1] - PIT_DOOR[0] / 2 - .5)):
+            if z1 - z0 < 1.5:
+                continue
+            benches += sh.box((x - .35, floor + .86, z0), (x + .35, floor + .92, z1 - .8))
+            for z in np.linspace(z0 + .1, z1 - .9, max(2, int((z1 - z0) / 1.5) + 1)):
+                for dx in (-.3, .3):
+                    benches += sh.beam((x + dx, floor, z), (x + dx, floor + .86, z), .05)
+            cabinets += sh.box((x - .3, floor, z1 - .7), (x + .3, floor + 1.05, z1 - .05))
+    # racks of tyres along the north wall, shelves of parts in the south corners
+    for x in np.arange(xe + 1., xw - .8, 1.):
+        for k in range(4):
+            tyres += sh.cylinder((x, floor + .02 + k * .26, cl / 2 - .45), .27, .25, seg=10)
+    for x in (xe + .9, xw - .9):
+        z = -cl / 2 + .5
+        for h in (0., .7, 1.4, 2.1):
+            benches += sh.box((x - .8, floor + h, z - .3), (x + .8, floor + h + .04, z + .3))
+        for dx in (-.78, .78):
+            for dz in (-.28, .28):
+                benches += sh.beam((x + dx, floor, z + dz), (x + dx, floor + 2.2, z + dz), .04)
+    model.add('PIT_BUILDING_BENCHES', 'Steel', place(benches))
+    model.add('PIT_BUILDING_CABINETS', 'Orange', place(cabinets))
+    model.add('PIT_BUILDING_TYRES', 'Rubber', place(tyres))
+    # its walls to hit: the workshop's, but in its doorways
+    hit = []
+    for i in range(4):
+        a, along, n, rs = runs(i)
+        for s0, s1 in rs:
+            hit.append(wall_quad(a, along, n, s0, s1, foot, floor + 3.))
+    model.add('1WALL_PIT_BUILDING', 'GreyWall', place(hit))
+    return floor
+
+
+def wooden_stand(model, ground, name, front, ax, L, D, tiers, toward):
+    """A wooden stand as the real ones are (screenshots 08 and 09): timber, low, tiers of planks
+    rising back from a front of boards, rails round the tiers, steps at one end, all on posts. Its
+    front's middle FRONT, along AX, L long and D deep, its tiers TIERS over its foot, its front
+    the side towards TOWARD."""
+    front, ax = np.array(front, float), np.array(ax, float) / np.linalg.norm(ax)
+    f = np.array([ax[1], -ax[0]])
+    if f @ (np.array(toward, float) - front) < 0:
+        f = -f
+    xz = lambda s, d: (front[0] + ax[0] * (s - L / 2) - f[0] * d, front[1] + ax[1] * (s - L / 2) - f[1] * d)
+    foot2 = np.array([xz(0, 0), xz(L, 0), xz(L, D), xz(0, D)])
+    y0 = float(ground.low(foot2))
+    at = lambda s, d, h: (xz(s, d)[0], y0 + h, xz(s, d)[1])
+    foot = [at(0, 0, 0), at(L, 0, 0), at(L, D, 0), at(0, D, 0)]
+    planks, posts, rails = [], [], []
+    depth = D / len(tiers)
+    for t, h in enumerate(tiers):
+        d0, d1 = t * depth, (t + 1) * depth
+        for s0 in np.arange(0., L - .01, 2.45):
+            s1 = min(s0 + 2.45, L)
+            planks += sh.quad(at(s0, d0, h), at(s1, d0, h), at(s1, d1, h), at(s0, d1, h), tile=(2., 2.))
+        # its riser, boards from the tier below
+        lo = 0. if t == 0 else tiers[t - 1]
+        planks += sh.quad(at(0, d0, lo - .3 if t == 0 else lo), at(L, d0, lo - .3 if t == 0 else lo), at(L, d0, h), at(0, d0, h), tile=(2., 2.), both=True)
+        for s in np.linspace(0., L, int(L / 2.45) + 2):
+            for d in (d0 + .1, d1 - .1):
+                posts += sh.beam(at(s, d, -.3), at(s, d, h), .12)
+    # the back's boards, and rails round the top: along the front, the ends and the back
+    planks += sh.quad(at(L, D, -.3), at(0, D, -.3), at(0, D, tiers[-1]), at(L, D, tiers[-1]), tile=(2., 2.), both=True)
+    for s0, d0, s1, d1, h in ((0, .05, L, .05, tiers[0]), (0, D - .05, L, D - .05, tiers[-1]),
+                              (.05, 0, .05, D, None), (L - .05, 0, L - .05, D, None)):
+        for k_ in range(int(np.hypot(s1 - s0, d1 - d0) / 2.45) + 2):
+            u = k_ / max(1, int(np.hypot(s1 - s0, d1 - d0) / 2.45) + 1)
+            s, d = s0 + (s1 - s0) * u, d0 + (d1 - d0) * u
+            hh = h if h is not None else tiers[min(int(d / depth), len(tiers) - 1)]
+            rails += sh.beam(at(s, d, hh), at(s, d, hh + 1.), .08)
+        for hr in (.5, 1.):
+            hh0 = h if h is not None else tiers[0]
+            hh1 = h if h is not None else tiers[-1]
+            rails += sh.beam(at(s0, d0, hh0 + hr), at(s1, d1, hh1 + hr), .06, .12)
+    # the steps up at its end: six treads beside it, up to its first tier
+    n_st = 6
+    for j in range(n_st):
+        h = tiers[0] * (j + 1) / n_st
+        s0, s1 = -1.7 + j * .28, -1.7 + (j + 1) * .28
+        planks += sh.quad(at(s0, .3, h), at(s1, .3, h), at(s1, 1.3, h), at(s0, 1.3, h), tile=(1., 1.), both=True)
+        planks += sh.quad(at(s0, .3, h - tiers[0] / n_st), at(s0, 1.3, h - tiers[0] / n_st), at(s0, 1.3, h), at(s0, .3, h), tile=(1., 1.), both=True)
+    model.add(name + '_PLANKS', 'Wood', planks)
+    model.add(name + '_POSTS', 'Wood', posts + rails)
+    model.add('1WALL_' + name, 'Wood', sh.walls(np.array([(p[0], p[2]) for p in foot]), y0 - .3, y0 + tiers[-1] + 1., tile=(2., 2.)))
+
+
+def shed_floor(model, ground):
+    """The shed's floor, the kart platform under the tent's arches beside the 1000's pit lane, at the
+    pits' height (screenshots 01, 02, 23 and 24 in tools/reference/site), where tools/drape_track.py
+    raises the ground: light concrete over it all, from the lane's west edge to the asphalt of the
+    1500's pit exit (SLAB_WEST, x), from the pits to just past where the raised ground ends north;
+    and a steep concrete face down from it to the lane, up the lane's ramp from where the floor is
+    FACE_FROM over it, and along its north side down to the grass towards the storage building. The
+    faces drawn, and walls to hit."""
+    import drape_track as dt
+    (xa, za), (xb, zb) = dt.LANE_EDGE
+    edge = lambda z: xa + (xb - xa) * (np.asarray(z, float) - za) / (zb - za)       # the lane's west edge
+    z_n = dt.SHED_NORTH + dt.SHED_EDGE + 1.3                                         # the north face
+    in_x = dt.FACE_IN + 1.                                                            # where the floor is level
+    floor = lambda x, z: ground(np.maximum(x, edge(z) + in_x), np.minimum(z, dt.SHED_NORTH - .5)) + .04
+    # the floor, on a grid a metre square, its east side along the lane's edge
+    zs = np.arange(SLAB_SOUTH, z_n + .01, 1.)
+    zs[-1] = z_n
+    top = []
+    for z0, z1 in zip(zs[:-1], zs[1:]):
+        x0s, x1s = np.linspace(edge(z0) + .05, SLAB_WEST, 12), np.linspace(edge(z1) + .05, SLAB_WEST, 12)
+        for k in range(11):
+            P = [(x0s[k], z0), (x1s[k], z1), (x1s[k + 1], z1), (x0s[k + 1], z0)]
+            top += sh.quad(*[(x, float(np.ravel(floor(x, z))[0]), z) for x, z in P], tile=(2., 2.), uv0=(P[0][1] / 2., P[0][0] / 2.))   # (mapped as one)
+    model.add('1ROAD_SHED_FLOOR', 'Concrete', top)
+    face = []
+    # (what lies round it as it is: the lane's asphalt and the ground)
+    T = np.concatenate([bp.triangles(n, m) for n, m in bp.meshes(gltf_source.load_kn5(bp.TRACK))
+                        if n['name'].startswith(('1ROAD', '1GRASS')) and len(n['faces'])])
+    beside = bp.Surface(T)
+
+    def foot(x, z):
+        y = beside.ys(np.c_[np.atleast_1d(x), np.atleast_1d(z)])
+        g = ground(x, z)
+        return np.fmin(np.where(np.isnan(y), g, y), g) - .12
+    # down to the lane, all along it, closed
+    zz = np.linspace(SLAB_SOUTH, z_n, 80)
+    xe = edge(zz) + .05
+    lane = foot(edge(zz) - .3, zz)
+    fl = floor(xe, zz)
+    on = np.arange(len(zz))
+    zz, xe, lane, fl = zz[on], xe[on], lane[on], fl[on]
+    for i in range(len(zz) - 1):
+        face += sh.quad((xe[i], lane[i], zz[i]), (xe[i + 1], lane[i + 1], zz[i + 1]),
+                        (xe[i + 1], fl[i + 1], zz[i + 1]), (xe[i], fl[i], zz[i]), tile=(2., 2.), both=True)
+    # down to the grass north of it, all across, closed
+    xs = np.linspace(edge(z_n) + .05, SLAB_WEST, 60)
+    grass = foot(xs, np.full(len(xs), z_n + .3))
+    fn = floor(xs, np.full(len(xs), z_n))
+    for i in range(len(xs) - 1):
+        face += sh.quad((xs[i], grass[i], z_n), (xs[i + 1], grass[i + 1], z_n),
+                        (xs[i + 1], fn[i + 1], z_n), (xs[i], fn[i], z_n), tile=(2., 2.), both=True)
+    model.add('SHED_FLOOR_FACE', 'Concrete', face)
+    model.add('1WALL_SHED_FLOOR_FACE', 'Concrete', face)
+    print("the shed's floor: %.2f m over the 1000's pit lane at the north end of its face" % (fl[-1] - lane[-1] if len(on) else 0.))
 
 
 def fuel_station(model, ground):
@@ -1338,6 +2283,26 @@ def remove_old_fence():
     return False
 
 
+def remove_wall_stub():
+    """The piece of the old invisible wall behind the 1500's south straight's tyres (1WALL_161)
+    left past the end of their wall at the pit entry, across the paving, out of velopark.glb."""
+    k = gltf_source.load_kn5(bp.TRACK)
+    taken = 0
+    for n, m in bp.meshes(k):
+        if n['name'] != STUB_WALL or not len(n['faces']):
+            continue
+        T = bp.triangles(n, m)
+        (x0, x1), (z0, z1) = STUB_BOX
+        inside = ((T[:, :, 0] > x0) & (T[:, :, 0] < x1) & (T[:, :, 2] > z0) & (T[:, :, 2] < z1)).all(1)
+        if inside.any():
+            n['faces'] = n['faces'][~inside]
+            bp.sphere(n)
+            taken += int(inside.sum())
+    if taken:
+        bp.save(k, bp.TRACK)
+    return taken
+
+
 def main():
     ground = Ground()
     lines = osm_lines()
@@ -1429,11 +2394,40 @@ def main():
     flagpoles(model, ground, FLAGPOLES)
     control_tower(model, ground, -47., 80.5, front='w')
     for name, (P, eave) in MIDDLE.items():
-        middle_building(model, name, P, eave, ground)
+        if name == 'PADDOCK_BUILDING_N':
+            # the changing rooms: their walls WALKWAY short of the bar's, under the roof, a way
+            # through between them
+            P = np.asarray(P, float)
+            walls = P.copy()
+            for i, j in ((0, 3), (1, 2)):
+                walls[i] = P[i] + (P[j] - P[i]) / np.linalg.norm(P[j] - P[i]) * WALKWAY
+            middle_building(model, name, walls, eave, ground, roof_P=P)
+        elif name == 'GARAGE':
+            garage(model, ground)
+        elif name != 'PADDOCK_BUILDING_M':
+            middle_building(model, name, P, eave, ground)
+    bar(model, ground)
+    middle_fence(model, ground)
     pit_tent(model, ground)
+    pit_building(model, ground)
+    shed_floor(model, ground)
+    # the stand by R26 with the banner, its front along the line the old concrete stand's was
+    c, ax, L, D, tiers = STAND
+    ax = np.array(ax, float) / np.linalg.norm(ax)
+    f = np.array([ax[1], -ax[0]])
+    if f @ (np.array([-19.01, -21.1]) - np.array(c)) < 0:
+        f = -f
+    wooden_stand(model, ground, 'STAND', np.array(c) + f * 5.85, ax, L, D, tiers, (-19.01, -21.1))
+    # the small raised one north of it, its front to the track
+    c, ax, L, D, tiers = STAND_2
+    wooden_stand(model, ground, 'STAND_2', c, ax, L, D, tiers, (-18., 1.))
     print('%d building lamps lit at night' % write_lights())
     write_price_display()
+    print("%d of the HotLap Velopark site's times on the TV" % write_hotlap_display())
+    write_timing_display()
     fuel_station(model, ground)
+    open_area(model, ground, hotlap_roof(model, ground))
+    timing_screen(model, ground)
     # the banners: along the stand's front wall by R26, and on the south fence west of R15
     banner(model, 'STAND', (-19.01, -21.1), (-9.06, -38.03), .2, 1.45, lift=.5)
     banner(model, 'FENCE', (152., -2.6), (168., 1.27), .35, 2.35, ground=ground, lift=.18)
@@ -1448,7 +2442,10 @@ def main():
     made = textures()
     made['OUT_banner.dds'] = (banner_texture(), 'DXT1')
     made['OUT_pylon.dds'] = (pylon_texture(), 'DXT1')
+    made['OUT_pit_signs.dds'] = (pit_signs_texture(), 'DXT1')
     made['OUT_fuel_prices.dds'] = (prices_texture(), 'DXT1')
+    made['OUT_timing.dds'] = (timing_texture().resize((1024, 512), Image.LANCZOS), 'DXT1')   # (16 to 9 on the screen)
+    made['OUT_hotlap_page.dds'] = (hotlap_page_texture().resize((1024, 512), Image.LANCZOS), 'DXT1')
     for name, (img, fmt) in made.items():
         data = kn5io.dds(img, fmt)
         open(os.path.join(TEX, name), 'wb').write(data)
@@ -1456,6 +2453,7 @@ def main():
     tris, meshes = write(model, tex)
     print('%d fence posts; %d meshes, %d triangles, in %s' % (posts, meshes, tris, os.path.relpath(OUT, ROOT)))
     print('%d layouts given the model' % register())
+    print("%d faces of the old wall past the 1500 pit entry's tyres out" % remove_wall_stub())
     if remove_old_fence():
         print('the old fence out of velopark.glb')
 

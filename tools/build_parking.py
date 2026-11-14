@@ -6,7 +6,7 @@ The ground photo shows it dirty, as it was taken after a flood, so the paddock l
 dirt over its asphalt there and over the pits beside it. It is asphalt, the track's own, with
 bays marked as in the car park by the kids track. This takes the dirt out of
 source/models/velopark_paddock.glb, so the paddock's asphalt under it shows, and paints the
-bays' lines on it as PARKING_LINES in source/models/velopark_paint.glb, in the paint's own
+bays' lines on it as PARKING_LINES in source/models/velopark_lines.glb, in the paint's own
 material. Run again, it lays the lines again and finds the dirt gone.
 
 The bays are laid in rows along the pit building, measured from the west end of its south
@@ -25,7 +25,7 @@ import kn5tree
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELS = os.path.join(ROOT, 'source', 'models')
 PADDOCK = os.path.join(MODELS, 'velopark_paddock.glb')
-PAINT = os.path.join(MODELS, 'velopark_paint.glb')
+PAINT = os.path.join(MODELS, 'velopark_lines.glb')
 CONFIG = os.path.join(ROOT, 'source', 'track', 'extension', 'ext_config.ini')
 
 DIRT_MESH, DIRT_MATERIAL = 'PADDOCK_DIRT', 'PaddockDirt'

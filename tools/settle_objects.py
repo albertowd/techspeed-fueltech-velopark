@@ -30,7 +30,7 @@ DONE = os.path.join(lg.ev.OUT, 'settled.json')
 GRID = 1.                # metres, the grid the correction is worked out on
 EXTENT = ((-300., 300.), (-200., 460.))
 SKIP = ('velopark_outside.glb',)     # built on the ground as it is
-GROUND_MODELS = ('velopark', 'velopark_kerbs', 'velopark_paddock', 'velopark_kids')
+GROUND_MODELS = ('velopark', 'velopark_kerbs', 'velopark_runoffs', 'velopark_paddock', 'velopark_kids')
 TREE_NEAR = 9.           # metres from a tree's stand its parts are its
 
 
@@ -121,7 +121,7 @@ def main():
                 n_moved[0] += len(V)
         walk(k['root'], np.eye(4))
         if n_moved[0]:
-            if os.path.basename(f) == 'velopark_extra.glb':
+            if os.path.basename(f) == 'velopark_trees.glb':
                 bt.save(k, f)
             else:
                 bp.save(k, f)

@@ -262,8 +262,14 @@ def lay(name, pts, width, ground, road, walls):
 
 
 def top_of(path):
-    """A path's faces, its skirts left out."""
+    """A path's faces, its skirts left out: by its points' places across it, or for a piece cut off
+    a path (named ..._CUT, its points in no such order), by its faces' slope (its skirts steep)."""
+    import re
     V, F = path['verts'][:, :3].astype(float), path['faces'].astype(int)
+    if re.search(r'_CUT(_\d+)?$', path.get('name', '')):
+        T = V[F]
+        nn = np.cross(T[:, 1] - T[:, 0], T[:, 2] - T[:, 0])
+        return T[np.abs(nn[:, 1]) > .5 * np.maximum(np.linalg.norm(nn, axis=1), 1e-12)]
     inner = ~np.isin(np.arange(len(V)) % (COLUMNS + 2), (0, COLUMNS + 1))
     return V[F[inner[F].all(1)]]
 

@@ -29,7 +29,7 @@ import kn5tree
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELS = os.path.join(ROOT, 'source', 'models')
 PADDOCK = os.path.join(MODELS, 'velopark_paddock.glb')
-PAINT = os.path.join(MODELS, 'velopark_paint.glb')
+PAINT = os.path.join(MODELS, 'velopark_lines.glb')
 ROADS = [os.path.join(MODELS, f) for f in ('velopark.glb', 'velopark_kerbs.glb', 'velopark_kids.glb')]
 ASPHALT = '1ROAD_PADDOCK'     # and its parts, 1ROAD_PADDOCK_2 on, as this splits it
 REACH = 5.           # metres from a road over which the paddock eases into it

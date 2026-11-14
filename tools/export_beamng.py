@@ -93,12 +93,18 @@ def compressed(data):
 
 
 def texture_file(name, data, normal=False):
-    """The file a texture is written to: a DDS BeamNG cannot read becomes a PNG, and so does a
-    DXT5 normal map, which BeamNG reads as a swizzled one (x in the alpha, as DXT5nm), tilting
-    the normals of what it lies on as far as they go, so that it shows almost black by day."""
+    """The file a texture is written to: a DDS BeamNG cannot read becomes a PNG, and so does every
+    normal map: its green is turned up for BeamNG, which reads OpenGL's normal maps, where
+    Assetto Corsa reads DirectX's (and a DXT5 one BeamNG would read as swizzled, x in the alpha,
+    as DXT5nm, tilting the normals of what it lies on as far as they go)."""
     f = file_name(name)
     dds = data is not None and data[:4] == b'DDS '
-    return os.path.splitext(f)[0] + '.png' if dds and (not compressed(data) or normal and data[84:88] == b'DXT5') else f
+    return os.path.splitext(f)[0] + '.png' if normal or dds and not compressed(data) else f
+
+
+def roughness_file(name):
+    """BeamNG's roughness map from a txMaps: its green, Assetto Corsa's gloss, turned over."""
+    return os.path.splitext(file_name(name))[0] + '_roughness.png'
 
 
 def opacity_file(name):
@@ -283,8 +289,8 @@ def trunks(trees, ground_at):
 # the plantation of tools/build_trees.py as BeamNG's forest: each tree made once, a shape with
 # its trunk to hit, and the item data and placings that stand it where AC's copies of it stand,
 # turned and sized as they are; AC's own copies of them are left out of the level's shapes
-FOREST = os.path.join(ROOT, 'source', 'models', 'velopark_extra_trees.json')
-FOREST_MODEL = 'velopark_extra.kn5'
+FOREST = os.path.join(ROOT, 'source', 'models', 'velopark_trees.json')
+FOREST_MODEL = 'velopark_trees.kn5'
 FOREST_MESHES = ('EUCA_BARK', 'EUCA_LEAVES', 'EUCA_BROAD', 'EUCA_PALM', 'EUCA_BAMBOO', 'EUCA_CULM', '1WALL_EUCA_TRUNKS')
 # swaying a little in the wind, less than BeamNG's own aspens
 FOREST_WIND = dict(windScale=.25, branchAmp=.03, detailAmp=.05, detailFreq=4, trunkBendScale=.02, mass=40, rigidity=20,
@@ -814,6 +820,7 @@ def export(layout, track, out=None, pack=True):
         tex_dir = os.path.join(shapes, 'textures', stem)
         written.add(tex_dir)
         normals = {m['tex'].get('txNormal') for m in model.materials} - {None}
+        shines = {m['tex'].get('txMaps') for m in model.materials} - {None}
         if fresh:
             if os.path.exists(tex_dir):
                 shutil.rmtree(tex_dir)
@@ -822,11 +829,17 @@ def export(layout, track, out=None, pack=True):
             for name, block in model.textures.items():
                 data = payload(block)
                 out_file = os.path.join(tex_dir, texture_file(name, data, name in normals))
-                if out_file.endswith('.png') and not name.lower().endswith('.png'):
-                    img = Image.open(io.BytesIO(data))
-                    (img.convert('RGB') if name in normals else img).save(out_file)
+                if name in normals:
+                    a = np.array(Image.open(io.BytesIO(data)).convert('RGB'))
+                    a[..., 1] = 255 - a[..., 1]
+                    Image.fromarray(a).save(out_file)
+                elif out_file.endswith('.png') and not name.lower().endswith('.png'):
+                    Image.open(io.BytesIO(data)).save(out_file)
                 else:
                     open(out_file, 'wb').write(data)
+                if name in shines:
+                    gloss = np.asarray(Image.open(io.BytesIO(data)).convert('RGB'))[..., 1]
+                    Image.fromarray(255 - gloss).save(os.path.join(tex_dir, roughness_file(name)))
                 if name in see_through:
                     img = Image.open(io.BytesIO(data))
                     alpha = img.getchannel('A') if 'A' in img.getbands() else Image.new('L', img.size, 255)
@@ -852,6 +865,8 @@ def export(layout, track, out=None, pack=True):
                             stage['opacityMap'] = '/levels/%s/art/shapes/textures/%s/%s' % (LEVEL, stem, opacity_file(m['tex']['txDiffuse']))
                     if 'txNormal' in m['tex']:
                         stage['normalMap'] = tex_path(m['tex']['txNormal'])
+                    if 'txMaps' in m['tex'] and m['tex']['txMaps'] in model.textures:
+                        stage['roughnessMap'] = '/levels/%s/art/shapes/textures/%s/%s' % (LEVEL, stem, roughness_file(m['tex']['txMaps']))
                 mat = {'name': name, 'mapTo': name, 'class': 'Material', 'persistentId': str(uuid.uuid4()),
                        'version': 1.5, 'Stages': [stage, {}, {}, {}]}
                 if m['alpha_tested']:

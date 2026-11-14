@@ -1,4 +1,4 @@
-"""Lines painted across the road where roads part, in source/models/velopark_paint.glb.
+"""Lines painted across the road where roads part, in source/models/velopark_lines.glb.
 
     python tools/build_mouth_lines.py
 
@@ -17,7 +17,7 @@ import build_paths as bp
 import gltf_source
 
 ROOT = bp.ROOT
-PAINT = os.path.join(bp.MODELS, 'velopark_paint.glb')
+PAINT = os.path.join(bp.MODELS, 'velopark_lines.glb')
 # name: (a point the line runs through, a few metres before the southernmost cone, AC_POBJECT_7 of
 # vp_1500, where the road's west edge still runs straight; a point of the road's edge line before the junction, the way the road runs there)
 MOUTHS = {'LINE_MOUTH_T12': ((59.4, 184.1), (62.5, 174.5))}

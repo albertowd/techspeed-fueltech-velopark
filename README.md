@@ -76,6 +76,8 @@ What stands round the track, by name: the buildings, the tyre walls (`TYRES_`), 
 
 Barrier tyre: ["Tire"](https://sketchfab.com/3d-models/tire-44168cfdb8044ea8b242c1734d9cb3f9) by [TahirNilin](https://sketchfab.com/TahirNilin), licensed under [CC Attribution 4.0](http://creativecommons.org/licenses/by/4.0/). Changes made to the model: reduced to fewer sides with hidden faces removed, rescaled, textures reduced in size, and the colour texture cleaned of dirt and stains.
 
+Asphalt: ["Aerial Asphalt 01"](https://polyhaven.com/a/aerial_asphalt_01) by Rob Tuytel, and concrete pavers: ["Brick Pavement 03"](https://polyhaven.com/a/brick_pavement_03) by Charlotte Baglioni, both from Poly Haven, licensed under [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
+
 Ground texture: satellite imagery from Google Maps, imagery (c) Google and its providers. Ground heights: Google's Elevation API and OpenStreetMap.
 
 ## Contributing

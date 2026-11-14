@@ -49,7 +49,7 @@ ROOT = bp.ROOT
 TRACK = os.path.join(ROOT, 'source', 'track')
 FIELD = os.path.join(ev.OUT, 'level_ground.npz')
 DONE = os.path.join(ev.OUT, 'level_ground.json')
-FOREST = os.path.join(bp.MODELS, 'velopark_extra_trees.json')
+FOREST = os.path.join(bp.MODELS, 'velopark_trees.json')
 CSP = os.path.join(TRACK, 'extension', 'ext_config.ini')
 PHOTO = 'GoogleMap.jpg'
 PHOTO_SIZE = 1060.           # metres the ground photo spans, its middle at AC's origin
@@ -174,7 +174,7 @@ def field(sigma=SIGMA, fills=FILLS, again=False):
 def surface():
     """The track's top surface as tools/elevation.py takes it, and the far ground round the near."""
     tris = []
-    for path in (bp.TRACK, bp.KERBS, bp.PADDOCK):
+    for path in (bp.TRACK, bp.KERBS, os.path.join(bp.MODELS, 'velopark_runoffs.glb'), bp.PADDOCK):
         for n, m in bp.meshes(gltf_source.load_kn5(path)):
             if n['name'].startswith(ev.SURFACE + ('GRASS_1',)) and len(n['faces']):
                 tris.append(bp.triangles(n, m))

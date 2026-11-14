@@ -5,7 +5,7 @@
 The paint (lines, the grid's boxes and numbers) lies a few millimetres over the asphalt it is
 painted on. Where the asphalt was laid again after it, as where tools/join_paddock.py eased the
 paddock into the roads, the asphalt can come up over the paint of another model than
-velopark_paint.glb, which that moves with it: the edge line of the straight out of T2, in
+velopark_lines.glb, which that moves with it: the edge line of the straight out of T2, in
 velopark_kerbs.glb, went up to 4 mm under the paddock beside it, and showed only in pieces. This
 lifts every point of paint lying on the asphalt (within NEAR of it) less than LOW over the
 highest asphalt under it to OVER over it, and the points of a face whose middle, or an edge's,

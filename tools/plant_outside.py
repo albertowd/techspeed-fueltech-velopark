@@ -1,5 +1,5 @@
 """The trees round the track as the ground photo and the screenshots show them, in
-source/models/velopark_extra.glb (and BeamNG's forest, source/models/velopark_extra_trees.json).
+source/models/velopark_trees.glb (and BeamNG's forest, source/models/velopark_trees.json).
 
     python tools/plant_outside.py [--prune | --strip | --south]
 
@@ -304,7 +304,7 @@ def south():
         return
     track = gltf_source.load_kn5(bp.TRACK)
     paths = [bp.TRACK, EXTRA, OUTSIDE] + [os.path.join(bp.MODELS, f + '.glb') for f in
-                                          ('velopark_paddock', 'velopark_kerbs', 'velopark_tyres', 'velopark_paint', 'velopark_poles', 'velopark_kids')]
+                                          ('velopark_paddock', 'velopark_kerbs', 'velopark_tyres', 'velopark_lines', 'velopark_runoffs', 'velopark_poles', 'velopark_kids')]
     models = {p: (track if p == bp.TRACK else extra if p == EXTRA else gltf_source.load_kn5(p)) for p in paths}
     (xa, xb), (za, zb) = EXTENT
     grid = bt.Grid(np.array([xa, za]), np.array([xb, zb]))
@@ -338,7 +338,7 @@ def main():
         sys.exit('no %s: run tools/build_outside.py first' % os.path.relpath(OUTSIDE, ROOT))
     track = gltf_source.load_kn5(bp.TRACK)
     paths = [bp.TRACK, EXTRA, OUTSIDE] + [os.path.join(bp.MODELS, f + '.glb') for f in
-                                          ('velopark_paddock', 'velopark_kerbs', 'velopark_tyres', 'velopark_paint', 'velopark_poles', 'velopark_kids')]
+                                          ('velopark_paddock', 'velopark_kerbs', 'velopark_tyres', 'velopark_lines', 'velopark_runoffs', 'velopark_poles', 'velopark_kids')]
     models = {p: (track if p == bp.TRACK else extra if p == EXTRA else gltf_source.load_kn5(p)) for p in paths}
     (xa, xb), (za, zb) = EXTENT
     grid = bt.Grid(np.array([xa, za]), np.array([xb, zb]))

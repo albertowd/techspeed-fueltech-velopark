@@ -98,7 +98,7 @@ def beam(a, b, w, h=None, tile=(1., 1.), up=(0, 1, 0), ends=True):
     s /= np.linalg.norm(s)
     u = np.cross(s, d)
     hw, hh = w / 2, h / 2
-    ring = [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
+    ring = [(-hw, -hh), (-hw, hh), (hw, hh), (hw, -hh)]          # (round it so each side faces out)
     out = []
     for i in range(4):
         (x0, y0), (x1, y1) = ring[i], ring[(i + 1) % 4]

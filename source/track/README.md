@@ -45,4 +45,6 @@ Barrier tyre: ["Tire"](https://sketchfab.com/3d-models/tire-44168cfdb8044ea8b242
 
 Changes made to the model: reduced to fewer sides with hidden faces removed, rescaled, textures reduced in size, and the colour texture cleaned of dirt and stains.
 
+Asphalt: ["Aerial Asphalt 01"](https://polyhaven.com/a/aerial_asphalt_01) by Rob Tuytel, and concrete pavers: ["Brick Pavement 03"](https://polyhaven.com/a/brick_pavement_03) by Charlotte Baglioni, both from Poly Haven, licensed under [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
+
 Ground texture: satellite imagery from Google Maps, imagery (c) Google and its providers.

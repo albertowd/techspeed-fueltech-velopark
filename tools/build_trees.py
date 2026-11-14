@@ -1,4 +1,4 @@
-"""The eucalyptus plantation along the north and the west of the track, in source/models/velopark_extra.glb.
+"""The eucalyptus plantation along the north and the west of the track, in source/models/velopark_trees.glb.
 
     python tools/build_trees.py
 
@@ -26,7 +26,7 @@ normals as if they were round, out from the middle of their clump, so a clump is
 Their textures are made here: source/textures/euca_leaves.dds, euca_bark.dds, euca_shrub.dds,
 broad_leaves.dds.
 The meshes are cut in TILE metre squares. The trees as made, and where each stands, turned and
-sized, go in source/models/velopark_extra_trees.json too, from which tools/export_beamng.py makes
+sized, go in source/models/velopark_trees.json too, from which tools/export_beamng.py makes
 them BeamNG's forest. Run again, it finds the plantation planted.
 """
 import glob, io, json, math, os, urllib.parse
@@ -42,9 +42,9 @@ import kn5tree
 from plant_trees import pieces
 
 ROOT = bp.ROOT
-EXTRA = os.path.join(bp.MODELS, 'velopark_extra.glb')
+EXTRA = os.path.join(bp.MODELS, 'velopark_trees.glb')
 # the trees as made and where each stands, for BeamNG's forest (tools/export_beamng.py)
-FOREST = os.path.join(bp.MODELS, 'velopark_extra_trees.json')
+FOREST = os.path.join(bp.MODELS, 'velopark_trees.json')
 TEX = os.path.join(ROOT, 'source', 'textures')
 PREFIX = 'EUCA_'
 HEIGHT = (27., 37.)      # metres, the trees
@@ -574,7 +574,7 @@ def main():
 
     # the ground, and what nothing is planted near
     others = [gltf_source.load_kn5(os.path.join(bp.MODELS, f + '.glb')) for f in
-              ('velopark_paddock', 'velopark_kerbs', 'velopark_tyres', 'velopark_paint', 'velopark_poles', 'velopark_kids')]
+              ('velopark_paddock', 'velopark_kerbs', 'velopark_tyres', 'velopark_lines', 'velopark_runoffs', 'velopark_poles', 'velopark_kids')]
     ground, blocked = [], []
     for k in [track, extra] + others:
         for n, m in bp.meshes(k):

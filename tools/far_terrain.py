@@ -74,8 +74,9 @@ def buildings(loc):
     return out
 
 
-def real_ground(info):
-    """The real ground's heights as the track's y on a CELL metre grid over the pictures' area."""
+def real_ground(info, order=1):
+    """The real ground's heights as the track's y on a CELL metre grid over the pictures' area, as a
+    function of x, z: between the grid's points linear (order 1), or a cubic spline (order 3)."""
     loc = json.load(open(ev.LOCATION))
     offset = json.load(open(lg.DONE))['offset_m']
     x, z, h = heights()
@@ -118,22 +119,26 @@ def real_ground(info):
         t = np.clip(w / (lg.ENOUGH * (CELL / lg.CELL) ** 2), 0, 1)
         real += t * t * (3 - 2 * t) * (a / np.maximum(w, 1e-9) - real)
     print('  %d heights, %d of them the ground; %.1f to %.1f m' % (len(h), ground.sum(), real.min(), real.max()))
-    return lambda xx, zz: map_coordinates(real, [(np.asarray(zz) - Z[0]) / CELL, (np.asarray(xx) - X[0]) / CELL], order=1, mode='nearest')
+    return lambda xx, zz: map_coordinates(real, [(np.asarray(zz) - Z[0]) / CELL, (np.asarray(xx) - X[0]) / CELL], order=order, mode='nearest')
 
 
 def near_edge(k):
     """The near ground's outer edge, its points in order round it: the longest loop of the edges
     only one of its triangles has."""
     from collections import Counter, defaultdict
-    n, m = next((n_, m_) for n_, m_ in bp.meshes(k) if n_['name'] == NEAR)
-    V = n['verts'][:, :3].astype(float) + m[3, :3]
+    # all of it: it is cut into meshes of fewer than 65536 points, 1GRASS_0, 1GRASS_0_2 and on
+    import re
+    parts = [(n_, m_) for n_, m_ in bp.meshes(k) if re.fullmatch(re.escape(NEAR) + r'(_\d+)*', n_['name']) and len(n_['faces'])]
+    V = np.concatenate([n_['verts'][:, :3].astype(float) + m_[3, :3] for n_, m_ in parts])
+    off = np.cumsum([0] + [len(n_['verts']) for n_, _ in parts])
+    faces = np.concatenate([n_['faces'].astype(int) + o for (n_, _), o in zip(parts, off)])
     # its points welded where they lie together (each split by its normals and uv)
     key, idx = {}, np.empty(len(V), int)
     for i, v in enumerate(np.round(V, 3)):
         idx[i] = key.setdefault(tuple(v), len(key))
     W = np.zeros((len(key), 3))
     W[idx] = V
-    F = idx[n['faces'].astype(int)]
+    F = idx[faces]
     count = Counter(tuple(sorted(e)) for a, b, c in F for e in ((a, b), (b, c), (c, a)))
     nxt = defaultdict(list)
     for (a, b), c in count.items():
