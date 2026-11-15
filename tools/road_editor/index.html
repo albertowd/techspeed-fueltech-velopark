@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Velopark road editor</title>
+<link rel="stylesheet" href="/static/editor.css">
+</head>
+<body>
+<div id="app">
+  <header id="bar">
+    <div class="group" id="tools">
+      <button data-mode="select" class="on" title="Select and drag (V)">Select <kbd>V</kbd></button>
+      <button data-mode="add" title="Add a node on the selected road, or past one of its ends (A)">Add node <kbd>A</kbd></button>
+      <button data-mode="new" title="Draw a new road: click its nodes, Enter to finish (N)">New road <kbd>N</kbd></button>
+      <button data-mode="measure" title="Measure between two points (M)">Measure <kbd>M</kbd></button>
+      <button id="bring" title="Bring a road the track has into the editor: picked from its meshes not described yet, read from its mesh as a curve (B)">Bring in <kbd>B</kbd></button>
+      <button id="delroad" title="Delete the selected road from the described roads (Shift+Delete)">Delete road</button>
+      <button id="checksurf" title="Build the surface where you look, as the build makes it (roads, rumbles, ground merged), and show any seam problem (C)">Check surface <kbd>C</kbd></button>
+    </div>
+    <div class="group" id="layers">
+      <label><input type="checkbox" data-layer="sat" checked> Satellite</label>
+      <label><input type="checkbox" data-layer="ctx" checked> Track now</label>
+      <label><input type="checkbox" data-layer="draw"> Drawings</label>
+      <label><input type="checkbox" data-layer="wire" checked> Wireframe</label>
+      <label><input type="checkbox" data-layer="lines" checked> Lines</label>
+      <label><input type="checkbox" data-layer="kerbs" checked> Rumbles</label>
+      <label><input type="checkbox" data-layer="names" checked> Names</label>
+      <label><input type="checkbox" data-layer="surface" checked> Surface</label>
+    </div>
+    <div class="group right">
+      <button id="undo" title="Undo (Ctrl+Z)">Undo</button>
+      <button id="redo" title="Redo (Ctrl+Y)">Redo</button>
+      <button id="save" class="primary" title="Save to roads.json (Ctrl+S)">Save</button>
+      <button id="help" title="Keys and mouse (?)">?</button>
+    </div>
+  </header>
+  <main>
+    <canvas id="map"></canvas>
+    <div id="msg" hidden></div>
+    <aside id="panel">
+      <section>
+        <h2>Roads</h2>
+        <input id="filter" placeholder="Filter roads">
+        <ul id="roadlist"></ul>
+      </section>
+      <section id="roadprops" hidden></section>
+      <section id="nodeprops" hidden></section>
+      <section id="lineprops" hidden></section>
+      <section id="kerbprops" hidden></section>
+    </aside>
+  </main>
+  <footer id="status"><span id="pos">x –, z –</span><span id="along"></span><span id="zoom"></span><span id="state"></span></footer>
+</div>
+<div id="bringbox" hidden>
+  <h2>Bring in a road</h2>
+  <p>The track's roads not described yet, the biggest first. Click one: it is read from its mesh (by its rows, as a strip, or a ring in two halves joined end to end) as a curve to edit; saved with the rest.</p>
+  <input id="bringfilter" placeholder="Filter">
+  <ul id="bringlist"><li>Loading…</li></ul>
+  <button id="bringclose">Close</button>
+</div>
+<div id="helpbox" hidden>
+  <h2>Road editor</h2>
+  <table>
+    <tr><td>Wheel</td><td>zoom at the cursor</td></tr>
+    <tr><td>Drag on empty map, right or middle drag, Space + drag</td><td>pan</td></tr>
+    <tr><td>Click a road</td><td>select it (its nodes, handles and widths show)</td></tr>
+    <tr><td>Drag a node (square)</td><td>move it, its handles with it</td></tr>
+    <tr><td>Drag a handle (circle)</td><td>turn and stretch the curve; the other handle follows (a smooth node). <kbd>Alt</kbd> + drag: a corner</td></tr>
+    <tr><td>Drag a width diamond (L, R)</td><td>that side's width at the node; <kbd>Shift</kbd>: both sides</td></tr>
+    <tr><td>Click a line or rumble</td><td>select it (on any road)</td></tr>
+    <tr><td>Drag a line or rumble</td><td>slide it along its road, as long as it is</td></tr>
+    <tr><td>Drag a line's or rumble's end (triangle)</td><td>where it starts or ends along the road</td></tr>
+    <tr><td><kbd>A</kbd> then click on the road</td><td>a node there (the curve kept); click past an end: the road goes on to there</td></tr>
+    <tr><td><kbd>N</kbd> then click, click…, <kbd>Enter</kbd></td><td>a new road through those points</td></tr>
+    <tr><td><kbd>J</kbd> on a road's first or last node</td><td>join it to the nearest other road's end (within 20 m): one point, straight on, as wide, no gap between them. Moving either moves both; Unjoin in the node's form</td></tr>
+    <tr><td><kbd>Delete</kbd></td><td>the selected node (or line, or rumble); <kbd>Shift+Delete</kbd> or Delete road: the selected road</td></tr>
+    <tr><td><kbd>B</kbd> or Bring in</td><td>a road the track has but the editor not yet, from its mesh</td></tr>
+    <tr><td><kbd>S</kbd></td><td>smooth the selected node's handles (or every node's, with none selected)</td></tr>
+    <tr><td>Dragging a node</td><td>it snaps to another road's end, centre line or edges within 10 pixels (a cyan ring says to what); <kbd>Ctrl</kbd>: no snapping</td></tr>
+    <tr><td><kbd>M</kbd> then drag</td><td>measure between two points (snapping too)</td></tr>
+    <tr><td><kbd>C</kbd></td><td>check the surface where you look (up to 150 m across): built as the build makes it, every region merged; its seams drawn, any problem ringed red</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>back to Select, nothing selected</td></tr>
+    <tr><td><kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Y</kbd> / <kbd>Ctrl+S</kbd></td><td>undo / redo / save</td></tr>
+  </table>
+  <p>Left and right are as seen going along the road from its first node. <i>s</i> is how far along the road (metres): lines and rumbles are placed by it. A road changed in shape gets its heights again at the next build.</p>
+  <button id="helpclose">Close</button>
+</div>
+<script src="/static/editor.js"></script>
+</body>
+</html>
