@@ -146,16 +146,17 @@ def prune():
     print('%d new trees inside the track out (%d pieces)' % (gone.sum(), pieces_out))
 
 
-def take_out(extra, forest, gone):
-    """The new trees (NEW_KINDS, the meshes named ..._n<i>) whose stands gone marks out of extra
-    and the forest: the pieces of their meshes nearest them and the walls round their trunks. How
+def take_out(extra, forest, gone, tags=('_n',)):
+    """The trees whose stands gone marks (of the meshes named with one of tags, the new ones'
+    ..._n<i> by default; any tree's with None) out of extra and the forest: the pieces of their meshes nearest them and the walls round their trunks. How
     many pieces."""
     stands = forest['trees']
     S = np.array([[s[1], s[3]] for s in stands])
     tree_of = cKDTree(S)
     emptied, pieces_out = [], 0
     for n, m in bp.meshes(extra):
-        if not (n['name'].startswith((bt.PREFIX, '1WALL_' + bt.PREFIX)) and '_n' in n['name']) or not len(n['faces']):
+        if not (n['name'].startswith((bt.PREFIX, '1WALL_' + bt.PREFIX, 'EUCA_', '1WALL_EUCA_'))
+                and (tags is None or any(t in n['name'] for t in tags))) or not len(n['faces']):
             continue
         V = n['verts'][:, :3].astype(float) + m[3, :3]
         F = n['faces'].astype(int)

@@ -5,31 +5,22 @@
 The far ground was a flat ring of 76 points round the near ground (1GRASS_0, a triangle: its
 north edge along z = 433 from x = -500 to 500, its sides meeting at x = 0, z = -433). This makes it again from the near ground's edge out to the
 satellite pictures' edges (tools/reference/surroundings/surroundings.json's area), a point every
-STEP metres, at the real ground's heights: every height there is (tools/reference/elevation's
-google_*.json and google_wide_*.json, tools/reference/surroundings' google_heights_*.json), less
-the levelling's offset, but where they are the tops of trees or buildings, as tools/level_ground.py
-leaves them out: where the satellite pictures show trees round them (dark and uneven both), or
-the ground photo does (as tools/level_ground.py finds them there), within level_ground.BUILDING metres of
-OpenStreetMap's buildings, or over the heights' opening round them; the ground round them fills
-in, smoothed over FILLS metres, the finest where there are points enough.
+STEP metres, at the real ground's heights: tools/terrain.py's filtered heights, the tops of trees and
+buildings left out by its filters (no edits on them: they are the near ground's).
 
 Along the near ground's edge (its outline traced from its mesh) its points are the near ground's
 own (a point every EDGE metres on its straight edges, at their heights), so the two meet with no gap; what the real ground differs
 from them there fades out over EASE metres. Mapped onto FarGround.dds as tools/far_ground.py maps
 it (which must have run). Run again, it makes it again, the same.
 """
-import glob, json, os, sys
+import json, os, sys
 
 import numpy as np
-from PIL import Image
-from scipy.ndimage import gaussian_filter, grey_opening, map_coordinates, uniform_filter
 from shapely import contains_xy
 import triangle as tr
 
 import build_paths as bp
-import elevation as ev
 import gltf_source
-import level_ground as lg
 import shapes as sh
 
 SURROUNDINGS = os.path.join(bp.ROOT, 'tools', 'reference', 'surroundings')
@@ -37,89 +28,13 @@ FAR, NEAR = 'GRASS_1', '1GRASS_0'
 STEP = 20.                  # metres between the far ground's points
 EDGE = 10.                  # metres between its points along the near ground's edge
 EASE = 120.                 # metres out from the near ground the difference at its edge fades over
-CELL = 10.                  # metres, the real ground's grid
-FILLS = (20., 40., 80., 160., 320.)   # metres, the smoothing that fills where no ground is, finest first
-# trees in the satellite pictures: darker than TREE_LUM and more uneven than TREE_SD over 9 m, both
-# (the pictures are sharper than the ground photo, so either alone takes in fields' and roads' edges)
-TREE_LUM, TREE_SD = 75., 12.
 
 
-def heights():
-    rows = []
-    for f in (glob.glob(os.path.join(ev.OUT, 'google_2*.json')) + glob.glob(os.path.join(ev.OUT, 'google_wide_*.json'))
-              + glob.glob(os.path.join(SURROUNDINGS, 'google_heights_*.json'))):
-        rows += json.load(open(f))['rows']
-    R = np.array(rows, float)
-    return R[:, 0], R[:, 1], R[:, 4]
-
-
-def tree_share(info):
-    """The share of trees round each metre of the satellite pictures: where they are dark and
-    uneven both, within level_ground.TREE_NEAR metres."""
-    img = Image.open(os.path.join(SURROUNDINGS, info['image'])).convert('L')
-    lum = np.asarray(img, float)
-    mean = uniform_filter(lum, 9)
-    spread = np.sqrt(np.maximum(uniform_filter(lum ** 2, 9) - mean ** 2, 0))
-    return uniform_filter(((spread > TREE_SD) & (mean < TREE_LUM)).astype(float), int(2 * lg.TREE_NEAR) + 1)
-
-
-def buildings(loc):
-    from shapely.geometry import Polygon
-    out = []
-    for f in [lg.latest('osm_property_*.json')] + sorted(glob.glob(os.path.join(SURROUNDINGS, 'osm_*.json'))):
-        for e in json.load(open(f))['elements']:
-            if e['type'] == 'way' and 'building' in e.get('tags', {}) and 'geometry' in e:
-                g = e['geometry']
-                out.append(Polygon(ev.to_ac(loc, ev.enu([p['lat'] for p in g], [p['lon'] for p in g]))).buffer(lg.BUILDING))
-    return out
-
-
-def real_ground(info, order=1):
-    """The real ground's heights as the track's y on a CELL metre grid over the pictures' area, as a
-    function of x, z: between the grid's points linear (order 1), or a cubic spline (order 3)."""
-    loc = json.load(open(ev.LOCATION))
-    offset = json.load(open(lg.DONE))['offset_m']
-    x, z, h = heights()
-    h = h - offset
-    (xa, xb), (za, zb) = info['area_x_z']
-    X, Z = np.arange(xa - 100, xb + 100.1, CELL), np.arange(za - 100, zb + 100.1, CELL)
-    # not trees: by the pictures, where they are, else by the ground photo
-    trees = tree_share(info)
-    px = info['metres_a_pixel']
-    col, row = ((xb - x) / px).astype(int), ((zb - z) / px).astype(int)
-    inside = (col >= 0) & (col < trees.shape[1]) & (row >= 0) & (row < trees.shape[0])
-    share = np.ones(len(x))
-    share[inside] = trees[row[inside], col[inside]]
-    # and in the ground photo, its trees as tools/level_ground.py finds them there, which the
-    # pictures' rule misses in the photo's colours
-    import gltf_source
-    in_photo = (np.abs(x) < lg.PHOTO_SIZE / 2) & (np.abs(z) < lg.PHOTO_SIZE / 2)
-    photo = lg.tree_share(gltf_source.load_kn5(bp.TRACK))
-    share[in_photo] = np.maximum(share[in_photo], lg.photo_at(photo, x[in_photo], z[in_photo]))
-    ground = share < lg.TREE_SHARE
-    for b in buildings(loc):
-        ground &= ~contains_xy(b, x, z)
-
-    def splat(xx, zz, vv):
-        A, W = np.zeros((len(Z), len(X))), np.zeros((len(Z), len(X)))
-        i, j = np.round((zz - Z[0]) / CELL).astype(int), np.round((xx - X[0]) / CELL).astype(int)
-        ok = (i >= 0) & (i < len(Z)) & (j >= 0) & (j < len(X))
-        np.add.at(A, (i[ok], j[ok]), vv[ok])
-        np.add.at(W, (i[ok], j[ok]), 1.)
-        return A, W
-    A, W = splat(x, z, h)
-    tops = gaussian_filter(A, 1.) / np.maximum(gaussian_filter(W, 1.), 1e-9)
-    at = lambda G: map_coordinates(G, [(z - Z[0]) / CELL, (x - X[0]) / CELL], order=1)
-    ground &= h - at(gaussian_filter(grey_opening(tops, size=int(lg.OPENING / CELL) | 1), 1.)) < lg.OVER
-    ground &= h - at(gaussian_filter(grey_opening(tops, size=int(lg.WIDE_OPENING / CELL) | 1), 2.)) < lg.WIDE_OVER
-    A, W = splat(x[ground], z[ground], h[ground])
-    real = np.full(A.shape, float(np.median(h[ground])))
-    for s in FILLS[::-1]:
-        a, w = gaussian_filter(A, s / CELL), gaussian_filter(W, s / CELL)
-        t = np.clip(w / (lg.ENOUGH * (CELL / lg.CELL) ** 2), 0, 1)
-        real += t * t * (3 - 2 * t) * (a / np.maximum(w, 1e-9) - real)
-    print('  %d heights, %d of them the ground; %.1f to %.1f m' % (len(h), ground.sum(), real.min(), real.max()))
-    return lambda xx, zz: map_coordinates(real, [(np.asarray(zz) - Z[0]) / CELL, (np.asarray(xx) - X[0]) / CELL], order=order, mode='nearest')
+def real_ground(info=None, order=1):
+    """The real ground's heights as the track's y, as a function of x, z: tools/terrain.py's filtered
+    heights (no edits on them), between its grid's points linear (order 1), or a cubic spline (order 3)."""
+    import terrain
+    return terrain.filtered(order)
 
 
 def near_edge(k):

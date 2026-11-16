@@ -26,3 +26,9 @@ wall on its right with the shed's karts parked on the raised ground behind it, u
 building, so the pits stand at one height for both tracks. Then the pit boxes under the roof on
 that side (25) and the workshop inside the pit building (26, 27): steel roof trusses, fluorescent
 lights, grey walls, a tool cabinet, benches and karts under repair.
+
+28: the whole circuit from the air, from the south: the long track on the left, the drag strip
+down the middle with the paddock and its buildings between them, the industry's two big sheds and
+yards, the car parks (the big one with the grass round its trees, the paved one by the karting),
+the pond, and the kart track on the right with its paddock building and the rows of eucalyptus
+along the road south of it all.

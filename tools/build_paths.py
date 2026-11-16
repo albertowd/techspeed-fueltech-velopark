@@ -111,8 +111,130 @@ class Surface:
                     best = h
         return best
 
-    def ys(s, P):
-        return np.array([s.y(x, z) for x, z in P])
+    def near(s, P, Y, tol, chunk=200000):
+        """Whether any of the triangles over each of points P (x, z) has its top within tol of Y there."""
+        P = np.asarray(P, float).reshape(-1, 2)
+        Y = np.asarray(Y, float).reshape(-1)
+        out = np.zeros(len(P), bool)
+        if not len(P) or not len(s.t):
+            return out
+        s.ys(P[:1])                                                     # (its index made)
+        for c0 in range(0, len(P), chunk):
+            Q, Yq = P[c0:c0 + chunk], Y[c0:c0 + chunk]
+            gx = np.floor(Q[:, 0] / s.CELL).astype(np.int64)
+            gz = np.floor(Q[:, 1] / s.CELL).astype(np.int64)
+            code = gx * 1000003 + gz
+            at = np.clip(np.searchsorted(s._keys, code), 0, len(s._keys) - 1)
+            hit = s._keys[at] == code
+            cnt = np.where(hit, s._count[at], 0)
+            if not cnt.sum():
+                continue
+            pt = np.repeat(np.arange(len(Q)), cnt)
+            first = np.repeat(np.where(hit, s._start[at], 0), cnt)
+            within = np.arange(len(pt)) - np.repeat(np.cumsum(cnt) - cnt, cnt)
+            ax, ay, az, bx, by, bz, cx, cy, cz = s._T[s._tri[first + within]].T
+            x, z = Q[pt, 0], Q[pt, 1]
+            d = (bz - cz) * (ax - cx) + (cx - bx) * (az - cz)
+            ok = np.abs(d) >= 1e-12
+            d = np.where(ok, d, 1.)
+            l1 = ((bz - cz) * (x - cx) + (cx - bx) * (z - cz)) / d
+            l2 = ((cz - az) * (x - cx) + (ax - cx) * (z - cz)) / d
+            l3 = 1 - l1 - l2
+            ok &= np.minimum(np.minimum(l1, l2), l3) >= -1e-6
+            ok &= np.abs(l1 * ay + l2 * by + l3 * cy - Yq[pt]) <= tol
+            got = np.zeros(len(Q), bool)
+            np.logical_or.at(got, pt[ok], True)
+            out[c0:c0 + chunk] = got
+        return out
+
+    def nearest_y(s, P, Y, tol, chunk=200000):
+        """For each of points P (x, z), of the triangles over it, the height nearest Y there (the surface a
+        point at Y lies on, where some lie one over another); nan where none is within tol."""
+        P = np.asarray(P, float).reshape(-1, 2)
+        Y = np.asarray(Y, float).reshape(-1)
+        out = np.full(len(P), np.nan)
+        if not len(P) or not len(s.t):
+            return out
+        s.ys(P[:1])                                                     # (its index made)
+        for c0 in range(0, len(P), chunk):
+            Q, Yq = P[c0:c0 + chunk], Y[c0:c0 + chunk]
+            gx = np.floor(Q[:, 0] / s.CELL).astype(np.int64)
+            gz = np.floor(Q[:, 1] / s.CELL).astype(np.int64)
+            code = gx * 1000003 + gz
+            at = np.clip(np.searchsorted(s._keys, code), 0, len(s._keys) - 1)
+            hit = s._keys[at] == code
+            cnt = np.where(hit, s._count[at], 0)
+            if not cnt.sum():
+                continue
+            pt = np.repeat(np.arange(len(Q)), cnt)
+            first = np.repeat(np.where(hit, s._start[at], 0), cnt)
+            within = np.arange(len(pt)) - np.repeat(np.cumsum(cnt) - cnt, cnt)
+            ax, ay, az, bx, by, bz, cx, cy, cz = s._T[s._tri[first + within]].T
+            x, z = Q[pt, 0], Q[pt, 1]
+            d = (bz - cz) * (ax - cx) + (cx - bx) * (az - cz)
+            ok = np.abs(d) >= 1e-12
+            d = np.where(ok, d, 1.)
+            l1 = ((bz - cz) * (x - cx) + (cx - bx) * (z - cz)) / d
+            l2 = ((cz - az) * (x - cx) + (ax - cx) * (z - cz)) / d
+            l3 = 1 - l1 - l2
+            ok &= np.minimum(np.minimum(l1, l2), l3) >= -1e-6
+            h = l1 * ay + l2 * by + l3 * cy
+            gap = np.where(ok, np.abs(h - Yq[pt]), np.inf)
+            best = np.full(len(Q), np.inf)
+            np.minimum.at(best, pt, gap)
+            pick = ok & (gap == best[pt]) & (gap <= tol)
+            got = np.full(len(Q), np.nan)
+            got[pt[pick]] = h[pick]
+            out[c0:c0 + chunk] = got
+        return out
+
+    def ys(s, P, chunk=200000):
+        """y over each of points P (x, z), as y() gives it, worked out for them all at once."""
+        P = np.asarray(P, float).reshape(-1, 2)
+        out = np.full(len(P), np.nan)
+        if not len(P) or not len(s.t):
+            return out
+        if not hasattr(s, '_keys'):
+            keys = np.array(list(s.grid.keys()), dtype=np.int64).reshape(-1, 2)
+            code = keys[:, 0] * 1000003 + keys[:, 1]
+            order = np.argsort(code)
+            s._keys = code[order]
+            lists = [s.grid[tuple(keys[i])] for i in order]
+            s._count = np.array([len(l) for l in lists], np.int64)
+            s._start = np.r_[0, np.cumsum(s._count)[:-1]]
+            s._tri = np.concatenate([np.asarray(l, np.int64) for l in lists])
+            T = s.t
+            s._T = np.stack([T[:, 0, 0], T[:, 0, 1], T[:, 0, 2], T[:, 1, 0], T[:, 1, 1], T[:, 1, 2],
+                             T[:, 2, 0], T[:, 2, 1], T[:, 2, 2]], 1).astype(float)
+        for c0 in range(0, len(P), chunk):
+            Q = P[c0:c0 + chunk]
+            gx = np.floor(Q[:, 0] / s.CELL).astype(np.int64)
+            gz = np.floor(Q[:, 1] / s.CELL).astype(np.int64)
+            code = gx * 1000003 + gz
+            at = np.searchsorted(s._keys, code)
+            at = np.clip(at, 0, len(s._keys) - 1)
+            hit = s._keys[at] == code
+            cnt = np.where(hit, s._count[at], 0)
+            if not cnt.sum():
+                continue
+            pt = np.repeat(np.arange(len(Q)), cnt)
+            first = np.repeat(np.where(hit, s._start[at], 0), cnt)
+            within = np.arange(len(pt)) - np.repeat(np.cumsum(cnt) - cnt, cnt)
+            k = s._tri[first + within]
+            ax, ay, az, bx, by, bz, cx, cy, cz = s._T[k].T
+            x, z = Q[pt, 0], Q[pt, 1]
+            d = (bz - cz) * (ax - cx) + (cx - bx) * (az - cz)
+            ok = np.abs(d) >= 1e-12
+            d = np.where(ok, d, 1.)
+            l1 = ((bz - cz) * (x - cx) + (cx - bx) * (z - cz)) / d
+            l2 = ((cz - az) * (x - cx) + (ax - cx) * (z - cz)) / d
+            l3 = 1 - l1 - l2
+            ok &= np.minimum(np.minimum(l1, l2), l3) >= -1e-6
+            h = l1 * ay + l2 * by + l3 * cy
+            best = np.full(len(Q), -np.inf)
+            np.maximum.at(best, pt[ok], h[ok])
+            out[c0:c0 + chunk] = np.where(np.isfinite(best), best, np.nan)
+        return out
 
 
 def flat_uv(node):
@@ -382,7 +504,7 @@ def split(node, out):
 def save(k, path):
     doc, _ = gltf_source.read_glb(path)
     uris = {i['name']: urllib.parse.unquote(i['uri']) for i in doc.get('images', [])}
-    doc, binary = gltf_source.to_gltf(k, lambda t: uris[t['name']])
+    doc, binary = gltf_source.to_gltf(k, lambda t: uris.get(t['name'], '../textures/' + t['name']))
     gltf_source.write_glb(path, doc, binary)
 
 

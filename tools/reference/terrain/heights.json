@@ -1,0 +1,54 @@
+{
+ "about": "16 bit heightmaps, north up and west on the left (a pixel's x falls left to right, its z top to bottom): a pixel's value v is the track's y lo + v * (hi - lo) / 65535 metres; the first pixel (top left) at x_max, z_max",
+ "fingerprint": "25e1757478f38d1a",
+ "layers": {
+  "original": {
+   "file": "original.png",
+   "x_max": 1900.0,
+   "z_max": 1600.0,
+   "cell_m": 10.0,
+   "size": [
+    351,
+    321
+   ],
+   "lo": -7.494048136852062,
+   "hi": 33.85475305494506
+  },
+  "filtered": {
+   "file": "filtered.png",
+   "x_max": 1900.0,
+   "z_max": 1600.0,
+   "cell_m": 10.0,
+   "size": [
+    351,
+    321
+   ],
+   "lo": -7.494084575407818,
+   "hi": 16.916347060537387
+  },
+  "ground": {
+   "file": "ground.png",
+   "x_max": 1900.0,
+   "z_max": 1600.0,
+   "cell_m": 2.0,
+   "size": [
+    1751,
+    1601
+   ],
+   "lo": -7.497955915906164,
+   "hi": 16.93579392445245
+  }
+ },
+ "heights": {
+  "count": 25822,
+  "why": {
+   "ground": 15823,
+   "trees in the picture": 5984,
+   "trees in the photo": 3301,
+   "a building": 20,
+   "over the ground round it": 111,
+   "over the wide ground round it": 583,
+   "an area drawn as not ground": 0
+  }
+ }
+}

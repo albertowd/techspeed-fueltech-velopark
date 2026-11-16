@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.7.2
+
+### Both games
+
+- The pit apron in front of the building by the hotlap's pit lane as the photos show it, the car park south of it a straight step below it, with a ramp between them at its east end.
+- The car parks south of the paddock with their bays and the grass round their trees, and a second one east of them.
+- The road south of the car parks goes on through the trees to the dirt road.
+- No holes or cracks in the ground, the roads, the kerbs or the floors: where two of them meet, nothing to see through.
+- Buildings' walls seen from inside them too.
+- The hotlap's pit entry into the apron by the building's corner, a grass island between it and the road south, and grass beside the building.
+- No ground showing through the 1000's pit lane, the car park or the pavers along the main straight.
+- The flat kerbs on the main straight and the last corner lit the right way, without bright streaks.
+- No slits in the flat kerbs or between the run-offs' asphalt pieces.
+- The pavers along the main straight smooth, meeting the run-off's asphalt with no step.
+- Past the hairpin, the white lines fork smoothly and the road beyond the kerb is one smooth surface.
+- No stray bits of asphalt outside T2 or north of the building past the hairpin.
+- The hotlap's pit lane runs straight into the building's front, with no tongue of asphalt.
+- The hotlap building's columns stay under its roof, and its fence runs straight along its wall.
+- The start gantries whole: their legs meet the board again, and the board is closed all round.
+- Round posts on the fuel station's buildings, under their roofs.
+- Kids track: its old lines, grid, kerbs, gate and patch of asphalt under the pit boxes gone.
+- Kids track: a checkered start line, yellow pit boxes and white grid boxes.
+- Kids track: a steel fence all round it, with a walk-through passage by the pit boxes as its only way in.
+- Kids track: two marshal shelters with chairs facing the track, and a timing table with the live times in the passage.
+- White lines lie flat on the road everywhere, none floating over it or sunk into it, the car park's bays too.
+- Kerbs rise smoothly from the road at their ends and slope back down to the ground behind them.
+- Tyre walls with their stacks evenly spaced, the last gap like the others, and their tyres open on top up close.
+- Light poles of concrete with steel frames and floodlight glass, each facing the way it should, its night lights on it.
+- The marshals' posts at the starts with their chairs facing the track.
+
 ## 0.7.1
 
 - Downloads keep the same file name in every version, so a new one replaces the old one.

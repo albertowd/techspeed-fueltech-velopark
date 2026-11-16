@@ -1,0 +1,69 @@
+{
+ "name": "Techspeed FuelTech Velopark",
+ "satellite": "source/textures/GoogleMap.jpg",
+ "satellite_span": 1060.0,
+ "roads": "tools/reference/roads.json",
+ "drawings": "tools/reference/road_drawings.json",
+ "models": "source/models",
+ "context_models": [
+  [
+   "velopark.glb",
+   [
+    "1ROAD",
+    "1KERB",
+    "1WALL"
+   ],
+   "road"
+  ],
+  [
+   "velopark_runoffs.glb",
+   [
+    "1ROAD"
+   ],
+   "runoff"
+  ],
+  [
+   "velopark_kerbs.glb",
+   [
+    "1ROAD_KERB",
+    "KERB",
+    "1KERB"
+   ],
+   "kerb"
+  ],
+  [
+   "velopark_lines.glb",
+   [
+    "LINE_",
+    "GRID_"
+   ],
+   "line"
+  ],
+  [
+   "velopark_tyres.glb",
+   [
+    "TYRES",
+    "1WALL_TYRE"
+   ],
+   "tyre"
+  ],
+  [
+   "velopark_paddock.glb",
+   [
+    "1ROAD",
+    "BLD",
+    "1WALL"
+   ],
+   "paddock"
+  ],
+  [
+   "velopark_kids.glb",
+   [
+    "1ROAD",
+    "1ROAD_KERB",
+    "KERB"
+   ],
+   "kids"
+  ]
+ ]
+}

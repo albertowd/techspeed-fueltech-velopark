@@ -2,11 +2,10 @@
 
     python tools/drape_track.py [--dry-run]
 
-The real ground is tools/far_terrain.py's, from every height there is, between its 10 m points a
-smooth (cubic) surface. On it:
+The real ground is tools/terrain.py's ground: the real ground's heights filtered, a smooth (cubic)
+surface between its 10 m points, its edits on it (the middle buildings' platform, the pits and the
+shed raised). On it:
 
-- the real ground has the middle buildings' platform on it (PLATFORM: its heights' filter took
-  them out with the buildings'), the pit lanes ramping down from it to both tracks;
 - the near ground (1GRASS_0 and 1GRASS_PATHS of source/models/velopark.glb) is the real ground,
   every point of it, under the roads too; its faces within NEAR of the roads cut by a grid of CUT
   metres first, so it follows the real ground between its points there; and so is every other
@@ -31,7 +30,6 @@ import datetime, glob, json, os, re, struct, sys
 
 import numpy as np
 from scipy.ndimage import distance_transform_edt, gaussian_filter, map_coordinates
-from scipy.spatial import cKDTree
 
 import build_paths as bp
 from grade_paths import pieces
@@ -41,59 +39,37 @@ import gltf_source
 import join_paddock as jp
 import level_ground as lg
 import settle_objects as so
+import terrain
 
 DONE = os.path.join(lg.ev.OUT, 'draped.json')
 ROAD = .02               # metres a road lies over the real ground: its own height
 RAMP = .12               # the slope from an edge of what is driven on down to the grass, metres a metre
+RAMP_UNDER = .01         # metres a ramp's outer edge lies under the near ground's mesh
 RAMP_W = (.12, 1.)       # the narrowest and widest a ramp is, metres
 PIECE = 4.               # metres: a piece of a thing standing on the ground smaller than this across moves as one
-# the middle buildings stand on a platform, a metre over the 1500's side, the pit lanes ramping down
-# from it to both tracks and the 1000's pit lane up to it from the storage building's end: the real
-# ground's filter took its heights out with the buildings' (there are no roofs among them), and the
-# ground round filled it in, half a metre lower. In this box (x, z) the raw heights, smoothed over
-# PLATFORM_SMOOTH, raise the real ground where they are higher, easing out over PLATFORM_EDGE
-# (from the race control tower north: south of it the paddock building's roof is among the heights);
-# never more than PLATFORM_MAX, a platform's height, so no roof or tree top gets in
-PLATFORM = ((-88., -22.), (62., 165.))
-WORK = ((-110., 10.), (-60., 185.))     # the grid the platform is worked out on, x and z
-PLATFORM_SMOOTH, PLATFORM_EDGE, PLATFORM_MAX = 4., 8., .7
-# the pits and the shed north of them stand PIT_RISE over the 1000's pit lane at the foot of its
-# ramp (screenshots 01 and 22 to 24 in tools/reference/site): the lane runs along the storage
-# building on the ground as it is, then up a smooth ramp from the building's south end (RAMP_FOOT,
-# z) to the pit building's north end (RAMP_TOP); on its west the shed's floor (the kart platform
-# under the tent's arches) at the pits' height, from FACE_IN in from LANE_EDGE (x, z at both ends;
-# x grows west), the line the pit building's and the storage building's east walls stand on, beside
-# the lane, the pit boxes in a row along it, north to SHED_NORTH (z), ending in steep concrete faces
-# down to the lane and to the grass north of it (tools/build_outside.py makes them, and the
-# floor's concrete over the edge). PIT_AREA is the pits' (both lanes under the roof, and the
-# workshop), x, z round it; the ground eases down from it over PIT_EASE, from the shed's floor
-# over SHED_EDGE to its faces, and over PIT_EASE west of SHED_LONG (x), where the 1500's pit exit
-# and the road beside the storage building run down from it. Within TRACK_KEEP of any layout's racing
-# line (and of the pit lanes south of KEEP_PITS_SOUTH) the ground is as it was, easing up to that
-# over TRACK_EASE more, so the tracks race as before
-PIT_RISE = 1.
-RAMP_FOOT, RAMP_TOP = 141.5, 126.
-LANE_EDGE = ((-48.78, 126.), (-47.26, 142.))     # (the pit building's and the storage building's east walls' line)
-FACE_IN, LANE_EASE = 1.2, 8.
+# where the pits' shed stands (tools/build_outside.py and tools/restyle_paddock.py build its floor and its
+# concrete faces on them; the ground under them, raised, is tools/terrain.py's paddock_platform edit): the
+# line the pit building's and the storage building's east walls stand on (x, z at both ends; x grows
+# west), the shed's floor FACE_IN in from it, north to SHED_NORTH (z), its edge SHED_EDGE
+LANE_EDGE = ((-48.78, 126.), (-47.26, 142.))
+FACE_IN = 1.2
 SHED_NORTH = 133.7          # (its concrete, with the face over its edge, to z 135.5)
-PIT_AREA = [(-28.5, 124.5), (-30.9, 94.5), (-62.6, 97.), (-60.2, 126.5)]
-SHED_WEST = -35.6
-PIT_EASE, SHED_EDGE, SHED_LONG = 16., .5, -37.
-TRACK_KEEP, TRACK_EASE = 5., 6.
-KEEP_PITS_SOUTH = 60.    # z: the layouts' pit lanes south of it (the hotlap's and the 2500's, by the stands) are kept as racing lines are
-# the raised ground goes on south of the pits, past the race control tower, the north paddock
-# building and the bar to the two wooden stands by the 1500's straight (MIDDLE_AREA, x, z round
-# it), falling MIDDLE_FALL a metre south from the pits' height at PIT_SOUTH (z), as the ground
-# round does; easing down from it as from the pits
-MIDDLE_AREA = [(-27., 94.5), (-63., 97.), (-68., 60.), (-67., 30.), (-62., 14.), (-45., -5.), (-38., -40.),
-               (-10., -42.), (-20., 0.), (-27., 15.)]
-PIT_SOUTH, MIDDLE_FALL = 94.5, .009
+SHED_EDGE = .5
 NEAR = 15.               # metres from a road the ground's faces are cut
 CUT = 3.                 # metres, the grid they are cut along
 ROAD_CUT = 2.            # metres, the grid the roads' faces are cut along, so they follow the real ground
 SINK = .03               # metres a tyre stack stands into the ground
 IN_TYRE = .3             # of a tyre's width either way of its middle: a piece with its middle there is of its stack
 STACK = .1               # metres apart the middles of the tyres of one stack may be (more, and the stacks of a wall chain into one)
+# the car park south of the pit apron by the hotlap's pit lane: PARK_DROP under the apron, a step
+# along its edge (tools/restyle_paddock.py's APRON_SOUTH and APRON_EAST), but where a ramp joins them
+# (PARK_RAMP, x, the step sloping down over PARK_RAMP_LONG) and beside the road south (within
+# PARK_SIDE of it, rising to it); its asphalt (PARK_MESH)
+PARK_DROP, PARK_RAMP, PARK_RAMP_LONG, PARK_SIDE, PARK_MESH = .10, (113., 122.), 2.5, 3., '1ROAD_PADDOCK_PARK'
+# the step down from the apron flat for PARK_FLAT metres from its edge, easing back up to the ground
+# as it is over PARK_EASE more (the road south of the car park and the car park east of it as they are)
+PARK_FLAT, PARK_EASE = 8., 10.
+GANTRY = 'velopark_gantry'  # (the start gantries' models: each moved as one)
 PAINT = ('LinePaint', 'GridNumbers', 'PitLinePaint')   # the paint's materials, laid on the roads as they are
 GRID = .25               # metres, the grid the changes are worked out on
 CARRY = 12.              # metres from the roads their change is carried out to
@@ -120,67 +96,31 @@ def driven(name):
     return so.driven(name) and 'GRASS' not in name or name.startswith(('KERB', 'EDGE', 'PAINT', 'LINE')) or 'KERB' in name
 
 
-def platform(real):
-    """The real ground with the middle buildings' platform on it, as PLATFORM says."""
-    from scipy.interpolate import griddata
-    x, z, h = ft.heights()
-    h = h - json.load(open(lg.DONE))['offset_m']
-    (xa, xb), (za, zb) = PLATFORM
-    m = 20.
-    sel = (x > xa - m) & (x < xb + m) & (z > za - m) & (z < zb + m)
-    X, Z = np.arange(WORK[0][0], WORK[0][1] + .1, 1.), np.arange(WORK[1][0], WORK[1][1] + .1, 1.)
-    XX, ZZ = np.meshgrid(X, Z)
-    R = griddata(np.c_[x[sel], z[sel]], h[sel], (XX, ZZ), method='linear')
-    R = np.where(np.isnan(R), real(XX, ZZ), R)
-    R = gaussian_filter(R, PLATFORM_SMOOTH)
-    inside = np.minimum.reduce([XX - xa, xb - XX, ZZ - za, zb - ZZ])
-    t = np.clip(inside / PLATFORM_EDGE, 0, 1)
-    bump = np.clip(R - real(XX, ZZ), 0, PLATFORM_MAX) * t * t * (3 - 2 * t)
-    # the 1000's pit lane down to the ground as it is north of its ramp, east of the face
-    (xa_, za_), (xb_, zb_) = LANE_EDGE
-    face = xa_ + (xb_ - xa_) * (ZZ - za_) / (zb_ - za_) + FACE_IN
-    smooth = lambda u: (lambda c: c * c * (3 - 2 * c))(np.clip(u, 0., 1.))
-    down = smooth((ZZ - RAMP_TOP) / (RAMP_FOOT - RAMP_TOP)) * (1 - smooth((face - XX) / LANE_EASE)) * (XX < face)
-    bump = bump * (1 - down)
-    base = real(XX, ZZ) + bump
-    # the pits and the shed PIT_RISE over the lane at the ramp's foot
-    fx = lambda zz: xa_ + (xb_ - xa_) * (zz - za_) / (zb_ - za_) + FACE_IN
-    H = float(real(np.array([fx(RAMP_FOOT) - FACE_IN - 1.8]), np.array([RAMP_FOOT]))[0]) + PIT_RISE      # (on the lane's middle)
+def park_drop(track):
+    """How far the car park lies under the pit apron at points (x, z): a function of them, 0 elsewhere."""
+    import restyle_paddock as rp
     import shapely
-    from shapely.geometry import Polygon
-    in_pits = shapely.contains_xy(Polygon(PIT_AREA), XX, ZZ)
-    shed_poly = Polygon([(fx(RAMP_TOP - 1.5), RAMP_TOP - 1.5), (fx(SHED_NORTH), SHED_NORTH),
-                         (SHED_WEST, SHED_NORTH), (SHED_WEST, RAMP_TOP - 1.5)])
-    in_shed = shapely.contains_xy(shed_poly, XX, ZZ)
-    w_pits = smooth(1 - distance_transform_edt(~in_pits) / PIT_EASE)
-    d_shed = distance_transform_edt(~in_shed)
-    w_shed = np.maximum(smooth(1 - d_shed / SHED_EDGE), smooth(1 - d_shed / PIT_EASE) * smooth((XX - SHED_LONG) / 2.))
-    w_shed = w_shed * ~((XX < face) & (ZZ > RAMP_TOP - 1.))         # (not over the face onto the lane)
-    # the racing lines kept as they are
-    lines = []
-    for f in glob.glob(os.path.join(bp.ROOT, 'source', 'track', '*', 'ai', '*_lane.ai')):
-        b = open(f, 'rb').read()
-        n = int.from_bytes(b[4:8], 'little')
-        p = np.frombuffer(b, dtype='<f4', count=n * 5, offset=16).reshape(-1, 5)[:, [0, 2]].astype(float)
-        if os.path.basename(f) == 'pit_lane.ai':
-            p = p[p[:, 1] < KEEP_PITS_SOUTH]       # (the pit lanes by the stands, not those up to the pits)
-        lines.append(p)
-    d_line = cKDTree(np.concatenate(lines)).query(np.c_[XX.ravel(), ZZ.ravel()])[0].reshape(XX.shape)
-    keep = smooth((d_line - TRACK_KEEP) / TRACK_EASE)
-    lift = np.clip(H - base, 0, None) * np.maximum(w_pits, w_shed) * keep
-    # and on south of them
-    in_mid = shapely.contains_xy(Polygon(MIDDLE_AREA), XX, ZZ)
-    w_mid = smooth(1 - distance_transform_edt(~in_mid) / PIT_EASE)
-    Hs = H - MIDDLE_FALL * np.clip(PIT_SOUTH - ZZ, 0, None)
-    lift = np.maximum(lift, np.clip(Hs - base, 0, None) * w_mid * keep)
-    bump = bump + lift
-    print("the middle buildings' platform: the ground raised up to %.2f m there; the pits and the shed at %.2f m, "
-          "%.2f m over the 1000's pit lane at its ramp's foot" % (bump.max(), H, PIT_RISE))
+    from shapely.geometry import LineString, Polygon
+    from scipy.spatial import cKDTree
+    park = Polygon(rp.PARK).buffer(.05).union(Polygon(rp.PARK).buffer(3.5, join_style=2))
+    edge = LineString(rp.APRON_SOUTH)
+    side = np.concatenate([n['verts'][:, [0, 2]].astype(float) for n, m in bp.meshes(track) if n['name'] == '1ROAD_26'])
+    tree = cKDTree(side)
 
-    def ground(xx, zz):
-        xx, zz = np.asarray(xx, float), np.asarray(zz, float)
-        return real(xx, zz) + map_coordinates(bump, [zz - Z[0], xx - X[0]], order=1, cval=0.)
-    return ground
+    def drop(x, z):
+        x, z = np.atleast_1d(np.asarray(x, float)), np.atleast_1d(np.asarray(z, float))
+        under = shapely.contains_xy(park, x, z)
+        x, z = x.copy(), z.copy()
+        f = np.ones(len(x))
+        ramp = (x > PARK_RAMP[0]) & (x < PARK_RAMP[1])
+        if ramp.any():
+            f[ramp] = np.clip(np.array([edge.distance(shapely.geometry.Point(a, b)) for a, b in zip(x[ramp], z[ramp])]) / PARK_RAMP_LONG, 0., 1.)
+        f *= np.clip(tree.query(np.c_[x, z])[0] / PARK_SIDE, 0., 1.)
+        # (from the apron's edge out over PARK_EASE: the road south of it as high as it is)
+        d_edge = np.array([edge.distance(shapely.geometry.Point(a, b)) for a, b in zip(x, z)]) if under.any() else np.zeros(len(x))
+        f *= np.clip(1. - (d_edge - PARK_FLAT) / PARK_EASE, 0., 1.)
+        return np.where(under, -PARK_DROP * f, 0.)
+    return drop
 
 
 def main():
@@ -188,7 +128,7 @@ def main():
     if os.path.exists(DONE):
         print('the track is draped already (%s)' % os.path.relpath(DONE, bp.ROOT))
         return
-    real = platform(ft.real_ground(json.load(open(os.path.join(ft.SURROUNDINGS, 'surroundings.json'))), order=3))
+    real = terrain.ground(3)                                   # (the ground, its edits on it: tools/terrain.py)
     files = sorted(glob.glob(os.path.join(bp.MODELS, '*.glb')))
     # (and the parked karts, which tools/place_karts.py stands on the ground as it is after)
     files = [f for f in files if os.path.basename(f) not in so.SKIP + ('velopark_karts.glb',)]
@@ -300,11 +240,59 @@ def main():
     # over the real ground: the roads lying over others (patches, run-offs) as far over them as
     # they were, their skirts as deep under them
     jp.GRID = ROAD_CUT
+    drop = park_drop(track)
     cut_roads = []
+    # (a road described with its heights (tools/reference/roads.json) lies as described: not moved)
+    import roads as rd_
+    fixed = {k_ for k_, r_ in rd_.load().items() if r_.get('heights')}
+    kept = [(f, n, m) for f, n, m in roads if n['name'] in fixed]
+    roads = [(f, n, m) for f, n, m in roads if n['name'] not in fixed]
+    if kept:
+        # (each as high as its heights say, where its points are; the roads in their order, each point a
+        # road shares with one above it (where it was cut on its edge) as high as that one's there)
+        from scipy.spatial import cKDTree
+        all_ = rd_.load()
+        rank = {x: i for i, x in enumerate(rd_.priority(all_))}
+        kept.sort(key=lambda fnm: rank.get(fnm[1]['name'], 1e9))
+        laid = {}
+        for f, n, m in kept:
+            road = all_[n['name']]
+            if 'along' in road:
+                road = rd_.along_road(road, all_)
+            Pd, _, Fd = rd_.mesh(road)
+            Sd = bp.Surface(Pd[Fd])
+            V = n['verts'].astype(float)
+            W = (np.c_[V[:, :3], np.ones(len(V))] @ m)[:, :3]
+            y = Sd.ys(W[:, [0, 2]])
+            # (a point on one of its description's points as high as that point: at its edges and its end
+            # rows too, where the surface's test can miss, so two roads joined end to end meet exactly)
+            dd_, jj_ = cKDTree(Pd[:, [0, 2]]).query(W[:, [0, 2]])
+            y = np.where(dd_ < 1e-3, Pd[jj_, 1], y)
+            W[:, 1] = np.where(np.isfinite(y), y, W[:, 1] + road_change(W[:, 0], W[:, 2]))
+            import shapely
+            for x in rd_.above(all_[n['name']], all_):
+                if x not in laid:
+                    continue
+                on = shapely.distance(rd_.outline(all_[x], all_).boundary, shapely.points(W[:, [0, 2]])) < .002
+                if on.any():
+                    d_, j_ = laid[x][0].query(W[on][:, [0, 2]], k=2)
+                    w_ = 1. / np.maximum(d_, 1e-6)
+                    W[on, 1] = (laid[x][1][j_] * w_).sum(1) / w_.sum(1)
+            laid.setdefault(n['name'], [None, None])
+            prev = laid[n['name']]
+            pts = W[:, [0, 2]] if prev[0] is None else np.r_[prev[0].data, W[:, [0, 2]]]
+            ys = W[:, 1] if prev[1] is None else np.r_[prev[1], W[:, 1]]
+            laid[n['name']] = [cKDTree(pts), ys]
+            V[:, :3] = (np.c_[W, np.ones(len(W))] @ np.linalg.inv(m))[:, :3]
+            n['verts'] = V.astype(n['verts'].dtype)
+            bp.sphere(n)
+        print('  %d roads as described, as high as their heights say: %s' % (len(kept), ', '.join(n['name'] for _, n, _ in kept)))
     for f, n, m in roads:
         V, F, new, cut, Fc = jp.refine(n['verts'].astype(float), n['faces'].astype(int), lambda P: np.ones(len(P), bool))
         W = (np.c_[V[:, :3], np.ones(len(V))] @ m)[:, :3]
         W[:, 1] += road_change(W[:, 0], W[:, 2])
+        if n['name'].startswith(PARK_MESH):
+            W[:, 1] += drop(W[:, 0], W[:, 2])                   # (the car park a step under the apron)
         V[:, :3] = (np.c_[W, np.ones(len(W))] @ np.linalg.inv(m))[:, :3]
         V[:, 8:11] = gltf_source.tangents(V[:, :3], V[:, 3:6], V[:, 6:8], F)
         parts = [(v, f_) for v, f_ in jp.chunks(V, F) if len(f_)]
@@ -330,7 +318,38 @@ def main():
                 return False
             put(k['root'])
         cut_roads += [(f, x, m) for x in nodes]
-    roads = cut_roads
+    roads = cut_roads + kept
+    # the car park's ramp up to the apron: from the apron's own height at its edge (it is not quite
+    # ROAD over the ground) down to the car park's over PARK_RAMP_LONG
+    import restyle_paddock as rp
+    from shapely.geometry import LineString as _LS, Point as _Pt
+    ap = [bp.triangles(n, m) for f, n, m in roads if n['name'].startswith(rp.HOTLAP_BOX_ROAD) and len(n['faces'])]
+    if ap:
+        apron_top = bp.Surface(np.concatenate(ap))
+        edge = _LS(rp.APRON_SOUTH)
+        a_, b_ = np.array(rp.APRON_SOUTH[0], float), np.array(rp.APRON_SOUTH[-1], float)
+        u_ = (b_ - a_) / np.linalg.norm(b_ - a_)
+        out_ = np.array([u_[1], -u_[0]]) if u_[0] > 0 else np.array([-u_[1], u_[0]])
+        if out_[1] > 0:
+            out_ = -out_                                            # (into the car park, south)
+        for f, n, m in roads:
+            if not n['name'].startswith(PARK_MESH) or not len(n['faces']):
+                continue
+            V = n['verts'].astype(float)
+            W = (np.c_[V[:, :3], np.ones(len(V))] @ m)[:, :3]
+            sel = np.where((W[:, 0] > PARK_RAMP[0]) & (W[:, 0] < PARK_RAMP[1]))[0]
+            for i in sel:
+                d = edge.distance(_Pt(W[i, 0], W[i, 2]))
+                if d >= PARK_RAMP_LONG:
+                    continue
+                q = np.array(edge.interpolate(edge.project(_Pt(W[i, 0], W[i, 2]))).coords[0])
+                A = apron_top.y(*(q - out_ * .15))
+                if np.isfinite(A):
+                    s_ = d / PARK_RAMP_LONG
+                    W[i, 1] = A * (1 - s_) + W[i, 1] * s_
+            V[:, :3] = (np.c_[W, np.ones(len(W))] @ np.linalg.inv(m))[:, :3]
+            n['verts'] = V.astype(n['verts'].dtype)
+            bp.sphere(n)
     road_ids = {id(n) for _, n, _ in roads}
     print('  %d road meshes, cut and moved' % len(roads))
     new_tops = []
@@ -489,6 +508,16 @@ def main():
 
     for f, k in models.items():
         moved = [0]
+        # a start gantry moves as one, by a plane through what the top moved under its feet (each
+        # of its legs moved by its own foot's, its board by the road's under it, they came apart)
+        plane = None
+        if os.path.basename(f).startswith(GANTRY):
+            feet = np.array([(np.c_[n['verts'][:, :3].astype(float), np.ones(len(n['verts']))] @ m)[:, :3].mean(0)
+                             for n, m in bp.meshes(k) if n['name'].startswith('1WALL_GANTRY') and len(n['verts'])])
+            if len(feet) >= 3:
+                A_ = np.c_[np.ones(len(feet)), feet[:, 0], feet[:, 2]]
+                cf = np.linalg.lstsq(A_, top_change(feet[:, 0], feet[:, 2]), rcond=None)[0]
+                plane = lambda x, z, cf=cf: cf[0] + cf[1] * np.asarray(x, float) + cf[2] * np.asarray(z, float)
         # the tyre stacks of all the model's tyre meshes at once: a tyre's tread and its sides may
         # lie in different meshes (TYRES_n and TYRES_nF), and must turn and move as one
         placed = {}
@@ -511,7 +540,7 @@ def main():
                 m = M4 @ parent
                 if not np.allclose(M4, np.eye(4)):
                     o = m[3, :3]
-                    by = road_change if n['name'].startswith('AC_') else top_change
+                    by = plane if plane is not None else road_change if n['name'].startswith('AC_') else top_change
                     M4[3, :3] += np.array([0., float(by([o[0]], [o[2]])[0]), 0.]) @ np.linalg.inv(parent[:3, :3])
                     n['matrix'] = list(M4.ravel())
                     moved[0] += 1
@@ -521,7 +550,9 @@ def main():
             elif n['kind'] == 2 and len(n['verts']) and id(n) not in road_ids and n['name'] != 'GRASS_1'                     and not (k is track and n['name'].startswith((bp.GROUND, bp.FILLER))):
                 V = n['verts']
                 W = (np.c_[V[:, :3].astype(float), np.ones(len(V))] @ parent)[:, :3]
-                if is_grass(n['name']):
+                if plane is not None:
+                    up = plane(W[:, 0], W[:, 2])
+                elif is_grass(n['name']):
                     up = real(W[:, 0], W[:, 2]) - W[:, 1]
                 elif k['materials'][n['material']]['name'] in PAINT:
                     # on the road as it is now, as far over it as it was (a little at least)
@@ -629,13 +660,22 @@ def ramps(models, track, real):
                 pos[kk] = Pt if kk not in pos or Pt[1] > pos[kk][1] else pos[kk]
                 acc[kk] = acc.get(kk, 0.) + nrm
             edges.append((ka, kb))
-    out = {}
-    for kk, P in pos.items():
-        n2 = acc[kk] / max(np.linalg.norm(acc[kk]), 1e-9)
-        g = float(real(np.array([P[0]]), np.array([P[2]]))[0])
-        w = float(np.clip((P[1] - g) / RAMP, *RAMP_W))
-        q = P[[0, 2]] + n2 * w
-        out[kk] = np.array([q[0], float(real(np.array([q[0]]), np.array([q[1]]))[0]) - .004, q[1]])
+    # (each edge's point out on the grass: all of them at once)
+    ks = list(pos)
+    Pk = np.array([pos[kk] for kk in ks])
+    Nk = np.array([acc[kk] for kk in ks])
+    Nk /= np.maximum(np.linalg.norm(Nk, axis=1, keepdims=True), 1e-9)
+    g = np.asarray(real(Pk[:, 0], Pk[:, 2]), float)
+    w = np.clip((Pk[:, 1] - g) / RAMP, *RAMP_W)
+    Q = Pk[:, [0, 2]] + Nk * w[:, None]
+    yq = np.asarray(real(Q[:, 0], Q[:, 1]), float) - .004
+    # (just under the near ground as its mesh lies there, which between its points is not quite the
+    # real ground: else the ramp's edge stands over it, open)
+    gr = [bp.triangles(n, m) for n, m in bp.meshes(track) if n['name'].startswith(bp.GROUND) and len(n['faces'])]
+    if gr:
+        gy = bp.Surface(np.concatenate(gr)).ys(Q)
+        yq = np.where(np.isfinite(gy), np.minimum(yq, gy - RAMP_UNDER), yq)
+    out = {kk: np.array([q[0], y, q[1]]) for kk, q, y in zip(ks, Q, yq)}
     # the ground photo's mapping, from the near ground's points
     g = next(n for n, _ in bp.meshes(track) if n['name'] == bp.GROUND)
     Vg = g['verts'].astype(float)
@@ -652,12 +692,14 @@ def ramps(models, track, real):
         V += list(quad)
     V = np.array(V, float)
     F = np.array(F, int)
-    # (none lying on a road: an edge whose next road begins a little past where it was tested)
-    c = V.reshape(-1, 4, 3).mean(1)
+    # (none lying on a road: an edge whose next road begins a little past where it was tested; each
+    # of its two triangles by itself, one may reach over a road the other does not)
+    c = V[F].mean(1)
     y = bp.Surface(T).ys(c[:, [0, 2]])
     on = np.isfinite(y) & (np.abs(c[:, 1] - y) < .5)
-    F = F.reshape(-1, 2, 3)[~on].reshape(-1, 3)
-    edges = [e for e, o in zip(edges, on) if not o]
+    pair = on.reshape(-1, 2).any(1)
+    F = F[~on]
+    edges = [e for e, o in zip(edges, pair) if not o]
     fn = np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]])
     N = np.zeros_like(V)
     for k in range(3):

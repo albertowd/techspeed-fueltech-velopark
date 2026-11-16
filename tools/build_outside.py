@@ -51,6 +51,7 @@ import build_paths as bp
 import build_trees
 import elevation as ev
 import gltf_source
+import kn5tree
 import kn5io
 import level_ground
 import shapes as sh
@@ -136,6 +137,7 @@ PIT_TENT_EAVE, PIT_TENT_DOME = 3.2, 2.6
 # old ones stood, steel trusses under it, strip lights, and its signs at both ends over each lane:
 # Techspeed over the vp_1000's (east), "curta vencer" over the vp_1500's. Its middle and its way north
 PIT_BUILDING = ((-45.55, 110.3), (.0945, .9955))
+ROAD_CONES = ((-31.1, 61.6),)        # (x, z: where the vp_1500's pit entry and the side road part)
 PIT_CORE = (9.4, 25.8)          # the workshop's width (across) and length (along)
 PIT_CORE_WEST = 2.5             # metres more of it on its west side, out to the 1500's pit lane (screenshot 17)
 PIT_ROOF = (31.2, 30.5)         # the roof's, over both lanes
@@ -581,6 +583,9 @@ def write(model, tex):
     for (name, mat), parts in sorted(model.parts.items()):
         if not parts:
             continue
+        if name.endswith(('_WALLS', '_GABLES', '_WALL')) and not name.startswith('1WALL_'):
+            # (the buildings' walls seen from inside them too: through their doors and bays, under their roofs)
+            parts = parts + [sh._part(V, -N, U, np.asarray(F)[:, ::-1]) for V, N, U, F in parts]
         flags = None
         if name.startswith('1WALL_'):
             flags = dict(renderable=0, cast_shadows=0)
@@ -1304,7 +1309,7 @@ def barrel_roof(P, eave, rise=ROOF_RISE, over=ROOF_OVER, thick=ROOF_THICK, tile=
 
 
 def gable_walls(gables, centre, tile=(2., 2.)):
-    """The walls closing the gables under a barrel roof, facing out from the building's middle."""
+    """The walls closing the gables under a barrel roof, both ways (seen from a terrace under the roof too)."""
     out = []
     for g in gables:
         mid = g.mean(0)
@@ -1313,7 +1318,9 @@ def gable_walls(gables, centre, tile=(2., 2.)):
         a = np.array([a[0], 0., a[2]]) / np.linalg.norm(a)
         n = n - a * (n @ a)
         n /= np.linalg.norm(n)
-        out += sh.poly(g, n=n, tile=tile, axes=(a, np.array([0., 1., 0.])))
+        face = sh.poly(g, n=n, tile=tile, axes=(a, np.array([0., 1., 0.])))
+        out += face
+        out += [sh._part(V, -N, U, np.asarray(F)[:, ::-1]) for V, N, U, F in face]     # (seen from under the roof too)
     return out
 
 
@@ -1494,7 +1501,29 @@ def hotlap_roof(model, ground):
             (a0, a1, ya), (b0, b1, yb) = pts
             solar += sh.quad((a0[0], ya, a0[1]), (a1[0], ya, a1[1]), (b1[0], yb, b1[1]), (b0[0], yb, b0[1]), tile=(4., 4.))
     model.add('HOTLAP_BUILDING_SOLAR', 'Solar', solar)
+    columns_to_roof(b, yc, R, W)
     return b
+
+
+def columns_to_roof(b, yc, R, W):
+    """The building's columns' tops (each one's upper part) just under its roof's underside over them
+    (arched yc, R across its depth W): the drape moved each column with the ground under it, the roof
+    is one."""
+    import restyle_paddock as rp
+    from grade_paths import pieces as parts
+    pad, p0, nrm = b['pad'], b['p0'], b['nrm']
+    col = next(n for n, _ in bp.meshes(pad) if n['name'] == rp.HOTLAP_COLUMNS)
+    V = col['verts'].astype(float)
+    lab = parts(col['faces'].astype(int), len(V))
+    for t in np.unique(lab):
+        sel = np.where(lab == t)[0]
+        y = V[sel, 1]
+        up = sel[y > y.min() + .6 * (y.max() - y.min())]
+        w = np.clip(-((V[up][:, [0, 2]] - p0) @ nrm), 0., W)
+        V[up, 1] = yc + np.sqrt(np.maximum(R * R - (w - W / 2) ** 2, 0.)) - ROOF_THICK - .02
+    col['verts'] = V.astype(col['verts'].dtype)
+    bp.sphere(col)
+    bp.save(pad, bp.PADDOCK)
 
 
 def open_area(model, ground, b):
@@ -1515,10 +1544,16 @@ def open_area(model, ground, b):
         return y.max() if len(y) else g + 1.
     ss = np.linspace(OPEN_FROM + .3, OPEN_TO - .3, int((OPEN_TO - OPEN_FROM) / 1.5) + 1)
     lows = np.array([low_top(s_) for s_ in ss])
-    lows = np.convolve(np.pad(lows, 2, mode='edge'), np.ones(5) / 5, 'valid')      # (its top a straight run)
+    # (one straight line, never over the wall's top: its foot in the wall where the wall is higher)
+    k_ = np.polyfit(ss, lows, 1)
+    lows = np.polyval(k_, ss) + min(0., float((lows - np.polyval(k_, ss)).min())) - .01
+    # (in the middle of the wall's thickness)
+    g0 = float(ground(*(p0 + d * ss.mean() + nrm * OPEN_BACK))[0])
+    wall = (a > OPEN_FROM) & (a < OPEN_TO) & (np.abs(o - OPEN_BACK) < .4) & (P[:, 1] < g0 + 2.)
+    mid = (o[wall].min() + o[wall].max()) / 2 if wall.any() else OPEN_BACK + .12
     fence_, rail = [], []
     for s0_, s1_, l0, l1 in zip(ss[:-1], ss[1:], lows[:-1], lows[1:]):
-        q0, q1 = p0 + d * s0_ + nrm * (OPEN_BACK + .12), p0 + d * s1_ + nrm * (OPEN_BACK + .12)
+        q0, q1 = p0 + d * s0_ + nrm * mid, p0 + d * s1_ + nrm * mid
         fence_ += sh.quad((q0[0], l0, q0[1]), (q1[0], l1, q1[1]), (q1[0], under, q1[1]), (q0[0], under, q0[1]), tile=(1., 1.), both=True)
         rail += sh.beam((q0[0], l0 + .02, q0[1]), (q1[0], l1 + .02, q1[1]), .05)
     model.add('OPEN_AREA_FENCE', 'Wire', fence_)
@@ -1735,6 +1770,45 @@ def write_hotlap_display():
         text = text[:at] + block + text[at:]
     open(path, 'w', encoding='utf-8', newline='').write(text)
     return len(rows)
+
+
+def apron_step(model):
+    """The step down from the pit apron by the hotlap's pit lane to the car park: a face along its edge
+    from the car park up to the apron, but where the ramp joins them (tools/drape_track.py's
+    PARK_RAMP)."""
+    import restyle_paddock as rp
+    import drape_track as dt
+    edge = np.array(list(rp.APRON_SOUTH) + list(rp.APRON_EAST), float)
+    track = gltf_source.load_kn5(bp.TRACK)
+    pad = gltf_source.load_kn5(bp.PADDOCK)
+    apron = bp.Surface(np.concatenate([bp.triangles(n, m) for n, m in bp.meshes(track) if n['name'] == rp.HOTLAP_BOX_ROAD]))
+    park = bp.Surface(np.concatenate([bp.triangles(n, m) for n, m in bp.meshes(pad) if n['name'].startswith(dt.PARK_MESH) and len(n['faces'])]))
+    face = []
+    for (ax, az), (bx, bz) in zip(edge[:-1], edge[1:]):
+        L = np.hypot(bx - ax, bz - az)
+        t = np.linspace(0., 1., max(2, int(L / .5) + 1))
+        P = np.c_[ax + (bx - ax) * t, az + (bz - az) * t]
+        u = np.array([bx - ax, bz - az]) / L
+        out = np.array([u[1], -u[0]])                                    # (to the car park's side)
+        if out[1] > 0:
+            out = -out
+        top = apron.ys(P - out * .15)
+        low = park.ys(P + out * .15) - .02
+        # (where either is not found, as its neighbours: no gap in the face)
+        idx = np.arange(len(P))
+        for v in (top, low):
+            ok = np.isfinite(v)
+            if ok.any() and not ok.all():
+                v[~ok] = np.interp(idx[~ok], idx[ok], v[ok])
+        for i in range(len(P) - 1):
+            x0, x1 = P[i, 0], P[i + 1, 0]
+            if dt.PARK_RAMP[0] - .5 < (x0 + x1) / 2 < dt.PARK_RAMP[1] + .5:
+                continue
+            if not np.isfinite([top[i], top[i + 1], low[i], low[i + 1]]).all():
+                continue
+            face += sh.quad((P[i, 0], low[i], P[i, 1]), (P[i + 1, 0], low[i + 1], P[i + 1, 1]),
+                            (P[i + 1, 0], top[i + 1], P[i + 1, 1]), (P[i, 0], top[i], P[i, 1]), tile=(1., 1.), both=True)
+    model.add('APRON_STEP', 'Concrete', face)
 
 
 def timing_screen(model, ground):
@@ -2167,7 +2241,7 @@ def fuel_station(model, ground):
         yb = ground.low(rect(bx, bz, bw, bd, 0))
         pil = []
         for x, z in rect(bx, bz, bw + .1, bd + .1, 0):
-            pil += sh.beam((x, yb - .3, z), (x, yb + 3.25, z), .3, tile=(.5, 1.))
+            pil += sh.cylinder((x, yb - .3, z), .16, 3.45, seg=16, tile=(1., 1.))     # (round, up to under the roof's edge)
         model.add(name + '_PILLARS', 'Pillar', pil)
         model.add('1WALL_' + name, 'GreyWall', sh.walls(rect(bx, bz, bw, bd, 0), yb - .3, yb + 3., tile=(2., 2.)))
     # the sign by the road, north of the canopy, its faces to the west and the east, to the
@@ -2303,94 +2377,155 @@ def remove_wall_stub():
     return taken
 
 
+def gantry_boxes():
+    """Each start gantry's board closed as a box: its front's and its back's panels stand apart, and
+    nothing went over their top, under their bottom or round their ends (seen from behind and a
+    side, the inside of the front panel, which is not drawn). Its top, bottom and ends in the
+    gantry's steel, as GANTRY_BOARD_SIDES. How many gantries."""
+    import glob
+    done = 0
+    for f in sorted(glob.glob(os.path.join(bp.MODELS, 'velopark_gantry*.glb'))):
+        k = gltf_source.load_kn5(f)
+        if any(n['name'] == 'GANTRY_BOARD_SIDES' for n, _ in bp.meshes(k)):
+            continue
+        board = next(((n, m) for n, m in bp.meshes(k) if n['name'] == 'GANTRY_BOARD' and len(n['faces'])), None)
+        steel = next((n for n, _ in bp.meshes(k) if n['name'] == 'GANTRY_STEEL'), None)
+        if board is None or steel is None:
+            continue
+        T = bp.triangles(*board)
+        fn = np.cross(T[:, 1] - T[:, 0], T[:, 2] - T[:, 0])
+        front = fn[np.argmax(np.abs(fn).sum(1))]
+        nrm = front[[0, 2]] / np.linalg.norm(front[[0, 2]])
+        u = np.array([-nrm[1], nrm[0]])
+        sides = []
+        for sgn in (1., -1.):
+            P = T[(fn[:, [0, 2]] @ nrm) * sgn > 0].reshape(-1, 3)
+            a_ = P[:, [0, 2]] @ u
+            o = float(np.median(P[:, [0, 2]] @ nrm))
+            ends = []
+            for e in (a_.min(), a_.max()):
+                q = P[np.abs(a_ - e) < .05]
+                ends.append((e, q[:, 1].min(), q[:, 1].max()))
+            sides.append((o, ends))
+        (o0, e0), (o1, e1) = sides
+        pt = lambda o, e, y: (u[0] * e + nrm[0] * o, y, u[1] * e + nrm[1] * o)
+        parts = []
+        for i in (0, 1):
+            # the ends, each from the front's panel to the back's
+            (ea, ya0, ya1), (eb, yb0, yb1) = e0[i], e1[i]
+            parts += sh.quad(pt(o0, ea, ya0), pt(o1, eb, yb0), pt(o1, eb, yb1), pt(o0, ea, ya1), both=True)
+        for top in (False, True):
+            j = 2 if top else 1
+            parts += sh.quad(pt(o0, e0[0][0], e0[0][j]), pt(o0, e0[1][0], e0[1][j]),
+                             pt(o1, e1[1][0], e1[1][j]), pt(o1, e1[0][0], e1[0][j]), both=True)
+        Pp, Np, Up, Fp = sh.merge(parts)
+        Tg = gltf_source.tangents(Pp, Np, Up, Fp)
+        V = np.zeros((len(Pp), steel['verts'].shape[1]))
+        cols = np.c_[Pp, Np, Up, Tg]
+        V[:, :min(V.shape[1], cols.shape[1])] = cols[:, :V.shape[1]]
+        node = dict(steel, name='GANTRY_BOARD_SIDES', children=[], verts=V.astype(steel['verts'].dtype),
+                    faces=np.asarray(Fp).astype('<u2'))                 # (at the model's root, where it stands)
+        bp.sphere(node)
+        k['root']['children'].append(node)
+        bp.save(k, f)
+        done += 1
+    return done
+
+
 def main():
     ground = Ground()
     lines = osm_lines()
     model = Model()
-    # the dirt roads
-    roads = {'NORTH': clip(lines[94747576]),
-             'NORTH_W': clip(lines[94747823]),
-             'WEST': clip(lines[412134877]), 'WEST_S': clip(lines[629631265]),
-             'WEST_TRACK': clip(lines[412134879]),
-             'EAST': clip(lines[1177404931])}
-    for name, P in roads.items():
-        if len(P) > 1:
-            model.add('DIRT_' + name, 'Dirt', sh.strip(P, DIRT, ground, lift=.04, tile=(DIRT, 6.)))
-    # the property's fence, between the town's dirt roads and the property's trees: along the
-    # north road (from the west road to the east one) and down the west road to the driveway
-    N = lines[94747576]
-    nl = LineString(offset(N[(N[:, 0] > -300) & (N[:, 0] < 230)], -FENCE_IN))   # the road runs west: its right is south
-    wl = LineString(offset(lines[412134877], -FENCE_IN))                          # runs south: its right is east
-    el = LineString(offset(lines[1177404931], FENCE_IN))                          # runs south: its left is west
-    # the fences that part the track from the parking: the vp_1000's round its east (from the north
-    # fence) and the south west's, on the old one's line to the west fence
-    T = track_fence_line()
-    if T[0, 1] < T[-1, 1]:
-        T = T[::-1]
-    # its east side as the ground photo shows it, then close behind TYRES_52 to TYRES_54
-    on = offset(np.array(TYRE_WALL), -FENCE_OFF)
-    on = on[int(np.argmin(np.linalg.norm(on - (-122.5, 24.5), axis=1))):]
-    cut = int(np.nonzero(T[:, 1] < TRACE_FROM_Z)[0].min())
-    T = np.r_[T[:cut], EAST_TRACE, EAST_PATH, on]
-    # its corners rounded a little, its ends where they are
-    for _ in range(2):
-        q = [T[0]]
-        for p0, p1 in zip(T[:-1], T[1:]):
-            q += [.75 * p0 + .25 * p1, .25 * p0 + .75 * p1]
-        T = np.array(q + [T[-1]])
-    top = nl.interpolate(nl.project(Point(T[0])))
-    T = np.r_[[top.coords[0]], T]
-    fences = {'NORTH': between(nl, wl, el), 'WEST': down_from(wl, nl, -60.),
-              'SOUTH': np.array([(124.43, -9.33), (198.5, 8.6)]), 'SOUTH_W': np.array([(207.5, 10.8), (234., 17.2)]),
-              'TRACK': T, 'TRACK_PARKING': np.array(PARKING_BRANCH, float)}
+    # (--paddock: the paddock's and the track's own only (the buildings in its middle, the pit building, the
+    # race control tower, the bar, the stands, the fuel station, the hotlap building's roof, the screens and
+    # their lights, the judges' tower, the marshals' tents, the flagpoles); not the property round it)
+    paddock_only = '--paddock' in sys.argv
     posts = 0
-    for name, P in fences.items():
-        posts += fence(model, name, P, ground, metal=name.startswith('SOUTH'))
-    # the pit exit's gate, slid open along the fence west of the opening
-    sliding_gate(model, ground, (198.5, 8.6), (207.5, 10.8))
-    # the globe lamps by the south east's wood: on the track's fence where it runs south of z 60
-    T = fences['TRACK']
-    lamp_run = T[T[:, 1] < 62]
-    model.add('LAMPS_TRACK', 'Globe', [])
-    if len(lamp_run) > 1:
-        fence_l = LineString(lamp_run)
-        out = []
-        for v in np.arange(LAMP_APART / 2, fence_l.length, LAMP_APART):
-            x, z = fence_l.interpolate(v).coords[0]
-            y = float(ground(x, z)[0])
-            out += sh.cylinder((x, y - .1, z), .045, 2.55, seg=8)
-            out += sh.sphere((x, y + 2.68, z), .17)
-        model.add('LAMPS_TRACK', 'Globe', out)
-    # the buildings
-    blue_shed(model, ground)
-    building(model, 'FARM_HOUSE', -207.8, 313.5, 9.5, 10.6, 0., ground, 3.0, 'gable', mat_wall='Plaster', mat_roof='Roof', ridge=1.6,
-             windows=[('w', a, 1., 1.2, 1.1) for a in (2.5, 8.)] + [('e', a, 1., 1.2, 1.1) for a in (3., 7.5)],
-             doors=[('s', 5., 1., 2.1)])
-    building(model, 'FARM_LEANTO', -200.4, 313.5, 5.2, 10.6, 0., ground, 2.6, 'flat', mat_wall='Plaster', mat_roof='Roof', over=.2,
-             doors=[('w', 5.3, 2.6, 2.3)])
-    bins(model, ground)
-    building(model, 'FARM_BARN', -242.5, 310.8, 14., 18.5, 0., ground, 4.2, 'gable', mat_wall='White', mat_roof='Roof', ridge=2.2,
-             doors=[('s', 7., 4., 3.6), ('w', 9., 3., 3.)], windows=[('e', a, 2., 2., 1.) for a in (4., 9., 14.)])
-    building(model, 'FARM_LOW', -243.5, 289.2, 17., 10.5, 0., ground, 2.8, 'gable', mat_wall='White', mat_roof='Roof', ridge=1.,
-             windows=[('s', a, 1., 1.5, 1.) for a in (3., 7., 11., 15.)], doors=[('w', 4.5, 1., 2.1)])
-    tent(model, ground, -257.5, 286.5, 9.5)
-    pond(model, ground, lines)
+    if not paddock_only:
+        # the dirt roads
+        roads = {'NORTH': clip(lines[94747576]),
+                 'NORTH_W': clip(lines[94747823]),
+                 'WEST': clip(lines[412134877]), 'WEST_S': clip(lines[629631265]),
+                 'WEST_TRACK': clip(lines[412134879]),
+                 'EAST': clip(lines[1177404931])}
+        for name, P in roads.items():
+            if len(P) > 1:
+                model.add('DIRT_' + name, 'Dirt', sh.strip(P, DIRT, ground, lift=.04, tile=(DIRT, 6.)))
+        # the property's fence, between the town's dirt roads and the property's trees: along the
+        # north road (from the west road to the east one) and down the west road to the driveway
+        N = lines[94747576]
+        nl = LineString(offset(N[(N[:, 0] > -300) & (N[:, 0] < 230)], -FENCE_IN))   # the road runs west: its right is south
+        wl = LineString(offset(lines[412134877], -FENCE_IN))                          # runs south: its right is east
+        el = LineString(offset(lines[1177404931], FENCE_IN))                          # runs south: its left is west
+        # the fences that part the track from the parking: the vp_1000's round its east (from the north
+        # fence) and the south west's, on the old one's line to the west fence
+        T = track_fence_line()
+        if T[0, 1] < T[-1, 1]:
+            T = T[::-1]
+        # its east side as the ground photo shows it, then close behind TYRES_52 to TYRES_54
+        on = offset(np.array(TYRE_WALL), -FENCE_OFF)
+        on = on[int(np.argmin(np.linalg.norm(on - (-122.5, 24.5), axis=1))):]
+        cut = int(np.nonzero(T[:, 1] < TRACE_FROM_Z)[0].min())
+        T = np.r_[T[:cut], EAST_TRACE, EAST_PATH, on]
+        # its corners rounded a little, its ends where they are
+        for _ in range(2):
+            q = [T[0]]
+            for p0, p1 in zip(T[:-1], T[1:]):
+                q += [.75 * p0 + .25 * p1, .25 * p0 + .75 * p1]
+            T = np.array(q + [T[-1]])
+        top = nl.interpolate(nl.project(Point(T[0])))
+        T = np.r_[[top.coords[0]], T]
+        fences = {'NORTH': between(nl, wl, el), 'WEST': down_from(wl, nl, -60.),
+                  'SOUTH': np.array([(124.43, -9.33), (198.5, 8.6)]), 'SOUTH_W': np.array([(207.5, 10.8), (234., 17.2)]),
+                  'TRACK': T, 'TRACK_PARKING': np.array(PARKING_BRANCH, float)}
+        for name, P in fences.items():
+            posts += fence(model, name, P, ground, metal=name.startswith('SOUTH'))
+        # the pit exit's gate, slid open along the fence west of the opening
+        sliding_gate(model, ground, (198.5, 8.6), (207.5, 10.8))
+        # the globe lamps by the south east's wood: on the track's fence where it runs south of z 60
+        T = fences['TRACK']
+        lamp_run = T[T[:, 1] < 62]
+        model.add('LAMPS_TRACK', 'Globe', [])
+        if len(lamp_run) > 1:
+            fence_l = LineString(lamp_run)
+            out = []
+            for v in np.arange(LAMP_APART / 2, fence_l.length, LAMP_APART):
+                x, z = fence_l.interpolate(v).coords[0]
+                y = float(ground(x, z)[0])
+                out += sh.cylinder((x, y - .1, z), .045, 2.55, seg=8)
+                out += sh.sphere((x, y + 2.68, z), .17)
+            model.add('LAMPS_TRACK', 'Globe', out)
+        # the buildings
+        blue_shed(model, ground)
+        building(model, 'FARM_HOUSE', -207.8, 313.5, 9.5, 10.6, 0., ground, 3.0, 'gable', mat_wall='Plaster', mat_roof='Roof', ridge=1.6,
+                 windows=[('w', a, 1., 1.2, 1.1) for a in (2.5, 8.)] + [('e', a, 1., 1.2, 1.1) for a in (3., 7.5)],
+                 doors=[('s', 5., 1., 2.1)])
+        building(model, 'FARM_LEANTO', -200.4, 313.5, 5.2, 10.6, 0., ground, 2.6, 'flat', mat_wall='Plaster', mat_roof='Roof', over=.2,
+                 doors=[('w', 5.3, 2.6, 2.3)])
+        bins(model, ground)
+        building(model, 'FARM_BARN', -242.5, 310.8, 14., 18.5, 0., ground, 4.2, 'gable', mat_wall='White', mat_roof='Roof', ridge=2.2,
+                 doors=[('s', 7., 4., 3.6), ('w', 9., 3., 3.)], windows=[('e', a, 2., 2., 1.) for a in (4., 9., 14.)])
+        building(model, 'FARM_LOW', -243.5, 289.2, 17., 10.5, 0., ground, 2.8, 'gable', mat_wall='White', mat_roof='Roof', ridge=1.,
+                 windows=[('s', a, 1., 1.5, 1.) for a in (3., 7., 11., 15.)], doors=[('w', 4.5, 1., 2.1)])
+        tent(model, ground, -257.5, 286.5, 9.5)
+        pond(model, ground, lines)
     tower(model, ground, -168.3, 159.8)
     # the Velogrill: an L of two wings with dark tiled hip roofs, turned as it stands
-    yaw = math.radians(-33.)
-    building(model, 'VELOGRILL_A', -207.5, 53., 22., 10., yaw, ground, 3.3, 'hip', mat_wall='Plaster', mat_roof='TilesDark', ridge=2.4,
-             windows=[('s', a, 1., 1.6, 1.3) for a in (3., 7., 11., 15., 19.)] + [('n', a, 1., 1.6, 1.3) for a in (4., 10., 16.)],
-             doors=[('s', 9., 1.8, 2.3)])
-    building(model, 'VELOGRILL_B', -214.5, 41., 9., 12., yaw, ground, 3.3, 'hip', mat_wall='Plaster', mat_roof='TilesDark', ridge=2.,
-             windows=[('w', a, 1., 1.4, 1.2) for a in (3., 8.)])
-    # the two houses in the wood, and the court
-    building(model, 'HOUSE_1', -119., -4., 14., 9., math.radians(-20.), ground, 2.9, 'hip', mat_wall='Plaster', mat_roof='Tiles', ridge=2.,
-             windows=[('s', a, 1., 1.4, 1.2) for a in (3., 7., 11.)] + [('n', a, 1., 1.2, 1.1) for a in (4., 10.)], doors=[('e', 4.5, 1., 2.1)])
-    building(model, 'HOUSE_2', -169., -31., 13., 9., math.radians(-35.), ground, 2.9, 'gable', mat_wall='Plaster', mat_roof='Tiles', ridge=2.,
-             windows=[('s', a, 1., 1.4, 1.2) for a in (3., 7., 10.)], doors=[('w', 4.5, 1., 2.1)])
-    court(model, ground, -151.5, -37.5, 24., 14., math.radians(-35.))
-    marshal(model, ground, -87.4, 96.4, side=1., tag='_1000')
-    marshal(model, ground, 3.2, 116.3, side=-1., tag='_1500')
+    if not paddock_only:
+        yaw = math.radians(-33.)
+        building(model, 'VELOGRILL_A', -207.5, 53., 22., 10., yaw, ground, 3.3, 'hip', mat_wall='Plaster', mat_roof='TilesDark', ridge=2.4,
+                 windows=[('s', a, 1., 1.6, 1.3) for a in (3., 7., 11., 15., 19.)] + [('n', a, 1., 1.6, 1.3) for a in (4., 10., 16.)],
+                 doors=[('s', 9., 1.8, 2.3)])
+        building(model, 'VELOGRILL_B', -214.5, 41., 9., 12., yaw, ground, 3.3, 'hip', mat_wall='Plaster', mat_roof='TilesDark', ridge=2.,
+                 windows=[('w', a, 1., 1.4, 1.2) for a in (3., 8.)])
+        # the two houses in the wood, and the court
+        building(model, 'HOUSE_1', -119., -4., 14., 9., math.radians(-20.), ground, 2.9, 'hip', mat_wall='Plaster', mat_roof='Tiles', ridge=2.,
+                 windows=[('s', a, 1., 1.4, 1.2) for a in (3., 7., 11.)] + [('n', a, 1., 1.2, 1.1) for a in (4., 10.)], doors=[('e', 4.5, 1., 2.1)])
+        building(model, 'HOUSE_2', -169., -31., 13., 9., math.radians(-35.), ground, 2.9, 'gable', mat_wall='Plaster', mat_roof='Tiles', ridge=2.,
+                 windows=[('s', a, 1., 1.4, 1.2) for a in (3., 7., 10.)], doors=[('w', 4.5, 1., 2.1)])
+        court(model, ground, -151.5, -37.5, 24., 14., math.radians(-35.))
+    # (the flag marshals' posts by the starts: objects of the road editor's now (objects.json: a marshal shelter, its
+    # chair and its cones), laid by tools/place_objects.py; marshal() is what tools/templates.py takes the shelter from)
     flagpoles(model, ground, FLAGPOLES)
     control_tower(model, ground, -47., 80.5, front='w')
     for name, (P, eave) in MIDDLE.items():
@@ -2427,16 +2562,26 @@ def main():
     write_timing_display()
     fuel_station(model, ground)
     open_area(model, ground, hotlap_roof(model, ground))
+    # a cone where the vp_1500's pit entry and the side road part (as the photos show it)
+    cones = []
+    for x, z in ROAD_CONES:
+        g = float(ground(x, z)[0])
+        cones += sh.box((x - .2, g, z - .2), (x + .2, g + .03, z + .2), tile=(.4, .4))
+        cones += sh.cylinder((x, g + .03, z), .14, .67, seg=12, tile=(1., .7), r_top=.025)
+    model.add('ROAD_CONES', 'Cone', cones)
+    print('%d start gantries\' boards closed as boxes' % gantry_boxes())
+    apron_step(model)
     timing_screen(model, ground)
     # the banners: along the stand's front wall by R26, and on the south fence west of R15
     banner(model, 'STAND', (-19.01, -21.1), (-9.06, -38.03), .2, 1.45, lift=.5)
     banner(model, 'FENCE', (152., -2.6), (168., 1.27), .35, 2.35, ground=ground, lift=.18)
-    # the sheds along the east road, beyond it
-    east = LineString(lines[1177404931])
-    for i, (cz, d) in enumerate(((135., 30.), (37., 24.), (-12., 14.))):
-        # just beyond the road, clear of it
-        road_x = min(x for x, z in east.intersection(LineString([(-400, cz), (0, cz)])).coords) if not             east.intersection(LineString([(-400, cz), (0, cz)])).is_empty else -258.
-        shed(model, 'EAST_SHED_%d' % i, ground, road_x - DIRT / 2 - 1.5 - 4.5, cz, 9., d, 0.)
+    if not paddock_only:
+        # the sheds along the east road, beyond it
+        east = LineString(lines[1177404931])
+        for i, (cz, d) in enumerate(((135., 30.), (37., 24.), (-12., 14.))):
+            # just beyond the road, clear of it
+            road_x = min(x for x, z in east.intersection(LineString([(-400, cz), (0, cz)])).coords) if not             east.intersection(LineString([(-400, cz), (0, cz)])).is_empty else -258.
+            shed(model, 'EAST_SHED_%d' % i, ground, road_x - DIRT / 2 - 1.5 - 4.5, cz, 9., d, 0.)
     # textures, the model, the layouts
     tex = {}
     made = textures()

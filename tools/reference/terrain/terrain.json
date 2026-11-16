@@ -1,0 +1,86 @@
+{
+ "version": 1,
+ "place": {
+  "location": "tools/reference/elevation/location.json"
+ },
+ "image": {
+  "file": "tools/reference/surroundings/surroundings.jpg",
+  "area_x_z": [
+   [
+    -1500.0,
+    1800.0
+   ],
+   [
+    -1500.0,
+    1500.0
+   ]
+  ],
+  "metres_a_pixel": 1.0,
+  "source": "Google Maps Static API, satellite, zoom 17 scale 2, fetched 2026-11-11"
+ },
+ "photo": {
+  "file": "source/textures/GoogleMap.jpg",
+  "size_m": 1060.0
+ },
+ "heights": {
+  "files": [
+   "tools/reference/elevation/google_2*.json",
+   "tools/reference/elevation/google_wide_*.json",
+   "tools/reference/surroundings/google_heights_*.json"
+  ],
+  "offset_m": 9.641,
+  "source": "Google Elevation API"
+ },
+ "buildings": {
+  "files": [
+   "tools/reference/elevation/osm_property_2026-11-10.json",
+   "tools/reference/surroundings/osm_2026-11-11.json"
+  ],
+  "buffer_m": 10.0
+ },
+ "grid": {
+  "area_x_z": [
+   [
+    -1600.0,
+    1900.0
+   ],
+   [
+    -1600.0,
+    1600.0
+   ]
+  ],
+  "cell_m": 10.0
+ },
+ "filters": {
+  "picture_trees": {
+   "lum": 75.0,
+   "sd": 12.0
+  },
+  "photo_trees": {
+   "lum": 84.0,
+   "sd": 13.0
+  },
+  "tree_near_m": 7.0,
+  "tree_share": 0.3,
+  "over_m": 1.5,
+  "opening_m": 55.0,
+  "wide_over_m": 4.0,
+  "wide_opening_m": 250.0,
+  "fills_m": [
+   20.0,
+   40.0,
+   80.0,
+   160.0,
+   320.0
+  ],
+  "enough_a_cell": 0.16,
+  "areas": []
+ },
+ "edits": [
+  {
+   "name": "the middle buildings' platform, the pits and the shed",
+   "type": "raster",
+   "file": "paddock_platform.npz"
+  }
+ ]
+}

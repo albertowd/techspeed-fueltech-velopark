@@ -1,4 +1,4 @@
-"""The track's surfaces in scanned materials: the asphalt and the concrete pavers.
+"""The track's surfaces in scanned materials: the asphalt, the concrete pavers and the light poles' steel.
 
     python tools/scan_materials.py [--dry-run]
 
@@ -50,12 +50,18 @@ JOINTS = .15            # the share of a paving's texture its joints take
 # grey, coarse enough to read from a kart, worn, with curved tyre marks, and hardly repeating; its
 # one crack straight across and its bands taken out, as they crossed the road every 30 m. (Before:
 # asphalt_02, 3 m, whose cracks repeated too often; finer scans blurred to flat grey from a kart.)
+SHADE = .8              # the asphalt's colour, of the old texture's average: the Velopark's is darker
 PLAN = {
-    'Tarmac Dark': ('aerial_asphalt_01', True, .4, 25., .08, dict(clean=True, res='4k', size=4096, nm_size=2048)),
-    'Tarmac Light': ('aerial_asphalt_01', True, .4, 25., .08, dict(clean=True, res='4k', size=4096, nm_size=2048)),
+    'Tarmac Dark': ('aerial_asphalt_01', True, .4, 25., .08, dict(clean=True, res='4k', size=4096, nm_size=2048, shade=SHADE)),
+    'Tarmac Light': ('aerial_asphalt_01', True, .4, 25., .08, dict(clean=True, res='4k', size=4096, nm_size=2048, shade=SHADE)),
     # the real pavers are all light grey, where the scan mixes light and dark ones: each block the
     # light grey the track's paving had
     'Pavers': ('brick_pavement_03', False, .3, 20., .06, dict(colour=(.6, .595, .57))),
+    # the light poles: their masts cast concrete (a cast concrete wall's scan, grey, its mottling and pores kept), their
+    # frames galvanised steel (a painted plate's scan, its colour taken out and calmed: its scratches blurred away),
+    # in the grey the mast had and the dark the frame had; mapped in metres by tools/templates.py
+    'PoleMast': ('concrete_wall_006', True, .2, 12., .04, dict(grey=True)),
+    'PoleFrame': ('green_metal_rust', True, .35, 25., .12, dict(grey=True, calm=.35)),
 }
 STATE = os.path.join(CACHE, 'state')    # what each material was and has, by its textures' name
 
@@ -174,8 +180,22 @@ def textures(scan, base, tint_to, opts):
     gloss = gloss[..., 0]
     if opts.get('colour') is not None:
         col = even(col, channels(maps['Displacement'], size)[..., 0], np.array(opts['colour']))
+    if opts.get('grey'):
+        col = np.repeat(col @ np.array([.299, .587, .114])[:, None], 3, -1)       # (its colour out, its light and dark kept)
+    if opts.get('calm') is not None:
+        # (its marks out: its colour blurred, its light and dark that much of what they were round its mean, its
+        # bumps that much of theirs; only its soft mottling left, as galvanised steel's)
+        from scipy.ndimage import gaussian_filter
+        c = float(opts['calm'])
+        col = gaussian_filter(col, (len(col) / 96, len(col) / 96, 0), mode='wrap')
+        mean = col.reshape(-1, 3).mean(0)
+        col = mean + (col - mean) * c
+        flat = np.array([.5, .5, 1.])
+        nrm = flat + (gaussian_filter(nrm, (len(nrm) / 256, len(nrm) / 256, 0), mode='wrap') - flat) * c
+        gloss = gloss.mean() + (gaussian_filter(gloss, len(gloss) / 96, mode="wrap") - gloss.mean()) * c
     if tint_to is not None:
         col *= tint_to / col.reshape(-1, 3).mean(0)
+    col *= opts.get('shade', 1.)                                # (darker or lighter than that, as the real one is)
     tmaps = np.stack([gloss, gloss, gloss * .5], -1)
     out = {}
     for suffix, arr, fmt in (('', col, 'DXT1'), ('_nm', nrm, 'DXT5'), ('_maps', tmaps, 'DXT1')):

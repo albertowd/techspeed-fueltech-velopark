@@ -1,0 +1,21 @@
+{
+ "photo": "source/textures/GoogleMap.jpg",
+ "made": "2026-11-15",
+ "source": "Google Maps Static API, satellite, zoom 19 scale 2",
+ "fit": {
+  "turn_degrees": -1.1116,
+  "scale": 1.00113,
+  "move_px": [
+   -50.52,
+   93.15
+  ],
+  "left_px": 0.94
+ },
+ "block_px": 64,
+ "taken": {
+  "smeared": 0.1608,
+  "changed": 0.013,
+  "sharper": 0.0701
+ },
+ "before": "build/cache/GoogleMap_before_ground_photo.jpg"
+}

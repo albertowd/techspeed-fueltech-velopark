@@ -198,6 +198,7 @@ LANE_WIDER = .1
 LANE_EXTRA, WIDE_FROM, WIDE_TO = 1.3, 128., 200.
 # its mouth onto the track: the corners between them rounded MOUTH_ROUND, as asphalt, within x, z
 MOUTH_ROUND, MOUTH_BOX = 7., ((-70., -34.), (176., 206.))
+MOUTH_FILL = 6.          # (its outline, the track's by it too, rounded out over this after all: no corner, notch or sliver)
 # the 1500's pit exit's junction north of it, as drawn over the ground photo: the path from the north
 # (path A) cut at JUNCTION_CUT (z) and laid on straight (its middle PATH_ON, PATH_WIDTH wide) into the
 # top of the pit exit's curve, on its pits' side; the road from the storage building's west side
@@ -240,45 +241,38 @@ PIT_TYRE_STEP = .62
 # the storage building, clear of the tyres, with room to pass on the lane; each with its painted
 # box (velopark_lines.glb's GRID_PITS, within PIT_PAINT of it)
 PIT_LAYOUT, PIT_FROM, PIT_IN, PIT_PAINT = 'vp_1000', 90., 2.1, 2.5
-# and its pit lane's racing line past them, PIT_PASS in from the walls' line, from z to z (easing
-# to it over PIT_PASS_EASE metres at both ends)
-PIT_PASS, PIT_PASS_Z, PIT_PASS_EASE = 3.8, (96., 172.), 4.
 NORTH_RUNOFF_Z = 185.
 # where the ground is cut out under all the asphalt, old and new (x, z): the pits, the 1500's pit
 # exit's junction
 UNDER_PITS, UNDER_JUNCTION = ((-64., -27.), (92., 128.)), ((-50., -8.), (124., 172.))
-UNDER_HOTLAP = ((0., 30.), (-58., -34.))     # (where the hotlap's pit lane meets the road south and the car park)
-# the pit lanes' lines, yellow (PIT_PAINT_COLOUR of the white paint's texture), along both sides of
-# each, PIT_LINE_IN in from its edges, PIT_LINE_W wide, from its mouth (PIT_LINE_CLEAR short of the
-# track and the roads joining it) to its pit boxes: the 1000's (its lane, 1ROAD_24, from z
-# PIT_LINE_FROM north), and the 1500's entry (PIT_1500_ROAD in PIT_1500_AREA, x, z, up to its boxes)
-PIT_PAINT_MAT, PIT_PAINT_TEX, PIT_PAINT_COLOUR = 'PitLinePaint', 'PitLinePaint.dds', (1., .78, .1)
-PIT_LINE_IN, PIT_LINE_W, PIT_LINE_CLEAR, PIT_LINE_FROM, PIT_LINE_MESH = .25, .1, .6, 128.5, 'LINE_VP_1000_PIT'
-PIT_1500_ROAD, PIT_1500_AREA, PIT_1500_MESH = '1ROAD_25', ((-46., -8.), (55., 104.)), 'LINE_VP_1500_PIT'
-# the road south from the 1500's pit entry to the car park, white lines along both its sides
-SOUTH_ROAD, SOUTH_ROAD_AREA, SOUTH_ROAD_MESH = '1ROAD_26', ((-60., 40.), (-44., 63.)), 'LINE_ROAD_26'
-# the 1000's lane's lines short of the track at its mouth by PIT_1000_CLEAR, so they end along it, not curling
-PIT_1000_CLEAR = 1.6
-# its pit boxes along its west yellow line, PIT_BOX_CLEAR in from it, where that is further in than
-# PIT_IN from the walls' line; its racing line PIT_PASS - PIT_IN beyond them
-PIT_BOX_CLEAR = 1.3
-PIT_LINE_SHORTEST = 2.     # metres: no line shorter than that, where a lane opens onto the track
-PIT_LINE_FROM_WIDE = 1.5  # metres: a lane's lines begin where it is this wide (where it forks off the track)
-# the track's edge line past both 1500 pit entries, unbroken: TRACK_LINE_FROM (its line) cut at
-# TRACK_LINE_CUT (z), where it bent off into the 1500's entry, and carried straight on to the top of
-# TRACK_LINE_TO, as TRACK_LINE_MESH, in the white paint
-TRACK_LINE_FROM, TRACK_LINE_CUT, TRACK_LINE_TO, TRACK_LINE_MESH = 'LINE_32', 75., 'LINE_0', 'LINE_32_0'
+UNDER_HOTLAP = ((-6., 140.), (-64., -28.))   # (the hotlap's pit lane, where it meets the road south, and the car park)
+UNDER_LANE = ((-62., -44.), (126., 205.))     # (the 1000's pit lane, widened, beside the pits)
+UNDER_PAVERS = ((114., 150.), (20., 42.))     # (the pavers along the main straight)
+# the pit apron in front of the building along the hotlap's pit lane, as drawn over the ground photo:
+# from the building's front (west of it from APRON_WEST, x) down to its south edge (APRON_SOUTH, x, z,
+# west to east), round to its east corner (APRON_EAST, x, z); the hotlap's road curving into it on
+# its outside over APRON_ROUND (m), APRON_ROUND_AT (x, z) the corner; one with the road along the
+# building (HOTLAP_BOX_ROAD). The car park south of it a step under it (tools/drape_track.py), but
+# where a ramp joins them (tools/drape_track.py's PARK_RAMP). The paddock's asphalt west of it, from
+# the hotlap's road south, grass (APRON_GRASS, x, z)
+APRON_WEST, APRON_SOUTH, APRON_EAST = 18., ((23.7, -67.4), (129.1, -43.6)), ()
+APRON_NE = (123.3, -18.1)          # (its north east corner, on the building's front carried on)
+# the car park south of it (x, z round it, as drawn): flat asphalt, PARK_MESH, a step under the apron
+# where it meets it (tools/drape_track.py), but for the grass round its trees (tools/car_parks.py)
+PARK, PARK_MESH = ((172.2, -33.6), (178.8, -71.5), (40., -97.5), (33.3, -59.7)), '1ROAD_PADDOCK_PARK'
+APRON_ROUND, APRON_ROUND_AT = 0., ((6., 23.), (-64., -45.))
+# the grass island between the hotlap's road and the road south where they come onto the apron, as
+# drawn (x, z round it): out of the apron, grass
+APRON_ISLAND = ((10., -47.1), (14., -47.6), (18., -48.2), (20.5, -48.8), (22.3, -49.6), (23., -51.), (23., -55.), (22.4, -56.3),
+                (21., -56.7), (18., -56.3), (14., -54.4), (10., -52.2))
+APRON_GRASS, APRON_MESH = ((-6., 23.5), (-68., -26.)), '1GRASS_PADDOCK_HOTLAP'
+# the pit lane along the building, out from its front (its lines', boxes' and racing line's)
+HOTLAP_EDGE = 7.57
 # the hotlap's pit lane, from its fork off the track (where it runs on the track's mesh outside the
 # track's edge line, z HOTLAP_LANE_Z) on its own roads (HOTLAP_ROADS: the road there, and the one
 # along the pit garages' doors, its boxes on it) to the fence it joins the track through
 # (HOTLAP_FENCE: x, z past which it has joined it)
 HOTLAP_LANE_Z, HOTLAP_ROADS, HOTLAP_MESH = (30., 66.), ('1ROAD_13', '1ROAD_14'), 'LINE_VP_1500_HOTLAP_PIT'
-HOTLAP_FENCE = (110., -8.)
-# the fence the hotlap's pit lane joins the track through, its line (x, z, west to east... as built):
-# its lines end on it, straight
-HOTLAP_FENCE_LINE = ((124.43, -9.33), (198.5, 8.6))
-HOTLAP_FORK = (42., 66.)   # z: where it forks off, its lines beginning as it widens
-HOTLAP_NOSE = 36.7         # z: the nose of the fork (where the track's line on its other side begins), its inner line from there
 # the building along the hotlap's pit lane: its front, the line of its columns (HOTLAP_COLUMNS, the
 # paddock's mesh, within HOTLAP_COLUMNS_AREA, x, z), pulled back BUILDING_BACK to where the photo shows
 # it (the shadow in front of it no part of it), its back where it is. In front of it the pit boxes'
@@ -289,7 +283,6 @@ HOTLAP_NOSE = 36.7         # z: the nose of the fork (where the track's line on 
 # fence, their corners rounded over HOTLAP_ROUND
 HOTLAP_COLUMNS, HOTLAP_COLUMNS_AREA, BUILDING_BACK = 'BLD_PILLARS', ((14., 125.), (-50., -5.)), 3.4
 HOTLAP_LAYOUTS, HOTLAP_BOX_ROAD, HOTLAP_BOX_ROW, HOTLAP_AI, HOTLAP_ROUND = ('vp_1500_hotlap', 'vp_2500'), '1ROAD_14', None, (25, 178), 10.
-HOTLAP_ROW_MESH = 'LINE_VP_1500_HOTLAP_BOXES'
 # in front of the building the pit lane's lines straight, the building's front's, the boxes' row's and
 # the road's outer edge's, from a white line across it at the building's west end (HOTLAP_START, x
 # on its front) to its east end's line
@@ -298,10 +291,22 @@ HOTLAP_START, HOTLAP_START_MESH = 20., 'LINE_VP_1500_HOTLAP_START'
 # from after its tyre wall to the road along the building (from x HOTLAP_FLARE[0] on its edge to
 # HOTLAP_FLARE[1] on the other's), curving out from one into the other; the road along the building
 # grown over it
-HOTLAP_FLARE = (12.7, 20.)    # (its end on the building's start, HOTLAP_START, its lines going straight on)
+HOTLAP_FLARE = (8., 20.)    # (its end on the building's start, HOTLAP_START, its lines going straight on)
 # and its inner side the same: from its road's edge at x HOTLAP_INNER curving onto the building's
 # front at its start (HOTLAP_START), the asphalt grown over the grass between
-HOTLAP_INNER = 5.
+HOTLAP_INNER = 10.
+# ... onto its front at its east end (its corner), the roads north of that curve (between it and the
+# grass east of the building) out: the lane's edge running on into the building's front
+
+# the paddock's asphalt left over by the track's edge past T2 and by the hotlap's pit lane: grass (x, z boxes)
+T2_STRAYS = (((-5.5, -2.5), (-11.5, -6.)), ((-12., -7.5), (-13., -9.5)))
+# past the hairpin (HAIRPIN_OUT) the paddock's asphalt north of the building there out (north of the
+# line of its north wall, BAR_LINE, two points x, z on it, from x HAIR_FROM to HAIR_TO); the track's
+# road beyond the kerb (HAIR_ROAD) and its patches (HAIR_PATCHES: each the road it is of) one, and
+# its outside smooth and round (closed and opened over HAIR_ROUND metres) in HAIR_BOX (x, z)
+BAR_LINE, HAIR_FROM, HAIR_TO = ((23.4, -28.7), (14.9, -30.6)), 13., 45.
+HAIR_ROAD, HAIR_PATCHES = '1ROAD_7', (('1ROAD_PATCH_HAIRPIN_OUT_1ROAD_3', '1ROAD_3'), ('1ROAD_PATCH_HAIRPIN_OUT_1ROAD_7', '1ROAD_7'))
+HAIR_BOX, HAIR_ROUND = ((13.5, 40.), (-31., -14.)), 2.
 
 
 def take_old_stand():
@@ -331,7 +336,23 @@ def west_grass():
     return box(x0, z0, x1, z1).difference(east).difference(slab).difference(Polygon(bo.MIDDLE['GARAGE'][0]).buffer(.3))
 
 
-def grass_over(k, shape, name='1GRASS_PADDOCK_WEST'):
+def background(k):
+    """The ground's material (Background, the track's) in model k, added if it has none: its index."""
+    import copy
+    mi = next((i for i, mt in enumerate(k['materials']) if mt['name'] == 'Background'), None)
+    if mi is not None:
+        return mi
+    track = gltf_source.load_kn5(bp.TRACK)
+    bg = next(mt for mt in track['materials'] if mt['name'] == 'Background')
+    k['materials'].append(copy.deepcopy(bg))
+    have = {t['name'] for t in k['textures']}
+    for t in bg['textures']:
+        if t['name'] not in have:
+            k['textures'].append(next(x for x in track['textures'] if x['name'] == t['name']))
+    return len(k['materials']) - 1
+
+
+def grass_over(k, shape, name='1GRASS_PADDOCK_WEST', grassy=True):
     """The paddock's asphalt under shape grass, cut exactly along its edge (no faces half one, half
     the other): the asphalt there out, grass laid over just that, at the asphalt's height, the ground's
     photo on it. How many faces of grass."""
@@ -364,7 +385,7 @@ def grass_over(k, shape, name='1GRASS_PADDOCK_WEST'):
     a, b, c = V[F[:, 0], :3], V[F[:, 1], :3], V[F[:, 2], :3]
     up = np.cross(b - a, c - a)[:, 1]
     F = np.where((up < 0)[:, None], F[:, ::-1], F)[np.abs(up) > 1e-8]
-    mi = next(i for i, mt in enumerate(k['materials']) if mt['name'] == 'Background')
+    mi = background(k)
     node = dict(base, name=name, children=[], material=mi, verts=V.astype('<f4'), faces=F.astype('<u2'))
     bp.sphere(node)
     k['root']['children'].append(node)
@@ -372,7 +393,7 @@ def grass_over(k, shape, name='1GRASS_PADDOCK_WEST'):
     csp = os.path.join(bp.ROOT, 'source', 'track', 'extension', 'ext_config.ini')
     text = open(csp, newline='').read()
     m_ = re.search(r'(?m)^GRASS_MESHES *= *(.*)$', text)
-    if m_ and name not in m_.group(1):
+    if grassy and m_ and name not in m_.group(1):
         open(csp, 'w', newline='').write(text[:m_.end(1)] + ', ' + name + text[m_.end(1):])
     return len(F)
 
@@ -610,12 +631,11 @@ def grow(node, tris, pool=(), height=None, uv_from=None, snap=.002):
     a, b, c = allV[F[:, 0], :3], allV[F[:, 1], :3], allV[F[:, 2], :3]
     up = np.cross(b - a, c - a)[:, 1]
     F = np.where((up < 0)[:, None], F[:, ::-1], F)[(np.abs(up) > 1e-7) & (F[:, 0] != F[:, 1]) & (F[:, 1] != F[:, 2]) & (F[:, 0] != F[:, 2])]
-    if len(allV) > 65535:
-        sys.exit('%s: %d points, more than a mesh holds' % (node['name'], len(allV)))
     if not np.isfinite(allV).all():
         sys.exit('%s: points with no place (NaN)' % node['name'])
     node['verts'] = allV.astype(node['verts'].dtype)
-    node['faces'] = np.r_[node['faces'].astype(int).reshape(-1, 3), F].astype('<u2')
+    # (past 65536 points, 32-bit indices: the model's loader cuts such a mesh in pieces a kn5 mesh holds)
+    node['faces'] = np.r_[node['faces'].astype(int).reshape(-1, 3), F].astype('<u2' if len(allV) < 65536 else '<u4')
     bp.sphere(node)
     return len(F)
 
@@ -666,9 +686,8 @@ def clip_in(n, shape):
     if out is None or not len(out[1]):
         return
     V = n['verts']
-    if len(V) + len(out[0]) > 65535:
-        sys.exit('%s: %d points, more than a mesh holds' % (n['name'], len(V) + len(out[0])))
-    n['faces'] = np.r_[n['faces'].astype(int).reshape(-1, 3), out[1] + len(V)].astype(n['faces'].dtype)
+    # (past 65536 points, 32-bit indices: the model's loader cuts such a mesh in pieces a kn5 mesh holds)
+    n['faces'] = np.r_[n['faces'].astype(int).reshape(-1, 3), out[1] + len(V)].astype('<u2' if len(V) + len(out[0]) < 65536 else '<u4')
     n['verts'] = np.r_[V, out[0].astype(V.dtype)]
     bp.sphere(n)
 
@@ -832,6 +851,128 @@ def exit_shape(track):
     return wide
 
 
+def inner_curve(track, pad, k=40):
+    """The hotlap's pit lane's inner (north) edge from its road's at x HOTLAP_INNER onto the building's
+    front at its east end, smooth: (k, 2) points, x, z."""
+    from shapely.geometry import LineString
+    near = ((HOTLAP_FLARE[0] - 10., HOTLAP_FLARE[1] + 10.), (-70., -20.))
+    own = roads_shape(track, near, lambda n: n == HOTLAP_ROADS[0])
+
+    def north(x):
+        cut = LineString([(x, -80.), (x, 0.)]).intersection(own)
+        return max(q[1] for g in getattr(cut, 'geoms', [cut]) for q in g.coords)
+    _, p0, d, nrm, xa, xb = garages(pad, track)
+    xi = HOTLAP_INNER
+    a = np.array([xi, north(xi)])
+    ta = np.array([1., north(xi + .5) - north(xi - .5)])
+    ta /= np.linalg.norm(ta)
+    b = p0 + d * ((xa - p0[0]) / d[0])
+    L = np.linalg.norm(b - a)
+    u = np.linspace(0., 1., k)[:, None]
+    return ((2 * u ** 3 - 3 * u ** 2 + 1) * a + (u ** 3 - 2 * u ** 2 + u) * L * ta
+            + (-2 * u ** 3 + 3 * u ** 2) * b + (u ** 3 - u ** 2) * L * d)
+
+
+def beyond_inner(track, pad):
+    """North of the lane's inner edge's curve (inner_curve), between its ends, x, z: where no road is."""
+    from shapely.geometry import Polygon
+    _, p0, d, nrm, xa, xb = garages(pad, track)
+    c = inner_curve(track, pad)
+    return Polygon(list(map(tuple, c)) + [tuple(c[-1] - nrm * 8.), tuple(c[0] - nrm * 8.)]).buffer(0)
+
+
+def round_out(track, pad, area, road_name, r):
+    """The roads' outline in area (x, z box) rounded out over r metres (its corners filled with
+    curves, its notches and the grass slivers in it closed): road road_name grown over what that adds,
+    as high as the roads round it. (Faces grown, what was added, x, z.)"""
+    from shapely.geometry import box
+    from shapely.ops import unary_union
+    from scipy.spatial import cKDTree
+    (x0, x1), (z0, z1) = area
+    big = ((x0 - 2 * r, x1 + 2 * r), (z0 - 2 * r, z1 + 2 * r))
+    kerbs = gltf_source.load_kn5(os.path.join(bp.MODELS, 'velopark_kerbs.glb'))
+    runoffs = gltf_source.load_kn5(os.path.join(bp.MODELS, 'velopark_runoffs.glb'))
+    U = unary_union([roads_shape(track, big), roads_shape(pad, big), roads_shape(runoffs, big), roads_shape(kerbs, big)]).buffer(0)
+    add = U.buffer(r).buffer(-r).difference(U).intersection(box(x0, z0, x1, z1)).buffer(-.01).buffer(.01)
+    if add.is_empty or add.area < .02:
+        return 0, add
+    road = next(n for n, _ in bp.meshes(track) if n['name'] == road_name)
+    V = np.concatenate([n['verts'][:, :3].astype(float) for n, _ in bp.meshes(track) if n['name'].startswith('1ROAD') and len(n['faces'])])
+    a0, b0, a1, b1 = add.buffer(3.).bounds
+    V = V[(V[:, 0] > a0) & (V[:, 0] < a1) & (V[:, 2] > b0) & (V[:, 2] < b1)]
+    tree = cKDTree(V[:, [0, 2]])
+
+    def height(x, z):
+        dd, ii = tree.query((x, z), k=min(8, len(V)))
+        w = 1. / np.maximum(dd, .05) ** 2
+        return float((V[ii, 1] * w).sum() / w.sum())
+    pool = [n for n, _ in bp.meshes(track) if n['name'].startswith('1ROAD') and n is not road and len(n['faces'])]
+    return grow(road, fill(add, most=1.), pool=pool, height=height), add
+
+
+def hairpin_cuts():
+    """What of the paddock's asphalt goes, x, z: by T2 and the hotlap's pit lane (T2_STRAYS), and north
+    of the building past the hairpin (BAR_LINE)."""
+    from shapely.geometry import Polygon, box
+    from shapely.ops import unary_union
+    (ax, az), (bx, bz) = BAR_LINE
+    k_ = (bz - az) / (bx - ax)
+    at = lambda x: az + k_ * (x - ax)
+    bar = Polygon([(HAIR_FROM, at(HAIR_FROM)), (HAIR_TO, at(HAIR_TO)), (HAIR_TO, -14.), (HAIR_FROM, -14.)])
+    return unary_union([bar] + [box(x0, z0, x1, z1) for (x0, x1), (z0, z1) in T2_STRAYS])
+
+
+def hairpin_out(track, pad, runoffs):
+    """Past the hairpin: the track's patches there grown into the roads they are of, and the outside of
+    its roads smooth and round in HAIR_BOX (the notches filled, as the road beyond the kerb, and what
+    sticks out out). (Faces grown, faces cut, and what was grown, x, z.)"""
+    from shapely.geometry import box
+    from shapely.ops import unary_union
+    from scipy.spatial import cKDTree
+    grown = 0
+    for pname, rname in HAIR_PATCHES:
+        pn = next((n for n, m in bp.meshes(runoffs) if n['name'] == pname and len(n['faces'])), None)
+        road = next((n for n, m in bp.meshes(track) if n['name'] == rname), None)
+        if pn is None or road is None:
+            continue
+        T = bp.triangles(pn, np.eye(4))
+        S = bp.Surface(T)
+        e1, e2 = T[:, 1, [0, 2]] - T[:, 0, [0, 2]], T[:, 2, [0, 2]] - T[:, 0, [0, 2]]
+        tris = list(T[np.abs(e1[:, 0] * e2[:, 1] - e1[:, 1] * e2[:, 0]) > 1e-6][:, :, [0, 2]])
+        pool = [n for n, _ in bp.meshes(track) if n['name'].startswith('1ROAD') and n is not road and len(n['faces'])]
+        grown += grow(road, tris, pool=pool, height=lambda x, z, S=S: S.y(x, z))
+        pn['faces'] = np.zeros((0, 3), '<u2')
+    (x0, x1), (z0, z1) = HAIR_BOX
+    big = ((x0 - 10., x1 + 10.), (z0 - 10., z1 + 10.))
+    kerbs = gltf_source.load_kn5(os.path.join(bp.MODELS, 'velopark_kerbs.glb'))
+    U = unary_union([roads_shape(track, big), roads_shape(pad, big), roads_shape(runoffs, big), roads_shape(kerbs, big)]).buffer(0)
+    r = HAIR_ROUND
+    S_ = U.buffer(r).buffer(-r).buffer(-r).buffer(r)
+    inner = box(x0, z0, x1, z1)
+    add = S_.difference(U).intersection(inner).buffer(0)
+    cut = U.difference(S_).intersection(inner).buffer(0)
+    for n, _ in list(bp.meshes(track)):
+        if n['name'] == HAIR_ROAD and len(n['faces']):
+            clip_in(n, cut)
+    for n, _ in list(bp.meshes(pad)):
+        if n['name'].startswith(bp.ASPHALT) and len(n['faces']):
+            clip_in(n, cut)
+    road = next(n for n, _ in bp.meshes(track) if n['name'] == HAIR_ROAD)
+    if not add.is_empty and add.area > .02:
+        V = np.concatenate([n['verts'][:, :3].astype(float) for n, _ in bp.meshes(track) if n['name'].startswith('1ROAD') and len(n['faces'])])
+        x0_, z0_, x1_, z1_ = add.buffer(3.).bounds
+        V = V[(V[:, 0] > x0_) & (V[:, 0] < x1_) & (V[:, 2] > z0_) & (V[:, 2] < z1_)]
+        tree = cKDTree(V[:, [0, 2]])
+
+        def height(x, z):
+            dd, ii = tree.query((x, z), k=min(8, len(V)))
+            w = 1. / np.maximum(dd, .05) ** 2
+            return float((V[ii, 1] * w).sum() / w.sum())
+        pool = [n for n, _ in bp.meshes(track) if n['name'].startswith('1ROAD') and n is not road and len(n['faces'])]
+        grown += grow(road, fill(add, most=1.), pool=pool, height=height)
+    return grown, cut.area, add
+
+
 def hotlap_junction_shape(track, pad=None):
     """Where the hotlap's pit lane's road meets the road along the building, its outer side widened
     from the one into the other, a smooth curve (see HOTLAP_FLARE), x, z."""
@@ -873,13 +1014,8 @@ def hotlap_junction_shape(track, pad=None):
         def north(shape, x):
             cut = LineString([(x, -80.), (x, 0.)]).intersection(shape)
             return max(q[1] for g in getattr(cut, 'geoms', [cut]) for q in g.coords)
-        xi = HOTLAP_INNER
-        a = np.array([xi, north(own, xi)])
-        ta = np.array([1., north(own, xi + .5) - north(own, xi - .5)])
-        ta /= np.linalg.norm(ta)
-        b = p0 + d * ((HOTLAP_START - p0[0]) / d[0])
-        L = np.linalg.norm(b - a)
-        inner = h00 * a + h10 * .7 * L * ta + h01 * b + h11 * .7 * L * d
+        inner = inner_curve(track, pad)
+        a, b, xi = inner[0], inner[-1], HOTLAP_INNER
         poly = Polygon(list(map(tuple, inner)) + [tuple(b + nrm * 4.), (xi, a[1] - 4.)]).buffer(0)
         fill_ = poly.difference(have)
         edge = LineString(inner).buffer(.05)
@@ -939,6 +1075,37 @@ def hotlap_straight(track, pad):
     bp.sphere(node)
     pad['root']['children'].append(node)
     return len(node['faces'])
+
+
+def asphalt_gaps(track, pad):
+    """The gaps left between the roads and the car park's asphalt by the hotlap's pit lane (in
+    UNDER_HOTLAP, x, z): small spaces the asphalt closes round, the ground showing. x, z."""
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+    road = unary_union([roads_shape(track, UNDER_HOTLAP), roads_shape(pad, UNDER_HOTLAP)])
+    gaps = [Polygon(h) for g in getattr(road, 'geoms', [road]) for h in g.interiors if .02 < Polygon(h).area < 10.]
+    return unary_union(gaps).buffer(0) if gaps else Polygon()
+
+
+def fill_gaps(track, pad, gaps):
+    """The paddock's asphalt grown over gaps, sharing the roads' points round them, as high as their
+    points nearest. How many faces."""
+    from scipy.spatial import cKDTree
+    if gaps.is_empty:
+        return 0
+    base = next(n for n, _ in bp.meshes(pad) if n['name'] == bp.ASPHALT)
+    pool = [n for k_ in (track, pad) for n, m in bp.meshes(k_) if n['name'].startswith('1ROAD') and len(n['faces'])
+            and n is not base and np.allclose(m, np.eye(4))]
+    x0, z0, x1, z1 = gaps.buffer(3.).bounds
+    V = np.concatenate([n['verts'][:, :3].astype(float) for n in pool + [base]])
+    V = V[(V[:, 0] > x0) & (V[:, 0] < x1) & (V[:, 2] > z0) & (V[:, 2] < z1)]
+    tree = cKDTree(V[:, [0, 2]])
+
+    def height(x, z):
+        d, i = tree.query((x, z), k=6)
+        w = 1. / np.maximum(d, .05) ** 2
+        return float((V[i, 1] * w).sum() / w.sum())
+    return grow(base, fill(gaps), pool=pool, height=height)
 
 
 def widen_exit(track):
@@ -1022,73 +1189,6 @@ def store_road(track):
     made = grow(node, fill(lay), pool=seams, height=height, uv_from=ref)
     track['root']['children'].append(node)
     return made
-
-
-def lane_bands(lane, trk, within, sides=None, fork=None, smooth=.6, bumps=.5, clear=PIT_LINE_CLEAR):
-    """A pit lane's lines, x, z: along both its sides (lane), PIT_LINE_IN in, short of the track and the
-    roads joining it (trk) and, at its fork off the track (fork, x, z, if given), of where it is
-    narrower than PIT_LINE_FROM_WIDE, within; the longest sides of them, if given, else every one
-    PIT_LINE_SHORTEST or longer."""
-    from shapely.ops import unary_union
-    inner = lane.buffer(-PIT_LINE_IN, join_style=2)
-    inner = inner.buffer(-bumps).buffer(bumps).buffer(smooth).buffer(-smooth)   # (its edges smoothed: no notches, no spikes)
-    ring = unary_union([g.exterior for g in getattr(inner, 'geoms', [inner])])
-    h = PIT_LINE_FROM_WIDE / 2
-    thin = lane.difference(lane.buffer(-h).buffer(h + .01))             # (where it forks off, still narrow)
-    thin = thin.intersection(fork) if fork is not None else thin.difference(thin)
-    keep = within.buffer(-.3, join_style=2)                            # (not along the ends of the lane cut off)
-    found = ring.difference(trk.buffer(clear + PIT_LINE_IN + .2)).difference(thin.buffer(PIT_LINE_FROM_WIDE)).intersection(keep)
-    found = sorted([g for g in getattr(found, 'geoms', [found]) if g.length >= PIT_LINE_SHORTEST], key=lambda g: -g.length)
-    found = found[:sides] if sides else found
-    return unary_union([g.buffer(PIT_LINE_W / 2, cap_style=2, join_style=2) for g in found]).buffer(0) if found else None
-
-
-def line_mesh(L, template, mi, band, surface, name):
-    """A line of paint (band, x, z) laid on surface, as mesh name of L in material mi. How many faces."""
-    if band is None or band.is_empty:
-        return 0
-    tris = fill(band, most=.5)
-    if not tris:
-        return 0
-    P = np.concatenate(tris)
-    y = surface.ys(P) + .006
-    y = np.where(np.isnan(y), np.nanmedian(y), y)
-    V = np.zeros((len(P), template['verts'].shape[1]))
-    V[:, 0], V[:, 1], V[:, 2] = P[:, 0], y, P[:, 1]
-    V[:, 4] = 1.
-    V[:, 6], V[:, 7] = P[:, 0] / 10., P[:, 1] / 20.
-    if V.shape[1] > 8:
-        V[:, 8] = 1.
-    F = np.arange(len(P)).reshape(-1, 3)
-    a_, b_, c_ = V[F[:, 0], :3], V[F[:, 1], :3], V[F[:, 2], :3]
-    up = np.cross(b_ - a_, c_ - a_)[:, 1]
-    F = np.where((up < 0)[:, None], F[:, ::-1], F)[np.abs(up) > 1e-8]
-    node = dict(template, name=name, children=[], material=mi, verts=V.astype('<f4'), faces=F.astype('<u2'))
-    bp.sphere(node)
-    L['root']['children'].append(node)
-    return len(F)
-
-
-def line_middle(n):
-    """A line of paint's middle, (x, z) points along it (its points pair across it), and its width."""
-    V = n['verts'][:, [0, 2]].astype(float)
-    return (V[0::2] + V[1::2]) / 2, float(np.median(np.linalg.norm(V[1::2] - V[0::2], axis=1)))
-
-
-def track_line_join(L):
-    """The track's edge line past the 1500's pit entries, as it runs: TRACK_LINE_FROM cut where it bent
-    into the entry, its middle carried straight on to TRACK_LINE_TO's top. (The join's band, x, z, and
-    the whole line's middle, (x, z) points north to south.)"""
-    from shapely.geometry import LineString
-    a = next(n for n, _ in bp.meshes(L) if n['name'] == TRACK_LINE_FROM)
-    b = next(n for n, _ in bp.meshes(L) if n['name'] == TRACK_LINE_TO)
-    (ma, w), (mb, _) = line_middle(a), line_middle(b)
-    ma, mb = ma[np.argsort(-ma[:, 1])], mb[np.argsort(-mb[:, 1])]
-    up = ma[ma[:, 1] >= TRACK_LINE_CUT]
-    d = np.polyfit(up[-4:, 1], up[-4:, 0], 1)
-    start = np.array([np.polyval(d, TRACK_LINE_CUT), TRACK_LINE_CUT])
-    band = LineString([tuple(start), tuple(mb[0])]).buffer(w / 2, cap_style=2)
-    return band, np.r_[up, [start], mb]
 
 
 def building_back(k, track):
@@ -1226,357 +1326,115 @@ def garages(pad, track):
     return foot, p0, d, nrm, float((p0 + d * a0)[0]), float((p0 + d * a1)[0])
 
 
-def beyond_fence(shift=0.):
-    """The side of the hotlap's fence's line (see HOTLAP_FENCE_LINE) beyond it, shift further on, x, z."""
-    from shapely.geometry import Polygon
-    a, b = (np.array(q, float) for q in HOTLAP_FENCE_LINE)
-    t = (b - a) / np.linalg.norm(b - a)
-    n = np.array([-t[1], t[0]])                                         # (its north side)
-    if n[1] < 0:
-        n = -n
-    a, b = a + n * shift - t * 200., b + n * shift + t * 200.
-    from shapely.geometry import box
-    return Polygon([tuple(a), tuple(b), tuple(b + n * 300.), tuple(a + n * 300.)]).intersection(box(HOTLAP_FENCE[0], -200., 400., 400.))
-
-
 def hotlap_row(track, pad):
-    """The road in front of the building along the hotlap's pit lane, out from its front: (the road's
-    outer edge, the pit boxes' row's far side), the row half the road, so its three lines (along the
-    front, the row's far side, the outer edge) stand evenly apart."""
-    from shapely.geometry import LineString
-    _, p0, d, nrm, xa, xb = garages(pad, track)
-    sa, sb = (HOTLAP_START - p0[0]) / d[0], (xb - p0[0]) / d[0]
-    road = roads_shape(track, ((-80., 200.), (-80., 120.)), lambda n: n == HOTLAP_BOX_ROAD)
-    outs = []
-    for s_ in np.linspace(sa + 4., sb - 4., 20):
-        q = p0 + d * s_
-        cut = LineString([q - nrm * 2., q + nrm * 15.]).intersection(road)
-        outs.append(max(((np.array(g.coords) - p0) @ nrm).max() for g in getattr(cut, 'geoms', [cut])))
-    edge = float(np.median(outs))
-    return edge, edge / 2
+    """The pit lane in front of the building along the hotlap's pit lane, out from its front: (its outer
+    edge, HOTLAP_EDGE, the pit boxes' row's far side), the row half of it, so its three lines (along
+    the front, the row's far side, the outer edge) stand evenly apart."""
+    return HOTLAP_EDGE, HOTLAP_EDGE / 2
 
 
-def hotlap_lane(track, middle):
-    """The hotlap's pit lane, x, z, from its fork off the track to the fence (see HOTLAP_LANE_Z): on the
-    track's mesh outside its edge line (middle, its points north to south), then on its own roads."""
+def apron_shape(track, pad):
+    """The pit apron by the hotlap's pit lane (see APRON_SOUTH), x, z: from the building's front down to
+    its south edge, the hotlap's road curving into it on its outside."""
     from shapely.geometry import Polygon, box
     from shapely.ops import unary_union
-    z0, z1 = HOTLAP_LANE_Z
-    m = middle[(middle[:, 1] > z0 - 5.) & (middle[:, 1] < z1 + 5.)]
-    outside = Polygon(list(map(tuple, m)) + [(m[-1, 0] - 60., m[-1, 1]), (m[0, 0] - 60., m[0, 1])]).buffer(0)   # (east of it)
-    big = ((-80., 200.), (-80., 120.))
-    on_track = roads_shape(track, big, lambda n: n == '1ROAD_3').intersection(outside).intersection(box(-80., z0, 200., z1))
-    own = roads_shape(track, big, lambda n: n in HOTLAP_ROADS)
-    lane = unary_union([on_track, own]).buffer(.05).buffer(-.05)
-    # (cut well past the fence's line: its lines are cut on it, straight)
-    return lane.difference(beyond_fence(4.)).buffer(0)
-
-
-def pit_lines(track, pad=None):
-    """The pit lanes' lines, yellow, along both sides of each from the track to its pit boxes: the
-    1000's along its lane as it is now (widened, its mouth rounded), the 1500's along its entry;
-    the track's old lines across their mouths taken out. How many faces painted."""
-    import io, copy, urllib.parse
-    from PIL import Image
-    from shapely.geometry import box
-    from shapely.ops import unary_union
-    path = os.path.join(bp.MODELS, 'velopark_lines.glb')
-    L = gltf_source.load_kn5(path)
-    if any(n['name'] == PIT_LINE_MESH for n, _ in bp.meshes(L)):
-        return 0
-    pad = pad if pad is not None else gltf_source.load_kn5(bp.PADDOCK)       # (the paddock as restyled so far)
-    # the yellow paint: the white's texture coloured, its alpha as it is
-    white = next(m for m in L['materials'] if m['name'] == 'LinePaint')
-    tex = next(t for t in L['textures'] if t['name'] == white['textures'][0]['name'])
-    img = Image.open(io.BytesIO(tex['data'])).convert('RGBA')
-    a = np.asarray(img).astype(float)
-    a[..., :3] *= np.array(PIT_PAINT_COLOUR)
-    img = Image.fromarray(a.clip(0, 255).astype(np.uint8), 'RGBA')
-    data = kn5io.dds(img, 'DXT5')
-    open(os.path.join(TEX, PIT_PAINT_TEX), 'wb').write(data)
-    L['textures'].append(dict(name=PIT_PAINT_TEX, active=1, data=data))
-    yellow = copy.deepcopy(white)
-    yellow['name'] = PIT_PAINT_MAT
-    for t in yellow['textures']:
-        t['name'] = PIT_PAINT_TEX
-    L['materials'].append(yellow)
-    mi = len(L['materials']) - 1
-    others = [gltf_source.load_kn5(os.path.join(bp.MODELS, f)) for f in ('velopark_kerbs.glb', 'velopark_runoffs.glb')
-              if os.path.exists(os.path.join(bp.MODELS, f))]
-    template = next(n for n, _ in bp.meshes(L) if n['name'].startswith('LINE_') and len(n['verts']))
-    made = 0
-    road_top = bp.Surface(np.concatenate([bp.triangles(n, m) for k_ in [track, pad] + others for n, m in bp.meshes(k_)
-                                          if n['name'].startswith(('1ROAD', '1KERB')) and len(n['faces'])]))
-    # the 1000's lane as it is now (widened, its mouth rounded), and the track by its mouth; the
-    # track's old line across its mouth out (not the pit boxes' paint on the lane)
-    lane = lane_shape(track, every=True)[1].intersection(box(-120., PIT_LINE_FROM - 1., 0., 260.))
-    trk = unary_union([roads_shape(track, MOUTH_BOX, lambda n: n != '1ROAD_24')] + [roads_shape(k_, MOUTH_BOX) for k_ in others])
-    within = box(-120., PIT_LINE_FROM, 0., 260.)
-    mouth = lane.buffer(.35).intersection(within)
-    for n, _ in list(bp.meshes(L)):
-        if n['name'].startswith('LINE_') and len(n['faces']):
-            clip_in(n, mouth)
-    made += line_mesh(L, template, mi, lane_bands(lane, trk, within, sides=2, smooth=1.2, clear=PIT_1000_CLEAR), road_top, PIT_LINE_MESH)
-    # the track's edge line where it bent into the 1500's pit entry out (no white line across it)
-    band, middle = track_line_join(L)
-    white = next(i for i, m in enumerate(L['materials']) if m['name'] == 'LinePaint')
-    clip_in(next(n for n, _ in bp.meshes(L) if n['name'] == TRACK_LINE_FROM), box(-120., -500., 200., TRACK_LINE_CUT))
-    # the 1500's entry from the track to its pit boxes
-    (x0, x1), (z0, z1) = PIT_1500_AREA
-    near = ((x0 - 5., x1 + 5.), (z0 - 5., z1 + 5.))
-    lane = roads_shape(track, near, lambda n: n == PIT_1500_ROAD).intersection(box(x0, z0, x1, z1 + 1.))
-    # (from the track's white lines, one along each side, not across its mouth; across the road south's mouth)
-    trk = unary_union([roads_shape(track, near, lambda n: n == '1ROAD_3')] + [roads_shape(k_, near) for k_ in others])
-    made += line_mesh(L, template, mi, lane_bands(lane, trk, box(x0, z0, x1, z1), smooth=1.2, clear=.15),
-                      road_top, PIT_1500_MESH)
-    # the road south from it to the car park, white
-    (x0, x1), (z0, z1) = SOUTH_ROAD_AREA
-    near = ((x0 - 5., x1 + 5.), (z0 - 5., z1 + 5.))
-    lane = roads_shape(track, near, lambda n: n == SOUTH_ROAD).intersection(box(x0, z0 - 1., x1, z1 + 1.))
-    trk = unary_union([roads_shape(track, near, lambda n: n != SOUTH_ROAD)] + [roads_shape(k_, near) for k_ in others + [pad]])
-    made += line_mesh(L, template, white, lane_bands(lane, trk, box(x0, z0, x1, z1), smooth=1.2), road_top, SOUTH_ROAD_MESH)
-    # the hotlap's, from its fork off the track to the fence
-    lane = hotlap_lane(track, middle)
-    # (the track before its fork, and beside it up to its nose: no line across the opening)
-    trk = roads_shape(track, ((-80., 200.), (HOTLAP_NOSE + PIT_LINE_CLEAR + PIT_LINE_IN + .2, 120.)), lambda n: n == '1ROAD_3')
-    within = box(-80., -120., 200., HOTLAP_LANE_Z[1]).difference(beyond_fence())
-    fork = box(-80., HOTLAP_FORK[0], 200., HOTLAP_FORK[1])
-    # in front of the building: straight, from the white line across at its west end to its east end
-    from shapely.geometry import LineString, Polygon
     _, p0, d, nrm, xa, xb = garages(pad, track)
-    sa, sb = (HOTLAP_START - p0[0]) / d[0], (xb - p0[0]) / d[0]
-    edge, row_at = hotlap_row(track, pad)                              # (the road's outer edge, the row's far side)
-    # (the lane there exactly from the building's front to the road's edge, straight, so its lines
-    # carry on from the curves into the straight ones as one)
-    across = lambda a0, a1, o0, o1: Polygon([tuple(p0 + d * a0 + nrm * o0), tuple(p0 + d * a1 + nrm * o0),
-                                             tuple(p0 + d * a1 + nrm * o1), tuple(p0 + d * a0 + nrm * o1)])
-    lane = lane.difference(across(sa, sb, -30., 30.)).union(across(sa - .01, sb, 0., edge)).buffer(.01).buffer(-.01)
-    bands = lane_bands(lane, trk, within, fork=fork, smooth=1.5)
-    made += line_mesh(L, template, mi, bands, road_top, HOTLAP_MESH)
-    row = LineString([tuple(p0 + d * sa + nrm * row_at), tuple(p0 + d * sb + nrm * row_at)]).buffer(PIT_LINE_W / 2, cap_style=2)
-    made += line_mesh(L, template, mi, row, road_top, HOTLAP_ROW_MESH)
-    across = LineString([tuple(p0 + d * sa + nrm * (PIT_LINE_IN - PIT_LINE_W / 2)),
-                         tuple(p0 + d * sa + nrm * (edge - PIT_LINE_IN + PIT_LINE_W / 2))]).buffer(PIT_LINE_W, cap_style=2)
-    made += line_mesh(L, template, white, across, road_top, HOTLAP_START_MESH)
-    doc, _ = gltf_source.read_glb(path)
-    uris = {i['name']: urllib.parse.unquote(i['uri']) for i in doc.get('images', [])}
-    doc, binary = gltf_source.to_gltf(L, lambda t: uris.get(t['name'], '../textures/' + t['name']))
-    gltf_source.write_glb(path, doc, binary)
-    return made
+    front = lambda x: p0 + d * ((x - p0[0]) / d[0])
+    P = [tuple(front(APRON_WEST)), tuple(front(APRON_NE[0])), APRON_SOUTH[-1], APRON_SOUTH[0]]
+    apron = Polygon(P).buffer(0)
+    road = roads_shape(track, ((-20., 40.), (-80., -20.)), lambda n: n in HOTLAP_ROADS[:1])
+    if APRON_ROUND > 0:
+        (x0, x1), (z0, z1) = APRON_ROUND_AT
+        r = APRON_ROUND
+        fillet = unary_union([apron, road]).buffer(r).buffer(-r).intersection(box(x0, z0, x1, z1)).difference(road)
+        apron = unary_union([apron, fillet])
+    return apron.difference(Polygon(APRON_ISLAND).buffer(.6).buffer(-.6)).buffer(0)     # (the island's corners rounded)
 
 
-def pit_paint(before, after):
-    """The pit boxes' paint (GRID_PITS of the lines' model) by the boxes before (x, z) moved with them
-    to after, piece by piece."""
-    import urllib.parse
+def flat_map(node):
+    """A mesh's uv made again as one flat map from above, as most of its faces were mapped (the faces
+    grown onto it were mapped from their nearest, stretched the further they reach)."""
+    V = node['verts'].astype(float)
+    F = node['faces'].astype(int)
+    J = []
+    for f in F:
+        A = np.c_[V[f[1], [0, 2]] - V[f[0], [0, 2]], V[f[2], [0, 2]] - V[f[0], [0, 2]]]
+        if abs(np.linalg.det(A)) < 1e-4:
+            continue
+        j = np.c_[V[f[1], 6:8] - V[f[0], 6:8], V[f[2], 6:8] - V[f[0], 6:8]] @ np.linalg.inv(A)
+        if np.linalg.svd(j, compute_uv=False)[1] > .02:
+            J.append(j)
+    if not J:
+        return
+    Jm = np.median(np.array(J), 0)
+    s_ = np.sqrt(abs(np.linalg.det(Jm)))                                # (its scale, square: no stretch)
+    V[:, 6:8] = V[:, [0, 2]] * s_
+    V[:, 8:11] = gltf_source.tangents(V[:, :3], V[:, 3:6], V[:, 6:8], F)[:, :3]
+    node['verts'] = V.astype(node['verts'].dtype)
+
+
+def park_shape(track, pad):
+    """The car park as drawn (PARK), less the apron and the grass round its trees, x, z."""
+    from shapely.geometry import Polygon
+    import car_parks as cp
+    return Polygon(PARK).buffer(0).difference(apron_shape(track, pad)).difference(cp.park_islands()).buffer(0)
+
+
+def car_park(track, pad):
+    """The car park laid again: flat asphalt over park_shape (its points every metre round its edges,
+    on the ground as it is, mapped as the paddock's asphalt from above), a mesh of the paddock's.
+    How many faces."""
+    shape = park_shape(track, pad)
+    if shape.is_empty or any(n['name'] == PARK_MESH for n, _ in bp.meshes(pad)):
+        return 0
+    base = next(n for n, _ in bp.meshes(pad) if n['name'] == bp.ASPHALT)
+    ground = bp.Surface(np.concatenate([bp.triangles(n, m) for n, m in bp.meshes(track)
+                                        if n['name'].startswith(('1GRASS_0', '1GRASS_PATHS')) and len(n['faces'])]))
+    P = np.concatenate(fill(shape.segmentize(1.), most=4.))
+    y = ground.ys(P)
+    y = np.where(np.isnan(y), np.nanmedian(y), y) + .02
+    V = np.zeros((len(P), base['verts'].shape[1]))
+    V[:, 0], V[:, 1], V[:, 2] = P[:, 0], y, P[:, 1]
+    V[:, 4] = 1.
+    node = dict(base, name=PARK_MESH, children=[], verts=V.astype(base['verts'].dtype),
+                faces=np.arange(len(P)).reshape(-1, 3).astype('<u2'))
+    F = node['faces'].astype(int)
+    a_, b_, c_ = V[F[:, 0], :3], V[F[:, 1], :3], V[F[:, 2], :3]
+    up = np.cross(b_ - a_, c_ - a_)[:, 1]
+    node['faces'] = np.where((up < 0)[:, None], F[:, ::-1], F).astype('<u2')
+    # (mapped as the paddock's asphalt is, from above)
+    ref = dict(base)
+    flat_map(ref)
+    sc = np.median(np.linalg.norm(ref['verts'][:, 6:8].astype(float), axis=1) / np.maximum(np.linalg.norm(ref['verts'][:, [0, 2]].astype(float), axis=1), 1e-6))
+    V[:, 6:8] = V[:, [0, 2]] * sc
+    V[:, 8:11] = gltf_source.tangents(V[:, :3], V[:, 3:6], V[:, 6:8], node['faces'].astype(int))[:, :3]
+    node['verts'] = V.astype(base['verts'].dtype)
+    bp.sphere(node)
+    pad['root']['children'].append(node)
+    return len(node['faces'])
+
+
+def apron(track, pad):
+    """The road along the building grown over the pit apron (apron_shape, where no road is yet): faces in
+    its own mesh, its points shared on the seams, as high as the roads' points nearest them. How many
+    faces."""
     from scipy.spatial import cKDTree
-    from grade_paths import pieces as parts
-    path = os.path.join(bp.MODELS, 'velopark_lines.glb')
-    L = gltf_source.load_kn5(path)
-    n = next((n for n, _ in bp.meshes(L) if n['name'] == 'GRID_PITS'), None)
-    if n is None:
+    shape = apron_shape(track, pad).difference(roads_shape(track, ((-20., 140.), (-80., 0.)))).buffer(0)
+    if shape.is_empty or shape.area < .05:
         return 0
-    V = n['verts'].astype(float)
-    lab = parts(n['faces'].astype(int), len(V))
-    tree = cKDTree(before)
-    shifted = 0
-    for i in np.unique(lab):
-        sel = lab == i
-        dist, j = tree.query(V[sel][:, [0, 2]].mean(0))
-        if dist > 2.5:
-            continue                                                    # (not a hotlap box's)
-        V[sel, 0] += after[j, 0] - before[j, 0]
-        V[sel, 2] += after[j, 1] - before[j, 1]
-        shifted += 1
-    if not shifted:
-        return 0
-    n['verts'] = V.astype(n['verts'].dtype)
-    bp.sphere(n)
-    doc, _ = gltf_source.read_glb(path)
-    uris = {im['name']: urllib.parse.unquote(im['uri']) for im in doc.get('images', [])}
-    doc, binary = gltf_source.to_gltf(L, lambda t: uris.get(t['name'], '../textures/' + t['name']))
-    gltf_source.write_glb(path, doc, binary)
-    return shifted
+    road = next(n for n, _ in bp.meshes(track) if n['name'] == HOTLAP_BOX_ROAD)
+    pool = [n for n, _ in bp.meshes(track) if n['name'].startswith('1ROAD') and n is not road and len(n['faces'])]
+    base = next(n for n, _ in bp.meshes(pad) if n['name'] == bp.ASPHALT)
+    x0, z0, x1, z1 = shape.buffer(3.).bounds
+    V = np.concatenate([n['verts'][:, :3].astype(float) for n in pool + [road, base]])
+    V = V[(V[:, 0] > x0) & (V[:, 0] < x1) & (V[:, 2] > z0) & (V[:, 2] < z1)]
+    tree = cKDTree(V[:, [0, 2]])
 
-
-def hotlap_pits(track, pad):
-    """The hotlap's and the 2500's pit boxes in the middle of the pit boxes' row in front of the building
-    (see HOTLAP_BOX_ROW), and their pit lanes' racing lines along the middle of the pit lane past them
-    (see HOTLAP_AI), not out over the car park. How many boxes moved."""
-    import struct
-    from shapely.geometry import LineString, Point, box
-    road13 = roads_shape(track, ((-80., 200.), (-80., 120.)), lambda n: n in HOTLAP_ROADS[:1])
-    road14 = roads_shape(track, ((-80., 200.), (-80., 120.)), lambda n: n == HOTLAP_BOX_ROAD)
-    top = bp.Surface(np.concatenate([bp.triangles(n, m) for n, m in bp.meshes(track)
-                                     if n['name'].startswith('1ROAD') and len(n['faces'])]))
-
-    def middle(shape, p, across):
-        """The middle of shape across p (along across, both ways), or None."""
-        cut = LineString([p - across * 12., p + across * 12.]).intersection(shape)
-        parts = sorted([g for g in getattr(cut, 'geoms', [cut]) if not g.is_empty and g.length > .5], key=lambda g: g.distance(Point(p)))
-        if not parts or parts[0].distance(Point(p)) > 3.:
-            return None
-        c = np.array(parts[0].coords)
-        return c.mean(0)
-    inside, p0, d, nrm, xa, xb = garages(pad, track)
-    edge, row_at = hotlap_row(track, pad)
-    moved = 0
-    for lay in HOTLAP_LAYOUTS:
-        glb = os.path.join(bp.MODELS, lay + '.glb')
-        doc, binary = gltf_source.read_glb(glb)
-        nodes = [n for n in doc['nodes'] if n['name'].startswith('AC_PIT_') and 'matrix' in n]
-        if not nodes:
-            continue
-        P = np.array([[n['matrix'][12], n['matrix'][14]] for n in nodes])
-        along = (P - p0) @ d
-        out = p0 + np.outer(along, d) + nrm * ((PIT_LINE_IN + row_at) / 2)      # (between the front's line and the row's)
-        if np.abs(out - P).max() < .05:
-            continue                                                    # (in their row already)
-        for n, q in zip(nodes, out):
-            n['matrix'][12], n['matrix'][14] = float(q[0]), float(q[1])
-        gltf_source.write_glb(glb, doc, binary)
-        moved += len(nodes)
-        if lay == HOTLAP_LAYOUTS[0]:
-            pit_paint(P, out)
-        # its pit lane's racing line along the pit lane's middle
-        path = os.path.join(bp.ROOT, 'source', 'track', lay, 'ai', 'pit_lane.ai')
-        b = bytearray(open(path, 'rb').read())
-        n_ = struct.unpack('<i', b[4:8])[0]
-        A = np.frombuffer(bytes(b[16:16 + n_ * 20]), '<f4').reshape(n_, 5).astype(float)
-        i0, i1 = HOTLAP_AI
-        pts = [A[i0, [0, 2]]]
-        # down its road, as it ran, kept to its middle
-        for i in range(i0 + 1, i1):
-            q = A[i, [0, 2]]
-            if not road13.buffer(.3).contains(Point(*q)):
-                break
-            t = A[i + 1, [0, 2]] - A[i - 1, [0, 2]]
-            t /= np.linalg.norm(t)
-            m = middle(road13, q, np.array([-t[1], t[0]]))
-            if m is not None:
-                pts.append(m)
-        # in front of the building, the middle of the lane beyond the boxes' row
-        from shapely.geometry import Polygon as _Poly
-        a_, b_ = p0 + d * ((xa - 10. - p0[0]) / d[0]), p0 + d * ((xb + 10. - p0[0]) / d[0])
-        behind = _Poly([tuple(a_ + nrm * row_at), tuple(b_ + nrm * row_at), tuple(b_ - nrm * 20.), tuple(a_ - nrm * 20.)])
-        front = road14.difference(behind)
-        for s_ in np.arange((xa - p0[0]) / d[0], (xb - p0[0]) / d[0] + .01, 1.):
-            q = p0 + d * s_ + nrm * (row_at + 1.)
-            m = middle(front, q, nrm)
-            if m is not None:
-                pts.append(m)
-        # and up the road from their east end to the fence
-        zf = p0[1] + d[1] * ((xb - p0[0]) / d[0])                        # (the garages' front at their east end)
-        east = road14.difference(inside).intersection(box(xb - 8., zf + 1.5, 400., HOTLAP_FENCE[1] + 3.))
-        for z in np.arange(zf + 2., A[i1, 2], 1.):
-            m = middle(east, np.array([np.mean(east.bounds[::2]), z]), np.array([1., 0.]))
-            if m is not None:
-                pts.append(m)
-        pts.append(A[i1, [0, 2]])
-        Q = np.array(pts)
-        # its corners rounded: resampled finely, each point the mean of those within HOTLAP_ROUND / 2
-        dq = np.r_[0., np.cumsum(np.linalg.norm(np.diff(Q, axis=0), axis=1))]
-        u = np.arange(0., dq[-1], .25)
-        Q = np.c_[np.interp(u, dq, Q[:, 0]), np.interp(u, dq, Q[:, 1])]
-        k = int(HOTLAP_ROUND / .25) | 1
-        for _ in range(2):
-            Q = np.c_[np.convolve(np.pad(Q[:, 0], k // 2, mode='edge'), np.ones(k) / k, 'valid'),
-                      np.convolve(np.pad(Q[:, 1], k // 2, mode='edge'), np.ones(k) / k, 'valid')]
-        dq = np.r_[0., np.cumsum(np.linalg.norm(np.diff(Q, axis=0), axis=1))]
-        u = np.linspace(0., dq[-1], i1 - i0 + 1)
-        new = np.c_[np.interp(u, dq, Q[:, 0]), np.interp(u, dq, Q[:, 1])]
-        # (eased in from the line as it ran at either end)
-        e = np.clip(np.minimum(np.arange(len(new)), np.arange(len(new))[::-1]) / 8., 0., 1.)
-        e = (e * e * (3 - 2 * e))[:, None]
-        new = A[i0:i1 + 1][:, [0, 2]] * (1 - e) + new * e
-        y = top.ys(new)
-        y = np.where(np.isnan(y), np.interp(np.arange(len(new)), [0, len(new) - 1], [A[i0, 1], A[i1, 1]]), y)
-        A[i0:i1 + 1, 0], A[i0:i1 + 1, 1], A[i0:i1 + 1, 2] = new[:, 0], y, new[:, 1]
-        A[:, 3] = np.r_[0., np.cumsum(np.linalg.norm(np.diff(A[:, [0, 2]], axis=0), axis=1))]
-        b[16:16 + n_ * 20] = A.astype('<f4').tobytes()
-        open(path, 'wb').write(bytes(b))
-    return moved
-
-
-def box_x(z, lane=None):
-    """Where the vp_1000's pit boxes stand across its lane (x) at z: PIT_IN in from the walls' line, or,
-    where its west yellow line runs further in, PIT_BOX_CLEAR in from that."""
-    from shapely.geometry import LineString
-    z = np.atleast_1d(np.asarray(z, float))
-    x = wall_line(z) - PIT_IN
-    if lane is None:
-        lane = lane_shape(gltf_source.load_kn5(bp.TRACK), every=True)[1]
-    for i, zz in enumerate(z):
-        if zz < PIT_LINE_FROM:
-            continue
-        cut = LineString([(-80., zz), (-30., zz)]).intersection(lane)
-        if cut.is_empty:
-            continue
-        west = max(q[0] for g in getattr(cut, 'geoms', [cut]) for q in g.coords)
-        x[i] = min(x[i], west - PIT_LINE_IN - PIT_BOX_CLEAR)
-    return x
-
-
-def pit_boxes():
-    """The vp_1000's pit boxes, and their painted boxes, moved to PIT_IN in from the walls' line, in
-    one row. How many."""
-    import kn5tree
-    path = os.path.join(bp.MODELS, PIT_LAYOUT + '.glb')
-    k = gltf_source.load_kn5(path)
-    moves = []
-    lane = lane_shape(gltf_source.load_kn5(bp.TRACK), every=True)[1]
-    for n, m in kn5tree.walk(k['root']):
-        if n['kind'] == 1 and n['name'].startswith('AC_PIT_') and m[3, 2] > PIT_FROM:
-            dx = float(box_x(m[3, 2], lane)[0]) - m[3, 0]
-            if abs(dx) < .05:
-                continue
-            M4 = np.array(n['matrix'], float).reshape(4, 4)
-            M4[3, 0] += dx                              # (the layout's dummies stand under its root as they are)
-            n['matrix'] = list(M4.ravel())
-            moves.append((m[3, 0], m[3, 2], dx))
-    if not moves:
-        return 0
-    bp.save(k, path)
-    lines = os.path.join(bp.MODELS, 'velopark_lines.glb')
-    L = gltf_source.load_kn5(lines)
-    at = np.array([(x, z) for x, z, _ in moves])
-    for n, m in bp.meshes(L):
-        if n['name'] != 'GRID_PITS' or not len(n['faces']):
-            continue
-        from grade_paths import pieces as parts
-        V = n['verts'][:, :3].astype(float)
-        lab = parts(n['faces'].astype(int), len(V))
-        for piece in np.unique(lab):
-            idx = np.nonzero(lab == piece)[0]
-            c = V[idx][:, [0, 2]].mean(0)
-            d = np.hypot(*(at - c).T)
-            j = int(np.argmin(d))
-            if d[j] < PIT_PAINT:
-                n['verts'][idx, 0] = (V[idx, 0] + moves[j][2]).astype(n['verts'].dtype)
-        bp.sphere(n)
-    bp.save(L, lines)
-    return len(moves)
-
-
-def pit_pass():
-    """The vp_1000's pit lane's racing line moved to PIT_PASS in from the walls' line, past its pit
-    boxes, within PIT_PASS_Z. How many points moved."""
-    import struct
-    path = os.path.join(bp.ROOT, 'source', 'track', PIT_LAYOUT, 'ai', 'pit_lane.ai')
-    b = bytearray(open(path, 'rb').read())
-    n = struct.unpack('<i', b[4:8])[0]
-    P = np.frombuffer(bytes(b[16:16 + n * 20]), '<f4').reshape(n, 5).astype(float)
-    z0, z1 = PIT_PASS_Z
-    w = np.clip(np.minimum(P[:, 2] - z0, z1 - P[:, 2]) / PIT_PASS_EASE, 0., 1.)
-    w = w * w * (3 - 2 * w) * ((P[:, 0] > -62.) & (P[:, 0] < -40.))
-    x = P[:, 0] + w * (box_x(P[:, 2]) - (PIT_PASS - PIT_IN) - P[:, 0])
-    moved = np.abs(x - P[:, 0]) > .02
-    if not moved.any():
-        return 0
-    for i in np.nonzero(moved)[0]:
-        b[16 + i * 20:16 + i * 20 + 4] = struct.pack('<f', x[i])
-    open(path, 'wb').write(bytes(b))
-    return int(moved.sum())
+    def height(x, z):
+        dd, ii = tree.query((x, z), k=8)
+        w = 1. / np.maximum(dd, .05) ** 2
+        return float((V[ii, 1] * w).sum() / w.sum())
+    return grow(road, fill(shape, most=2.), pool=pool, height=height)
 
 
 PIT_LINE_TYRES = (('TYRES_99', 'TYRES_99F', '1WALL_TYRE_99'), ('TYRES_101', 'TYRES_101F', '1WALL_TYRE_101'))
@@ -1712,10 +1570,8 @@ def pits_tyre_rows():
                 rows.append(v)
                 faces.append(Ft + i * len(Vt))
             Vall = np.concatenate(rows)
-            if len(Vall) > 65535:
-                sys.exit('%s: %d points, more than a mesh holds' % (n['name'], len(Vall)))
             n['verts'] = Vall.astype(n['verts'].dtype)
-            n['faces'] = np.concatenate(faces).astype('<u2')
+            n['faces'] = np.concatenate(faces).astype('<u2' if len(Vall) < 65536 else '<u4')
             bp.sphere(n)
         made += len(P)
     if made:
@@ -1866,6 +1722,16 @@ def main():
         done.append('the roofs darker')
     track = gltf_source.load_kn5(bp.TRACK)
     pulled = building_back(k, track)
+    for n_ in [n for n, m in bp.meshes(k) if n['name'] in ('BLD_WALLS', 'BLD_DARK') and len(n['faces'])]:
+        if not n_.get('both'):
+            # (its buildings' walls seen from inside them too)
+            V_ = n_['verts']
+            back = V_.copy()
+            back[:, 3:6] = -back[:, 3:6]
+            n_['faces'] = np.r_[n_['faces'].astype(int), n_['faces'].astype(int)[:, ::-1] + len(V_)].astype('<u2')
+            n_['verts'] = np.r_[V_, back]
+            n_['both'] = True
+            bp.sphere(n_)
     roofed = building_roof_out(k, track)
     if roofed:
         done.append('the flat roof of the building by the hotlap\'s pit lane out, %d faces' % roofed)
@@ -1873,36 +1739,84 @@ def main():
         done.append('the building by the hotlap\'s pit lane\'s front %.1f m back, as the photo shows it (%d points)' % (BUILDING_BACK, pulled))
     # (their shapes from the lane as it is, before it is widened)
     pits = pits_shape(track, k)
-    new = wide_shape(track).union(store_road_shape(track)).union(exit_shape(track)).union(hotlap_junction_shape(track, k))     # (what the paddock's asphalt gives way to)
-    under = new.union(pits)
+    import car_parks as cp
+    from shapely.ops import unary_union
+    from shapely.geometry import Polygon
+    _area = ((-60., 200.), (-140., -20.))
+    east = cp.east_shape().difference(unary_union([roads_shape(track, _area), roads_shape(k, _area)]).buffer(.02)).buffer(0)
+    south_on = cp.south_on_shape().difference(unary_union([roads_shape(track, _area), roads_shape(k, _area, lambda n: n != bp.ASPHALT + '_2')]).buffer(.02)).buffer(0)
+    south_on = south_on.difference(roads_shape(k, _area, lambda n: n == bp.ASPHALT + '_2')).buffer(0)
+    parks = park_shape(track, k).union(cp.park_south_fill(k)).buffer(0)
+    import shift_pit_entry as spe
+    _pa = ((-60., -20.), (60., 125.))
+    left = spe.vacated(track).difference(unary_union([roads_shape(track, _pa), roads_shape(k, _pa)]).buffer(.02)).buffer(0)
+    lanes = cp.lanes_shape().difference(unary_union([roads_shape(track, _area), roads_shape(k, _area), east, south_on, parks]).buffer(.02)).buffer(0)
+    new = wide_shape(track).union(store_road_shape(track)).union(exit_shape(track)).union(hotlap_junction_shape(track, k)).union(apron_shape(track, k)).union(parks)     # (what the paddock's asphalt gives way to)
+    under = new.union(pits).union(east).union(south_on).union(lanes).union(left)
+    gone = hairpin_cuts().union(beyond_inner(track, k))                # (no road there, the ground kept)
     # and under all the asphalt round them, the old with the new: the ground's holes under the old
     # did not quite meet its edges, which its ramps down to the grass hid, and the new carries on past
-    from shapely.ops import unary_union
     from shapely.geometry import box
     others = [gltf_source.load_kn5(os.path.join(bp.MODELS, f)) for f in ('velopark_kerbs.glb', 'velopark_runoffs.glb')
               if os.path.exists(os.path.join(bp.MODELS, f))]
-    for area in (UNDER_PITS, UNDER_JUNCTION, MOUTH_BOX, UNDER_HOTLAP):
+    for area in (UNDER_PITS, UNDER_JUNCTION, MOUTH_BOX, UNDER_HOTLAP, UNDER_LANE, UNDER_PAVERS):
         under = unary_union([under] + [roads_shape(m_, area) for m_ in [track] + others]
                             + [roads_shape(k, area, lambda n: not n.startswith('1ROAD_PATH_A')),
                                roads_shape(k, area, lambda n: n.startswith('1ROAD_PATH_A')).difference(box(-50., 118., 2., JUNCTION_CUT))])
-    under = under.buffer(-.02)
+    gaps = asphalt_gaps(track, k)
+    under = under.union(gaps).difference(gone).buffer(-.02)
     wide, store = widen_lane(track), store_road(track)
     print('  the pit exit carried on to under its tyre wall, %d faces' % widen_exit(track))
     print("  the hotlap's pit lane's corners rounded where it meets the road along the building, %d faces" % widen_hotlap_junction(track, k))
     print("  the road along the building by the hotlap's pit lane cut along its front, %d faces of it a floor under its roof" % hotlap_straight(track, k))
+    print("  the pit apron by the hotlap's pit lane, %d faces" % apron(track, k))
+    # the lane's inner edge running on into the building's front: no road north of its curve
+    for n_, _ in list(bp.meshes(track)):
+        if n_['name'] in HOTLAP_ROADS and len(n_['faces']):
+            clip_in(n_, beyond_inner(track, k))
+    # the paddock's asphalt left over by T2, and north of the building past the hairpin, out; the
+    # track's road there one with its patches, its outside smooth
+    # (grass laid over where it was: the ground under it was cut away)
+    grass_over(k, hairpin_cuts(), '1GRASS_PADDOCK_LEFT_OVER')
+    _runoffs_path = os.path.join(bp.MODELS, 'velopark_runoffs.glb')
+    _runoffs = gltf_source.load_kn5(_runoffs_path)
+    _g, _c, _add = hairpin_out(track, k, _runoffs)
+    _m, _madd = round_out(track, k, MOUTH_BOX, '1ROAD_24', MOUTH_FILL)
+    _add = _add.union(_madd) if not _madd.is_empty else _add
+    print("  the 1000's pit lane's mouth rounded out, %d faces" % _m)
+    bp.save(_runoffs, _runoffs_path)
+    print('  past the hairpin: %d faces grown into its road, %.1f m2 cut off its outside' % (_g, _c))
+    flat_map(next(n for n, _ in bp.meshes(track) if n['name'] == HOTLAP_BOX_ROAD))
     # the ground and the paddock's asphalt under them out, as under every road
+    under = under.union(_add.buffer(-.02)) if not _add.is_empty else under
     cut = holes(track, bp.GROUND, under, bp.GROUND + '_CUT') + holes(track, bp.FILLER, under, bp.FILLER + '_CUT')
+    bp.save(track, bp.TRACK)
     if wide or store or cut:
         bp.save(track, bp.TRACK)
         print('  the 1000\'s pit lane %.1f m wider, %d faces; the road by the storage building to the pit exit, %d faces; '
               'the ground under them out, %d faces cut round them' % (LANE_EXTRA, wide, store, cut))
     holes(k, bp.ASPHALT, new.buffer(-.02), bp.ASPHALT + '_CUT')
+    # the car parks and the road south carried on, their asphalt, the trees on them out
+    print('  the car park south of the apron laid again, %d faces' % cp.lay_flat(track, k, parks, PARK_MESH))
+    print('  the car park east of it, %d faces' % cp.lay_flat(track, k, east, cp.EAST_MESH))
+    print('  the road south carried on to the dirt road, %d faces' % cp.lay_flat(track, k, south_on, cp.SOUTH_ON_MESH))
+    print('  the road down between the car parks where it was not, %d faces' % cp.lay_flat(track, k, lanes, cp.LANES_MESH))
+    print("  where the vp_1500's pit entry was before it moved west, %d faces" % cp.lay_flat(track, k, left, bp.ASPHALT + '_PIT_ENTRY'))
+    print('  %d trees on them out' % cp.clear_trees(unary_union([parks, east, lanes, cp.south_on_shape().buffer(cp.SOUTH_ON_TREES)])))
     print('  the pits\' asphalt out to the columns under the pit building\'s roof, %d faces' % pits_fill(track, k))
+    print("  %d faces of asphalt over the gaps between the roads by the hotlap's pit lane" % fill_gaps(track, k, gaps))
     # path A's old end, where the junction's asphalt and the grass take its place
     holes(k, '1ROAD_PATH_A', junction_shapes(track, k)[1], '1ROAD_PATH_A_CUT')
     print('  %d faces of the old asphalt by the 1000\'s north corner grass again' % north_runoff_grass())
     grass = grass_back(k)
     grass += grass_over(k, west_grass())
+    from shapely.geometry import box as _box
+    (gx0, gx1), (gz0, gz1) = APRON_GRASS
+    _foot = garages(k, track)[0]
+    _join = _box(20.5, gz0, gx1, min(q[1] for q in APRON_ISLAND))          # (the road south onto the apron below the island)
+    grass += grass_over(k, _box(gx0, gz0, gx1, gz1).difference(apron_shape(track, k)).difference(_foot.buffer(.3)).difference(_join), APRON_MESH)
+    grass += grass_over(k, cp.park_islands().intersection(Polygon(PARK)), '1GRASS_PARK_ISLANDS')
+    grass += grass_over(k, cp.lanes_island(), '1GRASS_PADDOCK_LANES_ISLAND')
     if grass:
         done.append('%d faces of its asphalt by the 1000\'s pit lane grass again' % grass)
     pit_tyres()
@@ -1912,18 +1826,6 @@ def main():
     rowed = pits_tyre_rows()
     if rowed:
         print('  the pits\' tyre walls laid again in one row each along the columns, %d stacks, a column in each of their tyres' % rowed)
-    painted = pit_lines(gltf_source.load_kn5(bp.TRACK), k)
-    if painted:
-        print("  the pit lanes' lines yellow, the 1000's along its lane as it is now (%d faces)" % painted)
-    passed = pit_pass()
-    if passed:
-        print("  %d points of the %s's pit lane racing line moved past its pit boxes" % (passed, PIT_LAYOUT))
-    boxes = hotlap_pits(gltf_source.load_kn5(bp.TRACK), k)
-    if boxes:
-        print('  %d of the hotlap\'s and the 2500\'s pit boxes in a row in front of the building, their pit lanes along the middle of the lane past them' % boxes)
-    moved = pit_boxes()
-    if moved:
-        print('  %d of the %s\'s pit boxes moved clear of the tyre wall, with their paint' % (moved, PIT_LAYOUT))
     if not done:
         print('the paddock is restyled already')
         return

@@ -25,3 +25,6 @@ tools/reference/surroundings/tiles/
 
 # the scanned materials tools/scan_materials.py fetches from Poly Haven (CC0); kept locally, fetched again when missing
 tools/reference/materials/
+
+# the raw satellite pictures tools/ground_photo.py lays over the ground photo; kept locally, fetched again when missing
+tools/reference/ground_photo/tiles/

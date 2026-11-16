@@ -3,6 +3,7 @@
 ### Both games
 
 - White lines along the track shown in full, joined where roads meet and following the track's edges.
+- The pit lanes' yellow lines along both sides, from the track to the pit boxes.
 - Tyre marks on the track.
 - Scenery far round the map.
 - The road out of the pits as the real one: light concrete where karts park, a yellow line, a yellow kerb with tyres and orange poles, and a narrow path to the track.

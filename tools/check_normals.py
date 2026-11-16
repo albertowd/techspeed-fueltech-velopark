@@ -23,6 +23,7 @@ import gltf_source
 from grade_paths import pieces
 
 FIX_NOT = ('velopark_karts.glb',)     # (the kart project's model, as it is)
+UNMIRROR = ('KerbFloor',)              # (flat kerbs, the others as they are)
 BIG = 20000          # faces: a mesh with more has its closed pieces not looked at, one by one
 WELD = .001          # metres: points this close are one, for a piece's closed surface
 
@@ -89,6 +90,28 @@ def fix(n):
     return int(flip.sum())
 
 
+def unmirror(k, n):
+    """A flat kerb's (of a material in UNMIRROR) normal mapped texture laid on mirrored (every face's uv turning against it), as AC's
+    shader takes it the right way round: flipped along the kerb (its uv's longer way), its tangents
+    made again. Whether it was."""
+    mt = k['materials'][n['material']]
+    if mt['name'] not in UNMIRROR or not any(t.get('sampler') == 'txNormal' for t in mt['textures']):
+        return False
+    V = n['verts'].astype(float)
+    F = n['faces'].astype(int)
+    P, U = V[:, :3], V[:, 6:8]
+    e1, e2 = P[F[:, 1]] - P[F[:, 0]], P[F[:, 2]] - P[F[:, 0]]
+    d1, d2 = U[F[:, 1]] - U[F[:, 0]], U[F[:, 2]] - U[F[:, 0]]
+    r = d1[:, 0] * d2[:, 1] - d2[:, 0] * d1[:, 1]
+    if (r < 0).mean() < .9:
+        return False
+    along = int(np.argmax(np.ptp(U, axis=0)))
+    V[:, 6 + along] = -V[:, 6 + along]
+    V[:, 8:11] = gltf_source.tangents(V[:, :3], V[:, 3:6], V[:, 6:8], F)[:, :3]
+    n['verts'] = V.astype(n['verts'].dtype)
+    return True
+
+
 def main():
     args = sys.argv[1:]
     files = [a for a in args if a.endswith('.glb')] or sorted(f for f in os.listdir(bp.MODELS) if f.endswith('.glb'))
@@ -99,9 +122,13 @@ def main():
                 continue
             k = gltf_source.load_kn5(path)
             turned = sum(fix(n) for n, _ in bp.meshes(k) if len(n['faces']) and not n['name'].startswith(('1WALL', 'AC_')) and not card(k, n))
-            if turned:
+            flipped = [n['name'] for n, _ in bp.meshes(k) if len(n['faces']) and unmirror(k, n)]
+            if turned or flipped:
                 bp.save(k, path)
+            if turned:
                 print('%s: %d faces turned to their normals' % (os.path.basename(f), turned))
+            if flipped:
+                print('%s: the kerbs %s textured the right way round' % (os.path.basename(f), ', '.join(flipped)))
     bad = 0
     for f in files:
         k = gltf_source.load_kn5(os.path.join(bp.MODELS, os.path.basename(f)))

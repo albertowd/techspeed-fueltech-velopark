@@ -26,6 +26,10 @@ Every road and kerb of the track by name, to point at one when talking about a c
 
 After changing the track, `python tools/track_map.py` draws it again from the Assetto Corsa build in `build/ac`.
 
+## Road editor
+
+The roads and rumbles described in `tools/reference/roads.json` (see [ROADS.md](ROADS.md)), and the objects in `tools/reference/objects.json` (the grid, pit boxes, cones, light poles, tyre walls), are edited in the browser with the road editor. It is its own project, top-race-editor, beside this one; it reads this track's `tools/reference/track.json` and its tools (`roads.py`, `surface.py`, `build_kerbs.py`, `track_surface.py`, `read_road.py`), so what it shows is what the build makes. The build makes the models from what it saves.
+
 ## Objects map
 
 What stands round the track, by name, to point at one when talking about a change: the buildings by what they are, the tyre walls (`TYRES_` meshes of `velopark_tyres.kn5`) and light poles (`POLE_`, of `velopark_poles.kn5`) by their mesh names, the fences (`velopark_outside.kn5`'s `FENCE_` meshes) by theirs. Grass, trees, the dirt roads and the pond are only background colours, the trees too many to draw each.
@@ -34,7 +38,14 @@ What stands round the track, by name, to point at one when talking about a chang
 
 After changing what stands round the track, `python tools/objects_map.py` draws it again from the Assetto Corsa build in `build/ac`.
 
-## The ground and the surroundings
+## The terrain
+
+The ground the track lies on is a folder of its own, `tools/reference/terrain/`, made first in the build (`tools/terrain.py`), before the roads and everything standing on the map. Its `terrain.json` says where the track lies, its satellite picture and ground photo, the files of the real ground's heights, the filters that take the tops of trees and buildings out of them (their rules, and areas drawn as ground or not ground), and the edits to the ground, in order (a raster of metres added, or a shape made flat, raised or lowered, or smoothed). The middle buildings' platform, the pits and the shed are its first edit, `paddock_platform.npz`. The road editor (top-race-editor) shows and edits it, and makes it for a new track.
+
+`python tools/terrain.py build` writes the original heights (`original.png`), the filtered ones (`filtered.png`) and the ground with its edits (`ground.png`), 16 bit, their scales in `heights.json`, and every height with why a filter took it out (`points.json`). The roads' heights are taken from that ground, so an edit to the terrain records them again and runs every step after it.
+
+## The ground and the surroundings (how it was made)
+
 
 The track's heights and what stands round it are made from the real ground's heights, the ground photo, OpenStreetMap and screenshots of the real track, by tools run in turn (each finds its work done when run again):
 
@@ -130,7 +141,31 @@ To edit a model in Blender: File > Import > glTF 2.0 the `.glb`, then File > Exp
 
 `tools/build_parking.py` takes the dirt the 0.5.0 track laid over the pits and the car park south of the pit building out of `source/models/velopark_paddock.glb`, so the paddock's asphalt shows there, and paints the car park's bays in `source/models/velopark_lines.glb`.
 
-`tools/build_models.py` makes the models again from the committed ones, step by step (organize_models, scan_materials, restyle_paddock, drape_track, build_outside, place_karts, check_normals), then the AC track. It keeps in `build/cache` the files each step changed, and runs only the steps whose code or input changed since last time: a change to the buildings runs build_outside and the steps after it, a change to the roads restyle_paddock and on. `--all` runs every step, `--from STEP` that one and those after it, `--install` copies the track into the game, `--beamng` packs the BeamNG archive too, `--profile` times each step run into `build/cache/<step>.prof`.
+`tools/build_models.py` makes the models again from the committed ones, step by step (terrain, organize_models, scan_materials, build_roads, shift_pit_entry, restyle_paddock, drape_track, lay_pavers, merge_floor, place_karts, check_normals, check_holes). Only the roads and rumbles shape the terrain, which the merge makes one surface; what stands on the map (pit boxes, grid slots, poles, tyre walls, buildings) is placed by the road editor (top-race-editor) as data, and is never checked for gaps, then the AC track. It keeps in `build/cache` the files each step changed, and runs only the steps whose code or input changed since last time: a change to the buildings runs build_outside and the steps after it, a change to the roads restyle_paddock and on; the pit lanes' lines, pit boxes and their racing lines are laid by paint_pits after the drape, so a change to them runs from there. `--all` runs every step, `--from STEP` that one and those after it, `--until STEP` stops after that one (the models as it leaves them, to work on the next), `--install` copies the track into the game, `--beamng` packs the BeamNG archive too, `--profile` times each step run into `build/cache/<step>.prof`.
+
+`tools/merge_floor.py` makes the whole map's floor one surface with `tools/surface.py`. In order, each over those after it, the regions are:
+
+1. the rumbles described in roads.json;
+2. the old kerbs left;
+3. the described roads in their order;
+4. the other roads and paving;
+5. the grass;
+6. the far ground;
+7. the near ground.
+
+Each region is cut out where those before it lie, and meets its neighbours point for point at one height. Gaps where nothing lies become ground, unless something standing covers them. The ground eases up to every edge, in place of the drape's ramps.
+
+Each region is proved as soon as it is filled (no open edge but on its outline, no point of its outline missing, its area what it should be), then the whole surface (seconds). The first problem stops the build, with where it is.
+
+The merge is kept between builds (`build/cache/merge_state`, `tools/merge_state.py`). The next merge compares each region's triangles with last time and makes again only the area round those that changed (2.5 m round them); the rest is kept face for face, its edge held point for point. An edit to one road merges in seconds; with nothing changed, nothing is merged. Each region's outline and folds are kept too, by its triangles' fingerprint, and so is the world they make. `--all` merges all of it again. The step writes `source/models/merged_floors.json`, the meshes it made: `tools/check_holes.py` and `tools/seal_holes.py` probe only the other floors' edges.
+
+Options:
+- `--near X0 Z0 X1 Z1` builds and proves one part of the map without writing it;
+- `--models DIR` reads the floors from another folder, such as `build/cache/floors_before_merge`, and never writes.
+
+`tools/test_surface.py` proves the core on made-up cases: a fork, a joint, rumbles, a run-off, a tight turn, a meshed ground, a world with a hole, and the old meshes' faults (a T, no area, a sliver hole, a tiny fold).
+
+`tools/check_holes.py` finds the holes in the floor: every open edge of the ground, the roads, the kerbs and the floors is probed just past it, and must have a floor there at its height, something over it, or another mesh sharing it; else it is a hole or a crack the sky shows through. `tools/seal_holes.py` first welds the seams: where a point of one floor lies on another's open edge (a T, which the probe does not find, but which opens a slit once the floor is laid on the ground point by point), the edge is split there so both share it. Then it closes the holes with a skirt straight down from each such edge, in its mesh's material. `tools/car_parks.py` holds the car parks south of the paddock as the ground photo shows them (their outlines, the grass round their trees, the rows of bays, the road south carried on through the trees to the dirt road): restyle_paddock lays their asphalt and paint_pits their bays' lines. `tools/lay_pavers.py`, after the drape, lays the strips of paving outside a run-off (R41's) again: from the asphalt's edge, smoothly, to just over the grass. The build runs both, the check last: there can be no hole in the models a track is built from.
 
 `tools/check_normals.py` lists the faces of every model drawn the wrong way round: faces turned against their points' normals, and closed pieces (posts, beams, boxes) turned inside out. With `--fix` it turns the first to their normals (not in the parked karts, the kart project's). Run it after any change to the models; it exits 1 while it finds any.
 
