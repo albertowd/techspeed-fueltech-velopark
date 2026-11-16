@@ -1,0 +1,5567 @@
+{
+ "version": 1,
+ "materials": {
+  "Background": {
+   "colour": "GoogleMap.jpg",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "GoogleMap.jpg"
+      ]
+     ]
+    }
+   },
+   "surface": "grass"
+  },
+  "BackgroundFar": {
+   "colour": "FarGround.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "FarGround.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "BuildingDark": {
+   "colour": "BuildingDark.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.6000000238418579
+      ],
+      [
+       "ksSpecular",
+       0.07999999821186066
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "BuildingDark.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "BuildingDoor": {
+   "colour": "BuildingDoor.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.6000000238418579
+      ],
+      [
+       "ksSpecular",
+       0.07999999821186066
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "BuildingDoor.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "BuildingPillar": {
+   "colour": "BuildingPillar.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.6000000238418579
+      ],
+      [
+       "ksSpecular",
+       0.07999999821186066
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "BuildingPillar.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "BuildingRoof": {
+   "colour": "BuildingRoofDark.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.6000000238418579
+      ],
+      [
+       "ksSpecular",
+       0.07999999821186066
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "BuildingRoofDark.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "BuildingSolar": {
+   "colour": "BuildingSolar.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.6000000238418579
+      ],
+      [
+       "ksSpecular",
+       0.07999999821186066
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "BuildingSolar.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "BuildingWall": {
+   "colour": "BuildingWallGrey.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.6000000238418579
+      ],
+      [
+       "ksSpecular",
+       0.07999999821186066
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "BuildingWallGrey.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "wall"
+  },
+  "ConeOrange": {
+   "colour": "ConeOrange.png",
+   "normal": "Cone_norm.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT_NM",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "ConeOrange.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "Cone_norm.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "EntryGateWhite": {
+   "colour": "EntryGateWhite.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.4000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "EntryGateWhite.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "EucaBamboo": {
+   "colour": "bamboo_leaves.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "bamboo_leaves.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "EucaBark": {
+   "colour": "euca_bark.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "euca_bark.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "wall"
+  },
+  "EucaBroad": {
+   "colour": "broad_leaves.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "broad_leaves.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "EucaCulm": {
+   "colour": "bamboo_culm.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "bamboo_culm.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "EucaLeaves": {
+   "colour": "euca_leaves.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "euca_leaves.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "EucaPalm": {
+   "colour": "palm_fronds.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "palm_fronds.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "EucaShrub": {
+   "colour": "euca_shrub.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "euca_shrub.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "Fence001": {
+   "colour": "Fence03.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "Fence03.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "GantryBoard": {
+   "colour": "GantryBoard.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       1.0
+      ],
+      [
+       "ksDiffuse",
+       0.30000001192092896
+      ],
+      [
+       "ksSpecular",
+       0.05000000074505806
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "GantryBoard.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "GantryFlag": {
+   "colour": "StartLamp.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.6000000238418579
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       14.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "StartLamp.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "GantryRubber": {
+   "colour": "GantryRubber.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.6000000238418579
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       14.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "GantryRubber.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "GantrySteel": {
+   "colour": "GantrySteel.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.6000000238418579
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       14.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "GantrySteel.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "wall"
+  },
+  "GantryStill": {
+   "colour": "GantryStill.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       1.0
+      ],
+      [
+       "ksDiffuse",
+       0.30000001192092896
+      ],
+      [
+       "ksSpecular",
+       0.05000000074505806
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "GantryStill.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "GateSteel": {
+   "colour": "GateSteel.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.4000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "GateSteel.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "GrandStand": {
+   "colour": "GrandStand1.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.009999999776482582
+      ],
+      [
+       "ksSpecularEXP",
+       2.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "GrandStand1.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "GridNumbers": {
+   "colour": "GridNumbers.png",
+   "alpha": "blend",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 1,
+     "alpha_tested": 0,
+     "depth_mode": 1,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.05000000074505806
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "GridNumbers.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "KerbConcrete": {
+   "colour": "kerb_concrete.png",
+   "normal": "kerb_concrete_nm.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT_NM",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "kerb_concrete.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "kerb_concrete_nm.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "rumble"
+  },
+  "KerbFloor": {
+   "colour": "kerb_floor.png",
+   "normal": "kerb_floor_nm.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT_NM",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "kerb_floor.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "kerb_floor_nm.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "rumble"
+  },
+  "KerbRamp": {
+   "colour": "kerb_ramp.png",
+   "normal": "kerb_ramp_nm.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT_NM",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "kerb_ramp.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "kerb_ramp_nm.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "rumble"
+  },
+  "KerbRound": {
+   "colour": "kerb_round.png",
+   "normal": "kerb_ramp_nm.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT_NM",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "kerb_round.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "kerb_ramp_nm.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "rumble"
+  },
+  "LinePaint": {
+   "colour": "LinePaint.png",
+   "alpha": "blend",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 1,
+     "alpha_tested": 0,
+     "depth_mode": 1,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.05000000074505806
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "LinePaint.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "MarkerBoards": {
+   "colour": "MarkerBoards.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "MarkerBoards.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutBanner": {
+   "colour": "OUT_banner.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.35
+      ],
+      [
+       "ksDiffuse",
+       0.65
+      ],
+      [
+       "ksSpecular",
+       0.1
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_banner.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutConcrete": {
+   "colour": "OUT_concrete.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.08
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_concrete.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "wall"
+  },
+  "OutCone": {
+   "colour": "OUT_cone.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.2
+      ],
+      [
+       "ksSpecularEXP",
+       20.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_cone.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutDirt": {
+   "colour": "OUT_dirt.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.03
+      ],
+      [
+       "ksSpecularEXP",
+       4.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_dirt.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutFabric": {
+   "colour": "OUT_fabric.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.08
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_fabric.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutFascia": {
+   "colour": "OUT_fascia.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.2
+      ],
+      [
+       "ksSpecularEXP",
+       20.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_fascia.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutFrame": {
+   "colour": "OUT_frame.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.3
+      ],
+      [
+       "ksSpecularEXP",
+       30.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_frame.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutFuelPrices": {
+   "colour": "OUT_fuel_prices.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.35
+      ],
+      [
+       "ksDiffuse",
+       0.65
+      ],
+      [
+       "ksSpecular",
+       0.3
+      ],
+      [
+       "ksSpecularEXP",
+       40.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_fuel_prices.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutGlass": {
+   "colour": "OUT_glass.png",
+   "alpha": "blend",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 1,
+     "alpha_tested": 0,
+     "depth_mode": 1,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.9
+      ],
+      [
+       "ksSpecularEXP",
+       90.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_glass.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutGlobe": {
+   "colour": "OUT_globe.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.6
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.08
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_globe.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutGreyWall": {
+   "colour": "BuildingWallGrey.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.08
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "BuildingWallGrey.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "wall"
+  },
+  "OutHotlapPage": {
+   "colour": "OUT_hotlap_page.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.2
+      ],
+      [
+       "ksDiffuse",
+       0.3
+      ],
+      [
+       "ksSpecular",
+       0.4
+      ],
+      [
+       "ksSpecularEXP",
+       60.0
+      ],
+      [
+       "ksEmissive",
+       0.9
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_hotlap_page.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "wall"
+  },
+  "OutLamp": {
+   "colour": "OUT_lamp.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.5
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.08
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_lamp.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutMetalBlue": {
+   "colour": "OUT_metal_blue.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.2
+      ],
+      [
+       "ksSpecularEXP",
+       25.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_metal_blue.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutOpenings": {
+   "colour": "OUT_openings.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.3
+      ],
+      [
+       "ksSpecularEXP",
+       40.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_openings.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutOrange": {
+   "colour": "OUT_orange.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.3
+      ],
+      [
+       "ksSpecularEXP",
+       30.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_orange.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutPillar": {
+   "colour": "BuildingPillar.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.08
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "BuildingPillar.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutPitSigns": {
+   "colour": "OUT_pit_signs.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.35
+      ],
+      [
+       "ksDiffuse",
+       0.65
+      ],
+      [
+       "ksSpecular",
+       0.2
+      ],
+      [
+       "ksSpecularEXP",
+       20.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_pit_signs.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutPlaster": {
+   "colour": "OUT_plaster.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.08
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_plaster.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "wall"
+  },
+  "OutPylon": {
+   "colour": "OUT_pylon.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.35
+      ],
+      [
+       "ksDiffuse",
+       0.65
+      ],
+      [
+       "ksSpecular",
+       0.2
+      ],
+      [
+       "ksSpecularEXP",
+       20.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_pylon.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutRoof": {
+   "colour": "BuildingRoof.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.15
+      ],
+      [
+       "ksSpecularEXP",
+       20.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "BuildingRoof.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutRoofDark": {
+   "colour": "OUT_roof_dark.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.2
+      ],
+      [
+       "ksSpecularEXP",
+       25.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_roof_dark.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutRubber": {
+   "colour": "OUT_rubber.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.05
+      ],
+      [
+       "ksSpecularEXP",
+       8.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_rubber.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutSolar": {
+   "colour": "BuildingSolar.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.5
+      ],
+      [
+       "ksSpecularEXP",
+       60.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "BuildingSolar.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutSteel": {
+   "colour": "OUT_steel.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.3
+      ],
+      [
+       "ksSpecularEXP",
+       30.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_steel.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "wall"
+  },
+  "OutTiles": {
+   "colour": "OUT_tiles.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.05
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_tiles.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutTilesDark": {
+   "colour": "OUT_tiles_dark.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.08
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_tiles_dark.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutTiming": {
+   "colour": "OUT_timing.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.2
+      ],
+      [
+       "ksDiffuse",
+       0.3
+      ],
+      [
+       "ksSpecular",
+       0.4
+      ],
+      [
+       "ksSpecularEXP",
+       60.0
+      ],
+      [
+       "ksEmissive",
+       0.9
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_timing.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutTurf": {
+   "colour": "OUT_turf.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.03
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_turf.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutWater": {
+   "colour": "OUT_water.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.4
+      ],
+      [
+       "ksSpecular",
+       0.6
+      ],
+      [
+       "ksSpecularEXP",
+       60.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_water.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutWhite": {
+   "colour": "OUT_white.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.08
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_white.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "OutWire": {
+   "colour": "OUT_wire.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.15
+      ],
+      [
+       "ksSpecularEXP",
+       20.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_wire.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "wall"
+  },
+  "OutWood": {
+   "colour": "OUT_wood.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.3
+      ],
+      [
+       "ksDiffuse",
+       0.6
+      ],
+      [
+       "ksSpecular",
+       0.03
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "OUT_wood.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "wall"
+  },
+  "Pavers": {
+   "colour": "scan_pavers.png",
+   "normal": "scan_pavers_nm.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelMultiMap",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.3
+      ],
+      [
+       "ksSpecularEXP",
+       20.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ],
+      [
+       "fresnelC",
+       0.0
+      ],
+      [
+       "fresnelEXP",
+       5.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.06
+      ],
+      [
+       "nmObjectSpace",
+       0.0
+      ],
+      [
+       "isAdditive",
+       0.0
+      ],
+      [
+       "useDetail",
+       0.0
+      ],
+      [
+       "detailUVMultiplier",
+       1.0
+      ],
+      [
+       "shadowBiasMult",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "scan_pavers.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "scan_pavers_nm.dds"
+      ],
+      [
+       "txMaps",
+       2,
+       "scan_pavers_maps.dds"
+      ],
+      [
+       "txDetail",
+       3,
+       "scan_pavers.dds"
+      ]
+     ]
+    }
+   },
+   "metres": 2.5,
+   "surface": "kerb"
+  },
+  "PitLinePaint": {
+   "colour": "PitLinePaint.png",
+   "alpha": "blend",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 1,
+     "alpha_tested": 0,
+     "depth_mode": 1,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.05000000074505806
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "PitLinePaint.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "PoleFrame": {
+   "colour": "scan_poleframe.png",
+   "normal": "scan_poleframe_nm.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelMultiMap",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.35
+      ],
+      [
+       "ksSpecularEXP",
+       25.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ],
+      [
+       "fresnelC",
+       0.0
+      ],
+      [
+       "fresnelEXP",
+       5.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.12
+      ],
+      [
+       "nmObjectSpace",
+       0.0
+      ],
+      [
+       "isAdditive",
+       0.0
+      ],
+      [
+       "useDetail",
+       0.0
+      ],
+      [
+       "detailUVMultiplier",
+       1.0
+      ],
+      [
+       "shadowBiasMult",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "scan_poleframe.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "scan_poleframe_nm.dds"
+      ],
+      [
+       "txMaps",
+       2,
+       "scan_poleframe_maps.dds"
+      ],
+      [
+       "txDetail",
+       3,
+       "scan_poleframe.dds"
+      ]
+     ]
+    }
+   },
+   "metres": 1.0
+  },
+  "PoleLens": {
+   "colour": "pole_lens.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.6000000238418579
+      ],
+      [
+       "ksSpecularEXP",
+       60.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "pole_lens.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "PoleMast": {
+   "colour": "scan_polemast.png",
+   "normal": "scan_polemast_nm.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelMultiMap",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.2
+      ],
+      [
+       "ksSpecularEXP",
+       12.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ],
+      [
+       "fresnelC",
+       0.0
+      ],
+      [
+       "fresnelEXP",
+       5.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.04
+      ],
+      [
+       "nmObjectSpace",
+       0.0
+      ],
+      [
+       "isAdditive",
+       0.0
+      ],
+      [
+       "useDetail",
+       0.0
+      ],
+      [
+       "detailUVMultiplier",
+       1.0
+      ],
+      [
+       "shadowBiasMult",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "scan_polemast.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "scan_polemast_nm.dds"
+      ],
+      [
+       "txMaps",
+       2,
+       "scan_polemast_maps.dds"
+      ],
+      [
+       "txDetail",
+       3,
+       "scan_polemast.dds"
+      ]
+     ]
+    }
+   },
+   "metres": 2.0
+  },
+  "Rumble1": {
+   "colour": "Rumble1.png",
+   "normal": "Rumble_norm.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT_NM",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "Rumble1.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "Rumble_norm.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "asphalt"
+  },
+  "StartLamp": {
+   "colour": "StartLamp.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.30000001192092896
+      ],
+      [
+       "ksDiffuse",
+       0.6000000238418579
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       14.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "StartLamp.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "TRACK_LIGHT": {
+   "colour": "track_light.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "track_light.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "Tarmac Dark": {
+   "colour": "scan_tarmac_dark.png",
+   "normal": "scan_tarmac_dark_nm.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelMultiMap",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.4
+      ],
+      [
+       "ksSpecularEXP",
+       25.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ],
+      [
+       "fresnelC",
+       0.0
+      ],
+      [
+       "fresnelEXP",
+       5.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.08
+      ],
+      [
+       "nmObjectSpace",
+       0.0
+      ],
+      [
+       "isAdditive",
+       0.0
+      ],
+      [
+       "useDetail",
+       0.0
+      ],
+      [
+       "detailUVMultiplier",
+       1.0
+      ],
+      [
+       "shadowBiasMult",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "scan_tarmac_dark.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "scan_tarmac_dark_nm.dds"
+      ],
+      [
+       "txMaps",
+       2,
+       "scan_tarmac_dark_maps.dds"
+      ],
+      [
+       "txDetail",
+       3,
+       "scan_tarmac_dark.dds"
+      ]
+     ]
+    }
+   },
+   "metres": 30.0,
+   "surface": "asphalt"
+  },
+  "Tarmac Light": {
+   "colour": "scan_tarmac_light.png",
+   "normal": "scan_tarmac_light_nm.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelMultiMap",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.4
+      ],
+      [
+       "ksSpecularEXP",
+       25.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ],
+      [
+       "fresnelC",
+       0.0
+      ],
+      [
+       "fresnelEXP",
+       5.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.08
+      ],
+      [
+       "nmObjectSpace",
+       0.0
+      ],
+      [
+       "isAdditive",
+       0.0
+      ],
+      [
+       "useDetail",
+       0.0
+      ],
+      [
+       "detailUVMultiplier",
+       1.0
+      ],
+      [
+       "shadowBiasMult",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "scan_tarmac_light.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "scan_tarmac_light_nm.dds"
+      ],
+      [
+       "txMaps",
+       2,
+       "scan_tarmac_light_maps.dds"
+      ],
+      [
+       "txDetail",
+       3,
+       "scan_tarmac_light.dds"
+      ]
+     ]
+    }
+   },
+   "metres": 30.0,
+   "surface": "asphalt"
+  },
+  "TyreBarrier": {
+   "colour": "TyreBarrier.png",
+   "normal": "TyreBarrier_norm.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelNM",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.699999988079071
+      ],
+      [
+       "ksSpecular",
+       0.05999999865889549
+      ],
+      [
+       "ksSpecularEXP",
+       14.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "TyreBarrier.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "TyreBarrier_norm.dds"
+      ]
+     ]
+    }
+   },
+   "surface": "wall"
+  },
+  "aluminium": {
+   "colour": "c_aluminium.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.5199999809265137
+      ],
+      [
+       "ksSpecularEXP",
+       93.19999694824219
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.22653500735759735
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.3885450065135956
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_aluminium.png"
+      ]
+     ]
+    }
+   }
+  },
+  "black_anodized": {
+   "colour": "c_black_anodized.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.49000000953674316
+      ],
+      [
+       "ksSpecularEXP",
+       81.05000305175781
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.15448175370693207
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.27636224031448364
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_black_anodized.png"
+      ]
+     ]
+    }
+   }
+  },
+  "black_plastic": {
+   "colour": "c_black_plastic.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.3700000047683716
+      ],
+      [
+       "ksSpecularEXP",
+       41.45000076293945
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_black_plastic.png"
+      ]
+     ]
+    }
+   }
+  },
+  "body_livery": {
+   "colour": "body_livery.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.550000011920929
+      ],
+      [
+       "ksSpecularEXP",
+       106.25
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.019999999552965164
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.05999999865889549
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "body_livery.png"
+      ]
+     ]
+    }
+   }
+  },
+  "brake_disc": {
+   "colour": "c_brake_disc.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.46000000834465027
+      ],
+      [
+       "ksSpecularEXP",
+       69.80000305175781
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.14182400703430176
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.2582879960536957
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_brake_disc.png"
+      ]
+     ]
+    }
+   }
+  },
+  "caliper": {
+   "colour": "c_caliper.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.5199999809265137
+      ],
+      [
+       "ksSpecularEXP",
+       93.19999694824219
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.12326750159263611
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.22427250444889069
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_caliper.png"
+      ]
+     ]
+    }
+   }
+  },
+  "chain": {
+   "colour": "c_chain.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.4000000059604645
+      ],
+      [
+       "ksSpecularEXP",
+       50.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.10437499731779099
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.2006250023841858
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_chain.png"
+      ]
+     ]
+    }
+   }
+  },
+  "chassis_black": {
+   "colour": "c_chassis_black.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.4300000071525574
+      ],
+      [
+       "ksSpecularEXP",
+       59.45000076293945
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_chassis_black.png"
+      ]
+     ]
+    }
+   }
+  },
+  "engine_alu": {
+   "colour": "c_engine_alu.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.4300000071525574
+      ],
+      [
+       "ksSpecularEXP",
+       59.45000076293945
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.11688696593046188
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.2195725291967392
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_engine_alu.png"
+      ]
+     ]
+    }
+   }
+  },
+  "engine_black": {
+   "colour": "c_engine_black.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.4000000059604645
+      ],
+      [
+       "ksSpecularEXP",
+       50.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.062187500298023224
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.1303125023841858
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_engine_black.png"
+      ]
+     ]
+    }
+   }
+  },
+  "engine_red": {
+   "colour": "c_engine_red.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.5199999809265137
+      ],
+      [
+       "ksSpecularEXP",
+       93.19999694824219
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.019999999552965164
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.05999999865889549
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_engine_red.png"
+      ]
+     ]
+    }
+   }
+  },
+  "exhaust": {
+   "colour": "c_exhaust.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.49000000953674316
+      ],
+      [
+       "ksSpecularEXP",
+       81.05000305175781
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.18810218572616577
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.3304527997970581
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_exhaust.png"
+      ]
+     ]
+    }
+   }
+  },
+  "floor_alu": {
+   "colour": "c_floor_alu.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.47200000286102295
+      ],
+      [
+       "ksSpecularEXP",
+       74.19200134277344
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.16781717538833618
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.29947352409362793
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_floor_alu.png"
+      ]
+     ]
+    }
+   }
+  },
+  "fuel_hose": {
+   "colour": "c_fuel_hose.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.6100000143051147
+      ],
+      [
+       "ksSpecularEXP",
+       135.0500030517578
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.019999999552965164
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.05999999865889549
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_fuel_hose.png"
+      ]
+     ]
+    }
+   }
+  },
+  "fuel_hose_yellow": {
+   "colour": "c_fuel_hose_yellow.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.5799999833106995
+      ],
+      [
+       "ksSpecularEXP",
+       120.19999694824219
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.019999999552965164
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.05999999865889549
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_fuel_hose_yellow.png"
+      ]
+     ]
+    }
+   }
+  },
+  "grip_black": {
+   "colour": "c_grip_black.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.1599999964237213
+      ],
+      [
+       "ksSpecularEXP",
+       6.800000190734863
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_grip_black.png"
+      ]
+     ]
+    }
+   }
+  },
+  "pedal_plate": {
+   "colour": "pedal_plate.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.4000000059604645
+      ],
+      [
+       "ksSpecularEXP",
+       50.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "pedal_plate.png"
+      ]
+     ]
+    }
+   }
+  },
+  "pod_stripe": {
+   "colour": "pod_stripe.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.550000011920929
+      ],
+      [
+       "ksSpecularEXP",
+       106.25
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.019999999552965164
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.05999999865889549
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "pod_stripe.png"
+      ]
+     ]
+    }
+   }
+  },
+  "protector": {
+   "colour": "c_protector.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.4000000059604645
+      ],
+      [
+       "ksSpecularEXP",
+       50.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_protector.png"
+      ]
+     ]
+    }
+   }
+  },
+  "recoil_cover": {
+   "colour": "recoil_cover.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.5199999809265137
+      ],
+      [
+       "ksSpecularEXP",
+       93.19999694824219
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.019999999552965164
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.05999999865889549
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "recoil_cover.png"
+      ]
+     ]
+    }
+   }
+  },
+  "rim_alu": {
+   "colour": "c_rim_alu.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.5080000162124634
+      ],
+      [
+       "ksSpecularEXP",
+       88.23200225830078
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.15330436825752258
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.273007333278656
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_rim_alu.png"
+      ]
+     ]
+    }
+   }
+  },
+  "seat": {
+   "colour": "c_seat.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.5799999833106995
+      ],
+      [
+       "ksSpecularEXP",
+       120.19999694824219
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.019999999552965164
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.05999999865889549
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_seat.png"
+      ]
+     ]
+    }
+   }
+  },
+  "sprocket": {
+   "colour": "c_sprocket.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.5199999809265137
+      ],
+      [
+       "ksSpecularEXP",
+       93.19999694824219
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.22653500735759735
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.3885450065135956
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_sprocket.png"
+      ]
+     ]
+    }
+   }
+  },
+  "steel": {
+   "colour": "c_steel.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelReflection",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.11999999731779099
+      ],
+      [
+       "ksDiffuse",
+       0.14000000059604645
+      ],
+      [
+       "ksSpecular",
+       0.5920000076293945
+      ],
+      [
+       "ksSpecularEXP",
+       126.03199768066406
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ],
+      [
+       "fresnelC",
+       0.34634262323379517
+      ],
+      [
+       "fresnelEXP",
+       4.0
+      ],
+      [
+       "fresnelMaxLevel",
+       0.5660347938537598
+      ],
+      [
+       "isAdditive",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "c_steel.png"
+      ]
+     ]
+    }
+   }
+  },
+  "tyre": {
+   "colour": "tyre.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.44999998807907104
+      ],
+      [
+       "ksDiffuse",
+       0.550000011920929
+      ],
+      [
+       "ksSpecular",
+       0.2199999988079071
+      ],
+      [
+       "ksSpecularEXP",
+       12.199999809265137
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "tyre.png"
+      ]
+     ]
+    }
+   }
+  }
+ },
+ "textures": {
+  "BuildingDark.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "BuildingDoor.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "BuildingPillar.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "BuildingRoof.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "BuildingRoofDark.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "BuildingSolar.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "BuildingWall.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "BuildingWallGrey.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "ConeOrange.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "Cone_norm.png": {
+   "ac": "RGBA",
+   "normal": true
+  },
+  "EntryGateWhite.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "FarGround.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "Fence03.png": {
+   "ac": "DXT3",
+   "normal": false
+  },
+  "GantryBoard.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "GantryRubber.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "GantrySteel.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "GantryStill.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "GrandStand1.png": {
+   "ac": "DXT3",
+   "normal": false
+  },
+  "GridNumbers.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "LinePaint.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "MarkerBoards.png": {
+   "ac": "DXT3",
+   "normal": false
+  },
+  "OUT_banner.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_concrete.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_cone.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_dirt.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_fabric.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_fascia.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_frame.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_fuel_prices.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_glass.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "OUT_globe.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_hotlap_page.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_lamp.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_metal_blue.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_openings.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_orange.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_pit_signs.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_plaster.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_pylon.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_roof_dark.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_rubber.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_steel.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_tiles.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_tiles_dark.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_timing.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_turf.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_water.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_white.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "OUT_wire.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "OUT_wood.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "Pit01_norm.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "Pit01c2.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "PitLinePaint.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "Rumble1.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "Rumble_norm.png": {
+   "ac": "DXT5",
+   "normal": true
+  },
+  "StartLamp.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "TarmacDark.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "TarmacLight.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "Tree ash 2.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "Tree ash 3.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "Tree broad leaf 1.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "Tree broad leaf 2.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "Tree broad leaf 3.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "Tree broad leaf 4.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "TyreBarrier.png": {
+   "ac": "RGBA",
+   "normal": false
+  },
+  "TyreBarrier_norm.png": {
+   "ac": "RGBA",
+   "normal": true
+  },
+  "bamboo_culm.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "bamboo_leaves.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "broad_leaves.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "euca_bark.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "euca_leaves.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "euca_shrub.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "kerb_concrete.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "kerb_concrete_nm.png": {
+   "ac": "DXT5",
+   "normal": true
+  },
+  "kerb_floor.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "kerb_floor_nm.png": {
+   "ac": "DXT5",
+   "normal": true
+  },
+  "kerb_ramp.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "kerb_ramp_nm.png": {
+   "ac": "DXT5",
+   "normal": true
+  },
+  "kerb_round.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "palm_fronds.png": {
+   "ac": "DXT5",
+   "normal": false
+  },
+  "pavers.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "pole_frame.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "pole_glass.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "pole_lens.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "pole_mast.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "scan_pavers.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "scan_pavers_maps.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "scan_pavers_nm.png": {
+   "ac": "DXT5",
+   "normal": true
+  },
+  "scan_poleframe.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "scan_poleframe_maps.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "scan_poleframe_nm.png": {
+   "ac": "DXT5",
+   "normal": true
+  },
+  "scan_polemast.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "scan_polemast_maps.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "scan_polemast_nm.png": {
+   "ac": "DXT5",
+   "normal": true
+  },
+  "scan_tarmac_dark.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "scan_tarmac_dark_maps.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "scan_tarmac_dark_nm.png": {
+   "ac": "DXT5",
+   "normal": true
+  },
+  "scan_tarmac_light.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "scan_tarmac_light_maps.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "scan_tarmac_light_nm.png": {
+   "ac": "DXT5",
+   "normal": true
+  },
+  "track_light.png": {
+   "ac": "DXT3",
+   "normal": false
+  }
+ }
+}

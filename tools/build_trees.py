@@ -37,7 +37,6 @@ from scipy.ndimage import binary_dilation, median_filter, uniform_filter
 
 import build_paths as bp
 import gltf_source
-import kn5io
 import kn5tree
 from plant_trees import pieces
 
@@ -682,8 +681,8 @@ def main():
     # the materials and textures
     for name, img, fmt in (('euca_leaves.dds', leaf_texture(1), 'DXT5'), ('euca_shrub.dds', leaf_texture(7), 'DXT5'),
                            ('euca_bark.dds', bark_texture(), 'DXT1'), ('broad_leaves.dds', broad_texture(11), 'DXT5')):
-        data = kn5io.dds(img, fmt)
-        open(os.path.join(TEX, name), 'wb').write(data)
+        import materials
+        data = materials.save_texture(name, img, fmt)                     # (kept as PNG, AC's DDS made by its build)
         extra['textures'].append(dict(name=name, active=1, data=data))
     like = next(m for m in extra['materials'] if m['shader'] == 'ksTree')
     mats = {}

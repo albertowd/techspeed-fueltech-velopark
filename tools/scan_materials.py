@@ -29,7 +29,6 @@ from PIL import Image
 
 import build_paths as bp
 import gltf_source
-import kn5io
 import kn5tree
 from map_roads import scale
 
@@ -166,7 +165,7 @@ def clean(col, others=()):
 
 
 def textures(scan, base, tint_to, opts):
-    """The scan's three textures, as kn5 texture blocks by name."""
+    """The scan's three textures, by name: (image, AC's format, whether a normal map: its green down, as AC's)."""
     maps, metres = fetch(scan, opts.get('res', '2k'))
     size, nm_size = opts.get('size', SIZE), opts.get('nm_size', SIZE)
     col = channels(maps['Diffuse'], size)
@@ -201,7 +200,7 @@ def textures(scan, base, tint_to, opts):
     for suffix, arr, fmt in (('', col, 'DXT1'), ('_nm', nrm, 'DXT5'), ('_maps', tmaps, 'DXT1')):
         name = '%s%s.dds' % (base, suffix)
         img = Image.fromarray((np.clip(arr, 0, 1) * 255 + .5).astype(np.uint8), 'RGB')
-        out[name] = kn5io.dds(img, fmt)
+        out[name] = (img, fmt, suffix == '_nm')
     return out, metres
 
 
@@ -317,10 +316,8 @@ def main():
             continue
         os.makedirs(os.path.dirname(state_path), exist_ok=True)
         json.dump(state, open(state_path, 'w'), indent=1)
-        for name, data in made.items():
-            path = os.path.join(TEXTURES, name)
-            if not os.path.exists(path) or open(path, 'rb').read() != data:
-                open(path, 'wb').write(data)
+        import materials
+        made = {name: materials.save_texture(name, img, fmt, normal) for name, (img, fmt, normal) in made.items()}   # (kept as PNG)
         for f, n, by in todo:
             V = n['verts']
             n['verts'] = np.c_[V[:, :6], V[:, 6:8].astype(float) * by, V[:, 8:]].astype(V.dtype)

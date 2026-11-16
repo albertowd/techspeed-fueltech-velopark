@@ -1,0 +1,35 @@
+{
+ "version": 1,
+ "surfaces": {
+  "rumble": {
+   "targets": {
+    "ac": "ROAD"
+   }
+  },
+  "kerb": {
+   "targets": {
+    "ac": "KERB"
+   }
+  },
+  "asphalt": {
+   "targets": {
+    "ac": "ROAD"
+   }
+  },
+  "grass": {
+   "targets": {
+    "ac": "GRASS"
+   }
+  },
+  "wall": {
+   "targets": {
+    "ac": "WALL"
+   }
+  },
+  "sand": {
+   "targets": {
+    "ac": "SAND"
+   }
+  }
+ }
+}

@@ -52,7 +52,6 @@ import build_trees
 import elevation as ev
 import gltf_source
 import kn5tree
-import kn5io
 import level_ground
 import shapes as sh
 
@@ -577,7 +576,8 @@ def write(model, tex):
     for k in used:
         t = MATERIALS[k][0]
         if t not in [x['name'] for x in textures]:
-            data = tex[t] if t in tex else open(os.path.join(TEX, t), 'rb').read()
+            import materials
+            data = tex[t] if t in tex else materials.read_texture(os.path.join(TEX, t))
             textures.append(dict(name=t, active=1, data=data))
     children = []
     for (name, mat), parts in sorted(model.parts.items()):
@@ -2592,9 +2592,8 @@ def main():
     made['OUT_timing.dds'] = (timing_texture().resize((1024, 512), Image.LANCZOS), 'DXT1')   # (16 to 9 on the screen)
     made['OUT_hotlap_page.dds'] = (hotlap_page_texture().resize((1024, 512), Image.LANCZOS), 'DXT1')
     for name, (img, fmt) in made.items():
-        data = kn5io.dds(img, fmt)
-        open(os.path.join(TEX, name), 'wb').write(data)
-        tex[name] = data
+        import materials
+        tex[name] = materials.save_texture(name, img, fmt)                # (kept as PNG, AC's DDS made by its build)
     tris, meshes = write(model, tex)
     print('%d fence posts; %d meshes, %d triangles, in %s' % (posts, meshes, tris, os.path.relpath(OUT, ROOT)))
     print('%d layouts given the model' % register())

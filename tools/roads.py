@@ -390,7 +390,8 @@ def paint_mesh(L, colour=None):
             t['name'] = tex
         L['materials'].append(m)
         if not any(t['name'] == tex for t in L['textures']):
-            L['textures'].append(dict(name=tex, active=1, data=open(os.path.join(bp.ROOT, 'source', 'textures', tex), 'rb').read()))
+            import materials
+            L['textures'].append(dict(name=tex, active=1, data=materials.read_texture(os.path.join(bp.ROOT, 'source', 'textures', tex))))
         names.append(mat)
     tpl = next(x for x, _ in bp.meshes(L) if x['name'].startswith(('LINE_', 'GRID_')) and len(x['faces']))
     return dict(tpl, name='', children=[], material=names.index(mat), verts=tpl['verts'][:0], faces=tpl['faces'][:0])

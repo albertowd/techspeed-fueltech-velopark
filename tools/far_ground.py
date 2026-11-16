@@ -18,7 +18,6 @@ from PIL import Image
 
 import build_paths as bp
 import gltf_source
-import kn5io
 
 ROOT = bp.ROOT
 SURROUNDINGS = os.path.join(ROOT, 'tools', 'reference', 'surroundings')
@@ -53,8 +52,8 @@ def main():
     print('colours matched: the pictures %s +- %s, the ground photo %s +- %s' % (
         a.mean(0).round(), a.std(0).round(), b.mean(0).round(), b.std(0).round()))
     img = Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).resize((SIZE, SIZE), Image.LANCZOS)
-    tex = kn5io.dds(img, 'DXT1')
-    open(os.path.join(TEX, TEXTURE), 'wb').write(tex)
+    import materials
+    tex = materials.save_texture(TEXTURE, img, 'DXT1')                    # (kept as PNG, AC's DDS made by its build)
     k['textures'].append(dict(name=TEXTURE, active=1, data=tex))
     base = next(m for m in k['materials'] if m['name'] == 'Background')
     k['materials'].append(dict(base, name=NAME, props=[dict(p) for p in base['props']],

@@ -59,7 +59,12 @@ def editor_model(model):
     """An editor's model as a kn5 (its materials, its textures as they are in its glb)."""
     if model not in _EDITOR:
         doc, binary = gltf_source.read_glb(catalogue()[model]['editor'])
-        _EDITOR[model] = gltf_source.from_gltf(doc, binary, lambda uri: open(uri, 'rb').read())
+        # (read as it is, its own materials and textures: the track's library is not its)
+        lib, gltf_source.LIBRARY = gltf_source.LIBRARY, None
+        try:
+            _EDITOR[model] = gltf_source.from_gltf(doc, binary, lambda uri: open(uri, 'rb').read())
+        finally:
+            gltf_source.LIBRARY = lib
     return _EDITOR[model]
 
 
@@ -417,11 +422,11 @@ def mapped(part, V, F):
 def dress():
     """The light pole's template mapped (mapped) and its lamps' glass texture made (lens_texture, into
     source/textures/pole_lens.dds): run again, the same."""
-    import kn5io
     from PIL import Image
     save('light_pole', [(p,) + mapped(p, V, F) + (mat,) for p, V, F, mat in load_file('light_pole.npz')])
     img = Image.fromarray((lens_texture() * 255 + .5).astype(np.uint8), 'RGB')
-    open(os.path.join(bp.ROOT, 'source', 'textures', 'pole_lens.dds'), 'wb').write(kn5io.dds(img, 'DXT1'))
+    import materials
+    materials.save_texture('pole_lens.dds', img, 'DXT1')                    # (kept as PNG, AC's DDS made by its build)
 
 
 def lens_texture():

@@ -18,8 +18,10 @@ AC_TRACKS).
 """
 import json, os, shutil, sys, time
 
+import build_paths  # noqa: F401  (the material library set for the models: tools/materials.py)
 import gltf_source
 import kn5tree
+import materials
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TRACK = 'techspeed_fueltech_velopark'
@@ -74,12 +76,15 @@ def build_ac(everything=False):
     made = 0
     for stem in stems:
         glb = os.path.join(models, stem + '.glb')
-        sig = [stamp(glb)] + [[os.path.relpath(t, SOURCE)] + stamp(t) for t in gltf_source.texture_files(glb)]
+        sig = [stamp(glb), stamp(materials.LIBRARY) if os.path.exists(materials.LIBRARY) else None] +               [[os.path.relpath(t, SOURCE)] + stamp(t) for t in gltf_source.texture_files(glb)]
         out = os.path.join(AC_OUT, stem + '.kn5')
         if state.get(stem) == sig and os.path.exists(out):
             continue
         t = time.time()
-        kn5tree.save(gltf_source.load_kn5(glb), out)
+        k = gltf_source.load_kn5(glb)
+        for tex in k['textures']:
+            tex['data'] = materials.ac_dds(tex['name'], tex['data'])      # (kept as PNG: AC's DDS made here)
+        kn5tree.save(k, out)
         state[stem] = sig
         made += 1
         print('  %-32s %.1f s' % (stem + '.kn5', time.time() - t))

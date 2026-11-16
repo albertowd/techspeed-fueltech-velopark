@@ -23,7 +23,6 @@ from PIL import Image
 
 import build_paths as bp
 import gltf_source
-import kn5io
 import kn5tree
 from plant_trees import pieces
 
@@ -68,8 +67,8 @@ def inside(c, box, pad=1.):
 
 
 def add_texture(k, name, img, fmt='DXT1'):
-    data = kn5io.dds(img, fmt)
-    open(os.path.join(TEX, name), 'wb').write(data)
+    import materials
+    data = materials.save_texture(name, img, fmt)                          # (kept as PNG, AC's DDS made by its build)
     k['textures'] = [t for t in k['textures'] if t['name'] != name] + [dict(name=name, active=1, data=data)]
 
 

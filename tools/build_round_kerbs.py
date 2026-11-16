@@ -26,7 +26,6 @@ from shapely.ops import unary_union
 
 import build_paths as bp
 import gltf_source
-import kn5io
 
 ROOT = bp.ROOT
 KERBS = os.path.join(bp.MODELS, 'velopark_kerbs.glb')
@@ -281,8 +280,8 @@ def main():
         return
     # its texture and material, as the ramp kerb's but for them
     ramp_tex = next(t['data'] for t in k['textures'] if t['name'] == RAMP)
-    tex = kn5io.dds(texture(ramp_tex), 'DXT1')
-    open(os.path.join(ROOT, 'source', 'textures', TEXTURE), 'wb').write(tex)
+    import materials
+    tex = materials.save_texture(TEXTURE, texture(ramp_tex), 'DXT1')     # (kept as PNG, AC's DDS made by its build)
     k['textures'].append(dict(name=TEXTURE, active=1, data=tex))
     ramp = next(m for m in k['materials'] if m['name'] == 'KerbRamp')
     mat = dict(ramp, name=MATERIAL, props=[dict(p) for p in ramp['props']],

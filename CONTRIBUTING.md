@@ -44,6 +44,19 @@ The ground the track lies on is a folder of its own, `tools/reference/terrain/`,
 
 `python tools/terrain.py build` writes the original heights (`original.png`), the filtered ones (`filtered.png`) and the ground with its edits (`ground.png`), 16 bit, their scales in `heights.json`, and every height with why a filter took it out (`points.json`). The roads' heights are taken from that ground, so an edit to the terrain records them again and runs every step after it.
 
+## Materials and textures
+
+The track's data is game-neutral (TRACK_FORMAT.md): each game's build makes that game's files from it.
+
+- **Materials:** source/materials.json holds every material by name: its textures, how see-through it is,
+  the ground it is driven as, and under `targets.ac` Assetto Corsa's shader and values. The models keep only
+  each material's name. A tool that changes a material changes it there (tools/materials.py).
+- **Textures:** PNG, in source/textures, normal maps green up. Inside the tools a texture keeps its AC name
+  (X.dds), and its file is X.png. Only the AC build makes DDS (tools/build_tracks.py), in each texture's
+  format as the library records it, normal maps green down again. Unchanged textures reuse their last DDS,
+  from build/cache/dds.
+- **Surfaces:** source/surfaces.json, the kinds of ground and what each game calls them.
+
 ## The ground and the surroundings (how it was made)
 
 

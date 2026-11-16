@@ -32,7 +32,6 @@ from PIL import Image, ImageFilter
 
 import build_paths as bp
 import gltf_source
-import kn5io
 import kn5tree
 
 ROOT = bp.ROOT
@@ -156,8 +155,8 @@ def main():
         if not todo:
             continue
         if data is None:
-            data = kn5io.dds(texture(), 'DXT1')
-            open(os.path.join(ROOT, 'source', 'textures', TEXTURE), 'wb').write(data)
+            import materials
+            data = materials.save_texture(TEXTURE, texture(), 'DXT1')     # (kept as PNG, AC's DDS made by its build)
         if mi is None:
             k['textures'].append(dict(name=TEXTURE, active=1, data=data))
             like = next(m for m in k['materials'] if m['name'] in ('Tarmac Light', 'Tarmac Dark'))

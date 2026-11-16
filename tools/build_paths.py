@@ -29,6 +29,9 @@ from shapely.ops import unary_union
 
 import gltf_source
 import kn5tree
+import materials
+
+gltf_source.LIBRARY = materials.Hook()       # (the materials in source/materials.json, the models holding their names)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELS = os.path.join(ROOT, 'source', 'models')

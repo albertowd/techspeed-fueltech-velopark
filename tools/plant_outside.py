@@ -40,7 +40,6 @@ from scipy.spatial import cKDTree
 import build_paths as bp
 import build_trees as bt
 import gltf_source
-import kn5io
 import kn5tree
 from plant_trees import pieces
 
@@ -511,8 +510,8 @@ def main():
     have = {t['name'] for t in extra['textures']}
     for name, img, fmt in (('palm_fronds.dds', bt.palm_texture(), 'DXT5'), ('bamboo_leaves.dds', bt.bamboo_texture(), 'DXT5'),
                            ('bamboo_culm.dds', bt.culm_texture(), 'DXT1')):
-        data = kn5io.dds(img, fmt)
-        open(os.path.join(TEX, name), 'wb').write(data)
+        import materials
+        data = materials.save_texture(name, img, fmt)                     # (kept as PNG, AC's DDS made by its build)
         if name not in have:
             extra['textures'].append(dict(name=name, active=1, data=data))
     mats = {m['name']: i for i, m in enumerate(extra['materials'])}

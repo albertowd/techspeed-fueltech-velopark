@@ -35,6 +35,10 @@ IDENTITY = [1., 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
 MESH_KEYS = ('cast_shadows', 'visible', 'transparent', 'layer', 'lod_in', 'lod_out', 'renderable')
 # what Blender adds to a name it has seen before
 BLENDER_COPY = re.compile(r'\.\d{3,}$')
+# a material library (tools/materials.py's Hook), if a project keeps one: a material's kn5 data read from it by its name
+# where the model has none (get(name) -> x or None), and the model's own kept there (put(name, x, drawn)), the model
+# holding only its name (extras.track.material). None: each model holds its own, as ever
+LIBRARY = None
 DEFAULT_PROPS = (('ksAmbient', .5), ('ksDiffuse', .5), ('ksSpecular', 0.), ('ksSpecularEXP', 1.),
                  ('ksEmissive', 0.), ('ksAlphaRef', 0.))
 
@@ -67,7 +71,11 @@ def to_gltf(k, tex_uri):
     """A parsed kn5 (kn5tree) as (glTF json, binary chunk). tex_uri(texture) gives the uri the
     glb points at for each of the kn5's textures."""
     b = _Bin()
-    images = [dict(name=t['name'], uri=urllib.parse.quote(tex_uri(t))) for t in k['textures']]
+    def uri_of(t):
+        u = tex_uri(t)
+        # (with a library, textures are kept as PNG: an AC name's file X.dds is X.png)
+        return u[:-4] + '.png' if LIBRARY is not None and u.lower().endswith('.dds') else u
+    images = [dict(name=t['name'], uri=urllib.parse.quote(uri_of(t))) for t in k['textures']]
     by_name = {t['name']: i for i, t in enumerate(k['textures'])}
     textures = [dict(source=i) for i in range(len(images))]
     materials = []
@@ -79,6 +87,8 @@ def to_gltf(k, tex_uri):
         if rest:
             x['rest'] = rest
         g = dict(name=m['name'], extras=dict(kn5=x), pbrMetallicRoughness=dict(metallicFactor=0., roughnessFactor=1.))
+        if LIBRARY is not None:
+            g['extras'] = dict(track=dict(material=m['name']), kn5_kept=x)
         slots = {t['sampler']: t['name'] for t in m['textures']}
         if slots.get('txDiffuse') in by_name:
             g['pbrMetallicRoughness']['baseColorTexture'] = dict(index=by_name[slots['txDiffuse']])
@@ -127,10 +137,16 @@ def to_gltf(k, tex_uri):
     # used: by a mesh with a face on three corners, as Blender drops the rest
     used = {n['material'] for n, _ in kn5tree.walk(k['root']) if n['kind'] == 2 and len(n['faces'])
             and ((n['faces'][:, 0] != n['faces'][:, 1]) & (n['faces'][:, 1] != n['faces'][:, 2]) & (n['faces'][:, 0] != n['faces'][:, 2])).any()}
+    if LIBRARY is not None:
+        # (each material's kn5 data into the library: a drawn mesh's, so a marker's left-over one stands for none)
+        drawn = {n['material'] for n, _ in kn5tree.walk(k['root']) if n['kind'] == 2 and len(n['faces']) and n.get('renderable', 1)
+                 and not n['name'].startswith('AC_')}
+        for i, g in enumerate(materials):
+            LIBRARY.put(g['name'], g['extras'].pop('kn5_kept'), drawn=i in drawn and i in used)
     top = dict(version=k['version'], extra=k['extra'],
                textures=[[t['name'], t['active'], images[i]['uri']] for i, t in enumerate(k['textures'])],
                # as Blender drops a material no mesh uses
-               unused_materials=[[g['name'], g['extras']['kn5']] for i, g in enumerate(materials) if i not in used])
+               unused_materials=[[g['name'], g['extras'].get('kn5')] for i, g in enumerate(materials) if i not in used])
     # on the root node too: Blender drops the file's own extras, but keeps a node's
     nodes[root]['extras']['kn5']['file'] = top
     doc = dict(asset=dict(version='2.0', generator='techspeed-fueltech-velopark gltf_source'), scene=0, scenes=[dict(nodes=[root])],
@@ -294,6 +310,8 @@ def _kn5(g):
 
 
 def _material(name, x):
+    if not x and LIBRARY is not None:
+        x = LIBRARY.get(name)
     rest = x.get('rest', {})
     return dict(name=name, shader=x['shader'], blend=x['blend'], alpha_tested=x['alpha_tested'], depth_mode=x['depth_mode'],
                 props=[dict(name=n, value=float(v), rest=bytes.fromhex(rest[n]) if n in rest else bytes(36)) for n, v in x['props']],
@@ -338,6 +356,8 @@ def from_gltf(doc, binary, read_texture, find_texture=None):
     for g in doc.get('materials', []):
         x = _kn5(g)
         name = BLENDER_COPY.sub('', g.get('name', 'material'))
+        if not x and LIBRARY is not None:
+            x = LIBRARY.get(name) or {}
         if x:
             mats.append(_material(name, x))
         else:
@@ -351,7 +371,7 @@ def from_gltf(doc, binary, read_texture, find_texture=None):
                              props=[dict(name=n, value=v, rest=bytes(36)) for n, v in DEFAULT_PROPS],
                              textures=[dict(sampler=s, slot=i, name=t) for i, (s, t) in enumerate(slots) if t]))
     for name, x in top.get('unused_materials', []):
-        if name not in {m['name'] for m in mats}:
+        if name not in {m['name'] for m in mats} and (x or (LIBRARY is not None and LIBRARY.get(name))):
             mats.append(_material(name, x))
     if not mats:
         mats.append(dict(name='default', shader='ksPerPixel', blend=0, alpha_tested=0, depth_mode=0,
@@ -452,13 +472,19 @@ def load_kn5(glb_path):
     base = os.path.dirname(os.path.abspath(glb_path))
     stem = os.path.splitext(os.path.basename(glb_path))[0]
 
+    def kept(p):
+        # (a texture kept as PNG where its AC name is DDS: X.dds as X.png)
+        if not os.path.exists(p) and p.lower().endswith('.dds') and os.path.exists(p[:-4] + '.png'):
+            return p[:-4] + '.png'
+        return p
+
     def find(name):
         # one this model holds a version of its own of first, as the extraction left them
         for p in (os.path.join(base, '..', 'textures', stem, name), os.path.join(base, '..', 'textures', name)):
-            if os.path.exists(p):
-                return open(p, 'rb').read()
+            if os.path.exists(kept(p)):
+                return open(kept(p), 'rb').read()
         raise FileNotFoundError('texture %s of %s is not in source/textures' % (name, stem))
-    return from_gltf(doc, binary, lambda uri: open(os.path.join(base, uri), 'rb').read(), find)
+    return from_gltf(doc, binary, lambda uri: open(kept(os.path.join(base, uri)), 'rb').read(), find)
 
 
 def texture_files(glb_path):
@@ -477,4 +503,6 @@ def texture_files(glb_path):
                 held.add(name)
                 own = os.path.normpath(os.path.join(base, '..', 'textures', stem, name))
                 files.add(own if os.path.exists(own) else os.path.normpath(os.path.join(base, '..', 'textures', name)))
+    # (a texture kept as PNG where its AC name is DDS)
+    files = {f[:-4] + '.png' if not os.path.exists(f) and f.lower().endswith('.dds') and os.path.exists(f[:-4] + '.png') else f for f in files}
     return sorted(files)
