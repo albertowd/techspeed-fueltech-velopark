@@ -128,6 +128,12 @@ def to_gltf(k, tex_uri):
                 # glTF has no empty mesh: kept as a node, with what it would hold
                 x.update(empty=True, material=n['material'], verts=len(v))
         g['extras'] = dict(kn5=x)
+        if n['kind'] == 2 and LIBRARY is not None and hasattr(LIBRARY, 'node_out'):
+            # (what the mesh is, as every game reads it: its own name, its role; AC's name and flags made from them)
+            g['name'], track, g['extras']['kn5'] = LIBRARY.node_out(n['name'], x)
+            g['extras']['track'] = track
+            if 'mesh' in g:
+                meshes[g['mesh']]['name'] = g['name']
         kids = [node(c) for c in n['children']]
         if kids:
             g['children'] = kids
@@ -437,6 +443,9 @@ def from_gltf(doc, binary, read_texture, find_texture=None):
         g = doc['nodes'][i]
         name = BLENDER_COPY.sub('', g.get('name', 'node%d' % i))
         x = _kn5(g)
+        track = (g.get('extras') or {}).get('track')
+        if track and LIBRARY is not None and hasattr(LIBRARY, 'node_in'):
+            name, x = LIBRARY.node_in(name, track, x)      # (AC's name and flags, from what the mesh is)
         local = _matrix(g)
         kids = []
         for c in g.get('children', []):

@@ -17,6 +17,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -80,9 +81,59 @@ def entry_of(name, x):
     return e
 
 
+AC_NAME = re.compile(r'^(\d+)([A-Z]+)_(.+)$')       # (AC's name for a mesh it drives on or hits: 1ROAD_<its own name>)
+_SURFACES = []
+
+
+def surfaces():
+    if not _SURFACES:
+        _SURFACES.append(json.load(open(SURFACES_FILE, encoding='utf-8'))['surfaces'] if os.path.exists(SURFACES_FILE) else {})
+    return _SURFACES[0]
+
+
 class Hook:
     """What tools/gltf_source.py asks of the library: a material's Assetto Corsa data by its name, and a model's
-    materials to keep (those its drawn meshes use, so a marker's left-over material does not stand for one)."""
+    materials to keep (those its drawn meshes use, so a marker's left-over material does not stand for one); what
+    each mesh is (node_out, node_in: its role, its ground, how far it is drawn, its shadows, its own name; AC's name
+    and flags made from them)."""
+
+    def node_out(self, name, x):
+        """A mesh as kept: its own name (AC's prefix out), its role and what else every game reads of it (extras.track),
+        and what only AC's round trip needs (its extras.kn5)."""
+        x = dict(x)
+        track = {}
+        m = AC_NAME.match(name)
+        if m and m.group(1) == '1' and (m.group(2) == 'WALL' or any(v.get('targets', {}).get('ac') == m.group(2) for v in surfaces().values())):
+            own = m.group(3)
+            if m.group(2) == 'WALL':
+                track['role'] = 'wall'
+            else:
+                track['role'] = 'surface'
+                track['surface'] = next(v for k, v in SURFACES if name.startswith(k) and surfaces().get(v, {}).get('targets', {}).get('ac') == m.group(2))
+        else:
+            own = name
+            track['role'] = 'visual'
+        lod = (x.pop('lod_in', 0.), x.pop('lod_out', 0.))
+        if lod != (0., 0.):
+            track['draw'] = [lod[0], lod[1] or None]                # (AC's far 0: no limit, null)
+        if not x.pop('cast_shadows', 1):
+            track['shadows'] = False
+        if not x.pop('renderable', 1):
+            track['visible'] = False
+        return own, track, x
+
+    def node_in(self, name, track, x):
+        """A mesh as the tools have it, from how it is kept: AC's name (its prefix from its role and ground) and flags."""
+        x = dict(x)
+        role = track.get('role')
+        if role == 'wall':
+            name = '1WALL_' + name
+        elif role == 'surface':
+            name = '1%s_%s' % (surfaces()[track['surface']]['targets']['ac'], name)
+        draw = track.get('draw') or [0., 0.]
+        x.update(lod_in=draw[0], lod_out=draw[1] or 0., cast_shadows=0 if track.get('shadows') is False else 1,
+                 renderable=0 if track.get('visible') is False else 1)
+        return name, x
 
     def get(self, name):
         m = library()['materials'].get(name)

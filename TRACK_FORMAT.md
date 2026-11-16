@@ -75,9 +75,12 @@ Each material is a glTF PBR material:
 
 Its `extras.track.material` names its entry in materials.json.
 
-UVs are in metres wherever a mesh is mapped by its size (roads, ground, walls, the light poles' masts),
-and the material's `metres` scales them. So a texture can change without mapping anything again. A
-mesh mapped to a picture of its own (a board, a screen) has UVs in texture units, and `metres` left out.
+UVs are in the texture's own units, as stored, exact: a model read and written again comes back the same.
+A material whose meshes are mapped by their size (roads, ground, walls, the light poles' masts) has
+`metres` in materials.json: one UV unit is that many metres. A reader that wants metres multiplies by it.
+UVs aren't kept in metres themselves. glTF stores them as 32-bit floats, and turning them into metres and
+back doesn't land on the same values, which flips the tangents the tools work out from them where a face's
+mapping is nearly flat.
 
 ## Materials
 
@@ -95,7 +98,7 @@ mesh mapped to a picture of its own (a board, a screen) has UVs in texture units
 
 - `colour`, `normal`, `roughness`, `metallic`, `occlusion`: its textures (PNG), each separate. The build
   packs roughness, metallic and occlusion into glTF's channels. Only `colour` is required.
-- `metres`: how many metres one texture covers, for meshes whose UVs are in metres.
+- `metres`: how many metres one UV unit covers, for meshes mapped by their size.
 - `alpha`: `opaque`, `mask` (cut out, as leaves and wire mesh) or `blend` (see-through, as glass).
 - `glow`, `glow_strength`, `night_only`: how it glows, and whether only at night: a lamp's glass, for
   example.
@@ -170,8 +173,8 @@ Each step ends with an AC build the same as before it, model for model:
 
 1. Materials: materials.json, and PNG textures. Every material name in roads.json, the kerbs, the
    catalogue and the models is a key of it. AC's shader settings move from the models into its build.
-2. Mesh roles: `extras.track` on every node, and UVs in metres where meshes are mapped by size. AC's
-   name prefixes and places are made by its build, not kept in the models.
+2. Mesh roles: `extras.track` on every node; AC's name prefixes made by its build, not kept in the models
+   (2a). The layouts' places and AC's physics objects made by AC's build from objects.json (2b).
 3. Lights and screens as data: lights.json, and the catalogue's lights. AC's build writes the Custom
    Shaders Patch config from them.
 4. What's made goes to `build/track/`, and source/models keeps only the hand-made models. BeamNG is
