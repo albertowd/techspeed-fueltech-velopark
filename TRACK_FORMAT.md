@@ -36,7 +36,21 @@ What's made goes in `build/track/`: the ground and the floor merged with the roa
 the objects' copies, as glTF in the format below. Each game's build reads `build/track/` and the source.
 
 The layouts' places are not models. The grid, the pits, the hotlap start and the timing gates stay in
-objects.json, and each game's build makes its own from there (AC's `AC_START_0`, for example).
+objects.json. The objects step works out where each stands, its height on the floor, and writes them, with
+each layout's physics objects (the knockable cones and boards), to `places.json`:
+
+```json
+{ "version": 1, "layouts": { "vp_kids": {
+    "spots": [ { "name": "START_0", "x": -94.32, "y": 0.6004, "z": -42.75, "heading": 0.6716 },
+               { "name": "TIME_0_L", "x": -88.871, "y": 1.0868, "z": -42.672, "heading": 0.0 } ],
+    "pits": 3,
+    "objects": [ { "name": "CONE_24", "model": "cone", "x": -77.65, "y": 0.6, "z": -62.89, "heading": 0.0 } ] } } }
+```
+
+A spot's name is `START_n`, `PIT_n`, `HOTLAP_START_n` or `TIME_n_L` / `TIME_n_R`. Each game's build makes
+its own from there: AC's are empty nodes (`AC_START_0`, ...) and physics objects (`AC_POBJECT_n`), with
+the pit boxes' number in its ui_track.json. The file sits in source/models until step 4 moves what's made
+to `build/track/`.
 
 ## Models
 

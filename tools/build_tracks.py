@@ -19,6 +19,7 @@ AC_TRACKS).
 import json, os, shutil, sys, time
 
 import build_paths  # noqa: F401  (the material library set for the models: tools/materials.py)
+import ac_places
 import gltf_source
 import kn5tree
 import materials
@@ -73,15 +74,19 @@ def build_ac(everything=False):
     state_path = os.path.join(BUILD, 'ac', 'models.json')
     state = {} if everything or not os.path.exists(state_path) else json.load(open(state_path))
     stems = sorted(os.path.splitext(f)[0] for f in os.listdir(models) if f.endswith('.glb'))
+    placed = ac_places.places()                # (the layouts' places: AC's own nodes made from them here)
     made = 0
     for stem in stems:
         glb = os.path.join(models, stem + '.glb')
-        sig = [stamp(glb), stamp(materials.LIBRARY) if os.path.exists(materials.LIBRARY) else None] +               [[os.path.relpath(t, SOURCE)] + stamp(t) for t in gltf_source.texture_files(glb)]
+        sig = [stamp(glb), stamp(materials.LIBRARY) if os.path.exists(materials.LIBRARY) else None,
+               json.dumps(placed.get(stem), sort_keys=True) if stem in placed else None] +               [[os.path.relpath(t, SOURCE)] + stamp(t) for t in gltf_source.texture_files(glb)]
         out = os.path.join(AC_OUT, stem + '.kn5')
         if state.get(stem) == sig and os.path.exists(out):
             continue
         t = time.time()
         k = gltf_source.load_kn5(glb)
+        if stem in placed:
+            ac_places.add(k, placed[stem])
         for tex in k['textures']:
             tex['data'] = materials.ac_dds(tex['name'], tex['data'])      # (kept as PNG: AC's DDS made here)
         kn5tree.save(k, out)
@@ -91,6 +96,8 @@ def build_ac(everything=False):
     state = {k: v for k, v in state.items() if k in stems}
     # the kn5s are this build's own; the rest is source/track as it is
     copied = sync(os.path.join(SOURCE, 'track'), AC_OUT, keep=lambda rel: rel.endswith('.kn5') and os.path.splitext(rel)[0] in stems)
+    for layout, here in placed.items():
+        ac_places.pitboxes(AC_OUT, layout, here.get('pits', 0))
     json.dump(state, open(state_path, 'w'), indent=1)
     print('AC: %d of %d models made, %d track files updated, in %.1f s: %s' % (made, len(stems), copied, time.time() - t0, AC_OUT))
 

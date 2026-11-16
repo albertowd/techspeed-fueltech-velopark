@@ -189,8 +189,14 @@ def pitboxes(layout, n):
         open(p, 'w', encoding='utf-8', newline='').write(new)
 
 
-def layouts(data):
-    """Each layout's spots, gates, cones and boards set as the file says. How many moved."""
+MARKERS = re.compile(r'^AC_(START_\d+|PIT_\d+|HOTLAP_START_\d+|TIME_\d+_[LR])$')
+PLACES = os.path.join(bp.MODELS, 'places.json')     # (version 3: the layouts' places, for each game's build to make its own)
+
+
+def layouts(data, places=None):
+    """Each layout's spots, gates, cones and boards set as the file says. How many moved. With places (a dict): its
+    spots and gates written there, each where it stands (x, y, z, heading), and taken out of the layout's model
+    (each game's build makes its own: AC's AC_START_0 and so on), with the number of its pit boxes."""
     moved = 0
     for layout, L in (data.get('layouts') or {}).items():
         path = os.path.join(bp.MODELS, layout + '.glb')
@@ -205,7 +211,7 @@ def layouts(data):
             nodes = as_many(d, prefix, len(spots))
             for node, s in zip(nodes, spots):
                 moved += set_spot(node, s['x'], s['z'], s.get('heading'))
-            if prefix == 'AC_PIT_':
+            if prefix == 'AC_PIT_' and places is None:
                 pitboxes(layout, len(spots))
         h = L.get('hotlap')
         if h is not None and 'AC_HOTLAP_START_0' in d:
@@ -230,7 +236,20 @@ def layouts(data):
             node = by_board.get(b.get('name'))
             if node is not None:
                 moved += set_spot(node, b['x'], b['z'], b.get('heading'))
-        if moved != before:
+        if places is not None:
+            # (the spots and gates as they now stand, in the model's order; out of it)
+            here = places.setdefault(layout, dict(spots=[], pits=len(L.get('pits') or []), objects=[]))
+            keep = []
+            for c in k['root']['children']:
+                if c['kind'] == 1 and MARKERS.match(c['name']):
+                    M = np.array(c['matrix'], float).reshape(4, 4)
+                    here['spots'].append(dict(name=c['name'][len('AC_'):], x=float(M[3, 0]), y=float(M[3, 1]), z=float(M[3, 2]),
+                                              heading=float(heading_of(M))))
+                elif not c['name'].startswith('AC_POBJECT_'):
+                    keep.append(c)
+            k['root']['children'] = keep
+            bp.save(k, path)
+        elif moved != before:
             bp.save(k, path)
     return moved
 
@@ -807,7 +826,7 @@ def box(lo, hi):
     return P, F
 
 
-def objects(data):
+def objects(data, placed=None):
     """Every object of the file laid (see the module's note), in place of the old models' tyre walls, poles, cones and
     boards: the shared ones in SHARED, the others in their layouts' models, a dynamic one as each layout's physics
     object; the light poles' lights written. How many, by model."""
@@ -855,7 +874,14 @@ def objects(data):
             places = [(float(p[0]), float(p[1]), float(o.get('heading', 0.)))]
         else:
             places = object_places(o, size)
-        if coll == 'dynamic' and single:
+        if coll == 'dynamic' and single and placed is not None:
+            # (a layout's physics object: in its places, each game's build makes its own, AC's AC_POBJECT_n)
+            x, z, h = places[0]
+            y = float(floor(x, z)[0]) - SINKS.get(o['model'], 0.)
+            for lay in targets:
+                placed.setdefault(lay, dict(spots=[], pits=0, objects=[]))['objects'].append(
+                    dict(name=name, model=o['model'], x=x, y=y, z=z, heading=h))
+        elif coll == 'dynamic' and single:
             x, z, h = places[0]
             y = float(floor(x, z)[0]) - SINKS.get(o['model'], 0.)
             hull = next(((V, F, m) for pp, V, F, m in parts if pp == 'hull'), None)
@@ -1033,12 +1059,17 @@ def main():
         return
     data = json.load(open(OBJECTS, encoding='utf-8'))
     if int(data.get('version') or 0) >= 3:
-        # (version 3: the layouts' spots and gates; everything else that stands there an object of the catalogue)
-        print('%d spots and gates moved in the layouts' % layouts(data))
+        # (version 3: the layouts' spots and gates; everything else that stands there an object of the catalogue; the
+        # layouts' places and physics objects in PLACES, for each game's build to make its own)
+        placed = {}
+        print('%d spots and gates moved in the layouts' % layouts(data, placed))
         print('%d marks painted on the roads' % marks(data))
         print('start lines painted: %s' % (', '.join(start_lines(data)) or 'none'))
-        laid = objects(data)
+        laid = objects(data, placed)
         print('objects laid: %s' % (', '.join('%d %s' % (n, m) for m, n in sorted(laid.items())) or 'none'))
+        json.dump(dict(version=1, layouts=placed), open(PLACES, 'w', encoding='utf-8'), indent=1)
+        print('places of %d layouts: %d spots and gates, %d physics objects' % (
+            len(placed), sum(len(v['spots']) for v in placed.values()), sum(len(v['objects']) for v in placed.values())))
         return
     print('%d spots, gates, cones and boards moved in the layouts' % layouts(data))
     print('%d poles moved, their lights with them' % poles(data))

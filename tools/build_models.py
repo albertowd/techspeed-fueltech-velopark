@@ -59,7 +59,7 @@ STEPS = [('terrain', ['build'], ['tools/reference/terrain/terrain.json', 'tools/
 STEP_DATA = {s: d for s, _, d in STEPS}
 WATCH = ['source', os.path.join('tools', 'reference', 'elevation'), os.path.join('tools', 'reference', 'terrain')]
 # made by the steps, out before the first (as the committed models were before them)
-MADE = ['source/models/velopark_objects.glb', 'source/models/velopark_lines.glb', 'source/models/velopark_runoffs.glb', 'source/models/velopark_trees.glb',
+MADE = ['source/models/places.json', 'source/models/velopark_objects.glb', 'source/models/velopark_lines.glb', 'source/models/velopark_runoffs.glb', 'source/models/velopark_trees.glb',
         'source/models/velopark_trees.json', 'tools/reference/elevation/draped.json']
 NOT_INPUT = ('tools/reference/elevation/draped.json',)
 
