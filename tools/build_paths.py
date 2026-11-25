@@ -34,7 +34,8 @@ import materials
 gltf_source.LIBRARY = materials.Hook()       # (the materials in source/materials.json, the models holding their names)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODELS = os.path.join(ROOT, 'source', 'models')
+MODELS = os.path.join(ROOT, 'track', 'models')         # (the models the steps make, from source/models: tools/build_models.py)
+AC_MADE = os.path.join(ROOT, 'track', 'ac')             # (and AC's files of source/track they change: model lists, AI lines)
 PADDOCK = os.path.join(MODELS, 'velopark_paddock.glb')
 TRACK = os.path.join(MODELS, 'velopark.glb')
 KERBS = os.path.join(MODELS, 'velopark_kerbs.glb')

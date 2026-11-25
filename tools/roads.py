@@ -707,11 +707,14 @@ def dashes(line, runs):
 
 
 def load():
-    """The roads described (tools/reference/roads.json), by name; a road with no heights of its own
-    given those recorded for its shape (tools/build_roads.py records them), if any."""
-    if not os.path.exists(ROADS):
+    """The roads described (track.json's roads, or tools/reference/roads.json while they are not in it: tools/
+    track_data.py), by name; a road with no heights of its own given those recorded for its shape (tools/
+    build_roads.py records them), if any."""
+    import track_data
+    data = track_data.part('roads')[0]
+    if data is None:
         return {}
-    roads = {r['name']: r for r in json.load(open(ROADS))['roads']}
+    roads = {r['name']: r for r in data['roads']}
     for r in roads.values():
         if not r.get('heights'):
             f = os.path.join(HEIGHTS, shape_key(r, roads) + '.json')

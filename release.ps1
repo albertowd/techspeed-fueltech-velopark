@@ -4,27 +4,32 @@
 
 .DESCRIPTION
     Updates the version of the track in its sources, source\track: in its README,
-    the layout files and the Custom Shaders Patch config. Then builds both games
-    from source\ with tools\build_tracks.py, and packs and tests
-    build\dist\techspeed_fueltech_velopark_ac.7z for Assetto Corsa and
-    build\dist\techspeed_fueltech_velopark_beamng.zip for BeamNG.drive. Their names are the
+    the layout files and the Custom Shaders Patch config. Then builds the three games
+    from the sources with the Top Race Editor, and packs and tests
+    build\dist\techspeed_fueltech_velopark_ac.7z for Assetto Corsa,
+    build\dist\techspeed_fueltech_velopark_beamng.zip for BeamNG.drive and
+    build\dist\techspeed_fueltech_velopark_rf2.7z for rFactor 2. Their names are the
     same in every version, so a new archive replaces the old one.
 
     Add a "## <version>" section to CHANGELOG.md first: the release
     stops without one. Then commit, tag v<version> and push the tag: the Release
-    action builds the same two archives from source\ and attaches them to a
+    action builds the same three archives from the sources and attaches them to a
     GitHub release, ready to upload to overtake.gg.
 
 .EXAMPLE
-    .\release.ps1 -Version 0.7.0
-    Updates the version and builds both archives.
+    .\release.ps1 -Version 0.8.0
+    Updates the version and builds the three archives.
 
 .EXAMPLE
-    .\release.ps1 -Version 0.7.0 -Install
-    Also copies the track into the game.
+    .\release.ps1 -Version 0.8.0 -Install
+    Also copies the track into Assetto Corsa.
 
 .EXAMPLE
-    .\release.ps1 -Version 0.7.0 -DryRun
+    .\release.ps1 -Version 0.8.0 -SkipBuild
+    Only updates the version: the Release action builds the archives.
+
+.EXAMPLE
+    .\release.ps1 -Version 0.8.0 -DryRun
     Shows what would change and touches nothing.
 
 #>
@@ -34,17 +39,21 @@ param(
     [ValidatePattern('^\d+\.\d+\.\d+$')]
     [string]$Version,
 
-    # Copy the track into the game after building.
+    # Copy the track into Assetto Corsa after building.
     [switch]$Install,
+
+    # Only update the version, build nothing.
+    [switch]$SkipBuild,
 
     # Report what would happen and change nothing.
     [switch]$DryRun,
 
     [string]$GameTracks = 'D:\SteamLibrary\steamapps\common\assettocorsa\content\tracks',
 
-    # The Python with the packages in tools\requirements.txt, for the build.
-    # By default the one in .venv, else the one on the path.
-    [string]$Python
+    # The Top Race Editor that builds the track: its installed Top Race Editor.exe (or the
+    # folder holding it), or its project's folder, built and run with npm. By default
+    # TOP_RACE_EDITOR, else the installed one, else ..\top-race-editor.
+    [string]$Editor
 )
 
 $ErrorActionPreference = 'Stop'
@@ -59,6 +68,25 @@ function Update-File {
     if ($new -ceq $old) { return }
     Write-Host "  update $Path"
     if (-not $DryRun) { [IO.File]::WriteAllText($Path, $new, $noBom) }
+}
+
+# The editor to build with: its program, or its project (npm run build-track).
+function Find-Editor {
+    $places = @()
+    if ($Editor) { $places += $Editor }
+    elseif ($env:TOP_RACE_EDITOR) { $places += $env:TOP_RACE_EDITOR }
+    else {
+        $places += Join-Path $env:LOCALAPPDATA 'Programs\Top Race Editor'
+        $places += Join-Path $env:LOCALAPPDATA 'Programs\top-race-editor'
+        $places += Join-Path (Split-Path $root -Parent) 'top-race-editor'
+    }
+    foreach ($place in $places) {
+        if (Test-Path $place -PathType Leaf) { return @{ Program = $place } }
+        $exe = Join-Path $place 'Top Race Editor.exe'
+        if (Test-Path $exe -PathType Leaf) { return @{ Program = $exe } }
+        if (Test-Path (Join-Path $place 'desktop\launch.mjs') -PathType Leaf) { return @{ Project = $place } }
+    }
+    throw "The Top Race Editor was not found (looked in: $($places -join ', ')). Pass -Editor or set TOP_RACE_EDITOR."
 }
 
 # The track's files as they ship, besides its models: the build copies them.
@@ -79,27 +107,20 @@ if ([IO.File]::ReadAllText($changelog) -notmatch $heading) {
 
 $build = Join-Path $root 'build'
 $dist = Join-Path $build 'dist'
-$archive = Join-Path $dist "techspeed_fueltech_velopark_ac.7z"
-$beamng = Join-Path $dist "techspeed_fueltech_velopark_beamng.zip"
+$archive = Join-Path $dist "${trackName}_ac.7z"
+$beamng = Join-Path $dist "${trackName}_beamng.zip"
+$rf2 = Join-Path $dist "${trackName}_rf2.7z"
 
-$sevenZip = (Get-Command 7z -ErrorAction SilentlyContinue).Source
-if (-not $sevenZip) { $sevenZip = 'C:\Program Files\7-Zip\7z.exe' }
-if (-not (Test-Path $sevenZip)) { throw '7-Zip not found.' }
+if (-not $SkipBuild) {
+    $sevenZip = (Get-Command 7z -ErrorAction SilentlyContinue).Source
+    if (-not $sevenZip) { $sevenZip = 'C:\Program Files\7-Zip\7z.exe' }
+    if (-not (Test-Path $sevenZip)) { throw '7-Zip not found.' }
+    $found = Find-Editor
+    if ($found.Program) { Write-Host "Editor: $($found.Program)" } else { Write-Host "Editor: $($found.Project) (npm run build-track)" }
 
-if (-not $Python) {
-    $Python = Join-Path $root '.venv\Scripts\python.exe'
-    if (-not (Test-Path $Python)) { $Python = 'python' }
-}
-# Its error output would stop the script with Python's traceback in place of the message below.
-$ErrorActionPreference = 'Continue'
-& $Python -c 'import numpy, PIL, scipy, shapely, triangle' 2>$null
-$ErrorActionPreference = 'Stop'
-if ($LASTEXITCODE -ne 0) {
-    throw "$Python lacks the packages in tools\requirements.txt. Install them, or pass -Python."
-}
-
-if ($Install -and (Get-Process acs -ErrorAction SilentlyContinue)) {
-    throw 'Assetto Corsa is running. Close it before using -Install.'
+    if ($Install -and (Get-Process acs -ErrorAction SilentlyContinue)) {
+        throw 'Assetto Corsa is running. Close it before using -Install.'
+    }
 }
 
 $today = (Get-Date).ToString('d MMMM yyyy', [Globalization.CultureInfo]::InvariantCulture)
@@ -117,23 +138,39 @@ if ($DryRun) {
     Write-Host 'Dry run: nothing was changed.'
     return
 }
+if ($SkipBuild) {
+    Write-Host "Version set to $Version. Next: commit, then 'git tag v$Version' and 'git push origin main v$Version': the Release action builds the archives."
+    return
+}
 
-# Both games from the sources, everything made again as the Release action does, and the
-# BeamNG archive packed. -Install copies the track into the folder -GameTracks names.
-$buildArgs = @('ac', 'beamng', '--all', '--pack')
+# The three games from the sources, everything made again as the Release action does; the
+# editor packs the Assetto Corsa and BeamNG.drive archives itself. -Install copies the track
+# into the folder -GameTracks names.
+$buildArgs = @('--build', '--project', $root, '--games', 'ac,beamng,rf2', '--all')
 if ($Install) { $buildArgs += '--install' }
 $env:AC_TRACKS = $GameTracks
-& $Python (Join-Path $root 'tools\build_tracks.py') @buildArgs
-if ($LASTEXITCODE -ne 0) { throw "The build failed with exit code $LASTEXITCODE." }
+if ($found.Program) {
+    # (a windowed program: PowerShell waits for it, and has its exit code, only so)
+    $quoted = $buildArgs | ForEach-Object { if ($_ -match '\s') { '"' + $_ + '"' } else { $_ } }
+    $run = Start-Process -FilePath $found.Program -ArgumentList $quoted -Wait -NoNewWindow -PassThru
+    $code = $run.ExitCode
+}
+else {
+    & npm.cmd --prefix $found.Project run build-track -- @($buildArgs | Select-Object -Skip 1)
+    $code = $LASTEXITCODE
+}
+if ($code -ne 0) { throw "The build failed with exit code $code." }
+if (-not (Test-Path $archive)) { throw "The build did not make $archive." }
 if (-not (Test-Path $beamng)) { throw "The build did not make $beamng." }
 
-# Built beside the final name, so a failed build leaves the old archive intact.
-New-Item -ItemType Directory -Force -Path $dist | Out-Null
-$temp = "$archive.new"
+# rFactor 2's location, built beside the final name, so a failed pack leaves the old archive intact.
+$location = Join-Path $build "rf2\Locations\$trackName"
+if (-not (Test-Path $location)) { throw "The build did not make $location." }
+$temp = "$rf2.new"
 if (Test-Path $temp) { Remove-Item -LiteralPath $temp -Confirm:$false }
-Push-Location (Join-Path $build 'ac')
+Push-Location (Join-Path $build 'rf2\Locations')
 try {
-    & $sevenZip a -t7z -mx=9 $temp content | Out-Null
+    & $sevenZip a -t7z -mx=9 $temp $trackName | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "7-Zip failed with exit code $LASTEXITCODE." }
 }
 finally {
@@ -141,8 +178,9 @@ finally {
 }
 & $sevenZip t $temp | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'The archive failed its test.' }
-Move-Item -LiteralPath $temp -Destination $archive -Force
-Write-Host ("Built {0} ({1:N1} MB)" -f $archive, ((Get-Item $archive).Length / 1MB))
+Move-Item -LiteralPath $temp -Destination $rf2 -Force
 
-Write-Host ("Built {0} ({1:N1} MB)" -f $beamng, ((Get-Item $beamng).Length / 1MB))
-Write-Host "Next: commit, then 'git tag v$Version' and 'git push origin v$Version' to publish it."
+foreach ($a in @($archive, $beamng, $rf2)) {
+    Write-Host ("Built {0} ({1:N1} MB)" -f $a, ((Get-Item $a).Length / 1MB))
+}
+Write-Host "Next: commit, then 'git tag v$Version' and 'git push origin main v$Version' to publish it."

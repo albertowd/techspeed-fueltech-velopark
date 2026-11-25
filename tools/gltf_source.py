@@ -1,6 +1,6 @@
 """The track's source models: kn5 models as glTF binaries (.glb), and back.
 
-A model is source/models/<name>.glb; its textures are files of their own in source/textures,
+A model is source/models/<name>.glb (or track/models/, as the build makes it); its textures are files of their own in source/textures,
 which the .glb points at, so models share them and they can be edited as images. Everything a
 kn5 holds that glTF has no place for is kept in the glTF "extras" under "kn5", so
 kn5 -> glb -> kn5 gives the same bytes:
@@ -39,6 +39,24 @@ BLENDER_COPY = re.compile(r'\.\d{3,}$')
 # where the model has none (get(name) -> x or None), and the model's own kept there (put(name, x, drawn)), the model
 # holding only its name (extras.track.material). None: each model holds its own, as ever
 LIBRARY = None
+# the track's textures: a model points at them as ../textures/ from its folder; one in a folder with no textures
+# beside it (the models the build makes, track/models) finds them here
+TEXTURES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'source', 'textures')
+
+
+def textures_of(base):
+    """The textures folder a model in the folder base points at as ../textures."""
+    d = os.path.normpath(os.path.join(base, '..', 'textures'))
+    return d if os.path.isdir(d) else TEXTURES
+
+
+def texture_at(base, uri):
+    """A texture's file by its uri in a model in the folder base."""
+    p = os.path.normpath(os.path.join(base, uri))
+    d = os.path.normpath(os.path.join(base, '..', 'textures'))
+    if p.startswith(d + os.sep) and not os.path.isdir(d):
+        p = os.path.join(TEXTURES, os.path.relpath(p, d))
+    return p
 DEFAULT_PROPS = (('ksAmbient', .5), ('ksDiffuse', .5), ('ksSpecular', 0.), ('ksSpecularEXP', 1.),
                  ('ksEmissive', 0.), ('ksAlphaRef', 0.))
 
@@ -112,6 +130,8 @@ def to_gltf(k, tex_uri):
         else:
             v, f = n['verts'], n['faces']
             x.update({key: n[key] for key in MESH_KEYS}, sphere=n['sphere'], sphere_of=_hash(v, f))
+            if n.get('grass'):
+                x['grass'] = True                   # (grass grows on it: extras.track `grass`, with a library)
             if len(v) and len(f):
                 v, f, copies = _split_repeats(v, f)
                 if copies:
@@ -435,6 +455,8 @@ def from_gltf(doc, binary, read_texture, find_texture=None):
                          material=prim.get('material', 0))
                 for key, default in zip(MESH_KEYS, (1, 1, 0, 0, 0., 0., 1)):
                     n[key] = x.get(key, default)
+                if x.get('grass'):
+                    n['grass'] = True
                 n['sphere'] = _sphere(v, f, x, moved)
                 out.append(n)
         return out
@@ -461,6 +483,8 @@ def from_gltf(doc, binary, read_texture, find_texture=None):
                      faces=np.zeros((0, 3), '<u2'), material=x.get('material', 0), sphere=x.get('sphere', [0., 0., 0., 0.]))
             for key, default in zip(MESH_KEYS, (1, 1, 0, 0, 0., 0., 1)):
                 n[key] = x.get(key, default)
+            if x.get('grass'):
+                n['grass'] = True
             return [n]
         return [dict(kind=1, name=name, active=x.get('active', 1), matrix=local, children=kids)]
 
@@ -489,11 +513,11 @@ def load_kn5(glb_path):
 
     def find(name):
         # one this model holds a version of its own of first, as the extraction left them
-        for p in (os.path.join(base, '..', 'textures', stem, name), os.path.join(base, '..', 'textures', name)):
+        for p in (os.path.join(textures_of(base), stem, name), os.path.join(textures_of(base), name)):
             if os.path.exists(kept(p)):
                 return open(kept(p), 'rb').read()
         raise FileNotFoundError('texture %s of %s is not in source/textures' % (name, stem))
-    return from_gltf(doc, binary, lambda uri: open(kept(os.path.join(base, uri)), 'rb').read(), find)
+    return from_gltf(doc, binary, lambda uri: open(kept(texture_at(base, uri)), 'rb').read(), find)
 
 
 def texture_files(glb_path):
@@ -502,16 +526,16 @@ def texture_files(glb_path):
     base = os.path.dirname(os.path.abspath(glb_path))
     stem = os.path.splitext(os.path.basename(glb_path))[0]
     top = _kn5(doc) or next((_kn5(n)['file'] for n in doc.get('nodes', []) if 'file' in _kn5(n)), {})
-    files = {os.path.normpath(os.path.join(base, urllib.parse.unquote(u))) for _, _, u in top.get('textures', [])}
-    files |= {os.path.normpath(os.path.join(base, urllib.parse.unquote(i['uri']))) for i in doc.get('images', []) if 'uri' in i}
+    files = {texture_at(base, urllib.parse.unquote(u)) for _, _, u in top.get('textures', [])}
+    files |= {texture_at(base, urllib.parse.unquote(i['uri'])) for i in doc.get('images', []) if 'uri' in i}
     held = {os.path.basename(f) for f in files}
     # those the materials name, only when the list of them is lost, as from_gltf
     for g in doc.get('materials', []) if not top.get('textures') else ():
         for _, _, name in _kn5(g).get('textures', []):
             if name not in held:
                 held.add(name)
-                own = os.path.normpath(os.path.join(base, '..', 'textures', stem, name))
-                files.add(own if os.path.exists(own) else os.path.normpath(os.path.join(base, '..', 'textures', name)))
+                own = os.path.join(textures_of(base), stem, name)
+                files.add(own if os.path.exists(own) else os.path.join(textures_of(base), name))
     # (a texture kept as PNG where its AC name is DDS)
     files = {f[:-4] + '.png' if not os.path.exists(f) and f.lower().endswith('.dds') and os.path.exists(f[:-4] + '.png') else f for f in files}
     return sorted(files)

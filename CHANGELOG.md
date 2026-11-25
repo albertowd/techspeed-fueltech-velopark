@@ -1,9 +1,26 @@
 # Changelog
 
-## 0.7.2
+## 0.8.0
 
-### Both games
+- The track for rFactor 2: `techspeed_fueltech_velopark_rf2.7z`, beside the Assetto Corsa and BeamNG.drive downloads.
+- Downloads keep the same file name in every version, so a new one replaces the old one.
+- BeamNG.drive: delete the old `techspeed-fueltech-velopark-0.7.0-beamng.zip` from your mods folder when you update.
+- BeamNG.drive: no cones or distance boards in free roam for now, so it runs smoother; the races still have them.
 
+### rFactor 2
+
+- Every layout, with its grid, pit boxes, AI lines, pit lane and timing.
+- For now in rFactor 2's Mod Mode: unpack the 7z into `ModDev/Locations` and pick the track there.
+- The start lights on the 1000's and the 1500's gantries light one by one and go out at the start.
+- The gantry's board shows the track's and the layout's names; the fuel station's prices are lit digits.
+- Cones and distance boards knocked about as in the other games.
+- The floodlights and the rooms' lamps on at night.
+- Each layout's icon, thumbnail, map and loading screen.
+
+### All games
+
+- New 1500 Short and Short Amateur: they turn in onto the S at the first link, before the second the old Short takes.
+- The old 1500 Short and Short Amateur are now the 1500 Short 2 and Short 2 Amateur.
 - The pit apron in front of the building by the hotlap's pit lane as the photos show it, the car park south of it a straight step below it, with a ramp between them at its east end.
 - The car parks south of the paddock with their bays and the grass round their trees, and a second one east of them.
 - The road south of the car parks goes on through the trees to the dirt road.
@@ -29,15 +46,6 @@
 - Tyre walls with their stacks evenly spaced, the last gap like the others, and their tyres open on top up close.
 - Light poles of concrete with steel frames and floodlight glass, each facing the way it should, its night lights on it.
 - The marshals' posts at the starts with their chairs facing the track.
-
-## 0.7.1
-
-- Downloads keep the same file name in every version, so a new one replaces the old one.
-- BeamNG.drive: delete the old `techspeed-fueltech-velopark-0.7.0-beamng.zip` from your mods folder when you update.
-- BeamNG.drive: no cones or distance boards in free roam for now, so it runs smoother; the races still have them.
-
-### Both games
-
 - Rounded metal roofs on the buildings in the middle of the track.
 - Darker roofs on the paddock buildings.
 - Race control tower windows with top lights opened out.

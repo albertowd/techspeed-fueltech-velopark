@@ -386,14 +386,10 @@ def grass_over(k, shape, name='1GRASS_PADDOCK_WEST', grassy=True):
     F = np.where((up < 0)[:, None], F[:, ::-1], F)[np.abs(up) > 1e-8]
     mi = background(k)
     node = dict(base, name=name, children=[], material=mi, verts=V.astype('<f4'), faces=F.astype('<u2'))
+    if grassy:
+        node['grass'] = True                 # (grass grows on it)
     bp.sphere(node)
     k['root']['children'].append(node)
-    import re
-    csp = os.path.join(bp.ROOT, 'source', 'track', 'extension', 'ext_config.ini')
-    text = open(csp, newline='').read()
-    m_ = re.search(r'(?m)^GRASS_MESHES *= *(.*)$', text)
-    if grassy and m_ and name not in m_.group(1):
-        open(csp, 'w', newline='').write(text[:m_.end(1)] + ', ' + name + text[m_.end(1):])
     return len(F)
 
 
@@ -435,15 +431,9 @@ def grass_back(k, more=()):
                 k['textures'].append(next(x for x in track['textures'] if x['name'] == t['name']))
     node = dict(kind=2, name=GRASS_MESH, active=1, children=[], material=mi, cast_shadows=1, visible=1,
                 transparent=0, layer=0, lod_in=0., lod_out=0., renderable=1, verts=V.astype('<f4'), faces=F.astype('<u2'))
+    node['grass'] = True                     # (and grass grows on it)
     bp.sphere(node)
     k['root']['children'].append(node)
-    # and grown with the Custom Shaders Patch's grass
-    csp = os.path.join(bp.ROOT, 'source', 'track', 'extension', 'ext_config.ini')
-    text = open(csp, newline='').read()
-    m_ = re.search(r'(?m)^GRASS_MESHES *= *(.*)$', text)
-    if m_ and GRASS_MESH not in m_.group(1):
-        text = text[:m_.end(1)] + ', ' + GRASS_MESH + text[m_.end(1):]
-        open(csp, 'w', newline='').write(text)
     return len(F)
 
 
@@ -516,7 +506,7 @@ def wide_shape(track):
     import struct
     from shapely.geometry import Polygon, box
     lane, shape, _ = lane_shape(track)
-    b = open(os.path.join(bp.ROOT, 'source', 'track', 'vp_1000', 'ai', 'pit_lane.ai'), 'rb').read()
+    b = open(os.path.join(bp.AC_MADE, 'vp_1000', 'ai', 'pit_lane.ai'), 'rb').read()
     n_ = struct.unpack('<i', b[4:8])[0]
     ai = np.frombuffer(b[16:16 + n_ * 20], '<f4').reshape(n_, 5)[:, [0, 2]].astype(float)
     ai_run = ai.copy()                                    # (in the order driven)

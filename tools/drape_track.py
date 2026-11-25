@@ -384,15 +384,18 @@ def main():
         return map_coordinates(D, [(z - Z[0]), (x - X[0])], order=1, cval=0.)
     print('the top moved %+.2f to %+.2f m under what stands on it' % (D.min(), D.max()))
 
-    # the trees, each on the ground where it stands
-    forest = json.load(open(lg.FOREST))
-    S = np.array([[s[1], s[3]] for s in forest['trees']])
-    gy = new_top.ys(S)
-    shift = np.where(np.isnan(gy), 0., gy - np.array([s[2] for s in forest['trees']]))
-    for s, v in zip(forest['trees'], shift):
-        s[2] += float(v)
-    json.dump(forest, open(lg.FOREST, 'w'), indent=0)
-    stands = cKDTree(S)
+    # the trees, each on the ground where it stands (where a model of them is made before this: the trees placed
+    # by tools/place_trees.py are laid on the floor after it, and there is none here)
+    stands, shift = None, np.zeros(0)
+    if os.path.exists(lg.FOREST):
+        forest = json.load(open(lg.FOREST))
+        S = np.array([[s[1], s[3]] for s in forest['trees']])
+        gy = new_top.ys(S)
+        shift = np.where(np.isnan(gy), 0., gy - np.array([s[2] for s in forest['trees']]))
+        for s, v in zip(forest['trees'], shift):
+            s[2] += float(v)
+        json.dump(forest, open(lg.FOREST, 'w'), indent=0)
+        stands = cKDTree(S)
 
     def on_ground(W, F):
         """Each tyre stack stood on the top as it is now, as one: not bent, but turned to the
@@ -572,7 +575,7 @@ def main():
                     W[:, [0, 2]] = Wn[:, [0, 2]]
                 elif driven(n['name']) or n['name'].startswith('AC_'):
                     up = road_change(W[:, 0], W[:, 2])
-                elif n['name'].startswith((bt.PREFIX, '1WALL_' + bt.PREFIX)):
+                elif n['name'].startswith((bt.PREFIX, '1WALL_' + bt.PREFIX)) and stands is not None:
                     dd, i = stands.query(W[:, [0, 2]])
                     up = np.where(dd < so.TREE_NEAR, shift[i], top_change(W[:, 0], W[:, 2]))
                 else:
@@ -590,24 +593,24 @@ def main():
             bp.save(k, f)
         print('  %-30s %7d points' % (os.path.basename(f), moved[0]))
     ramps(models, track, real)
+    # grass grows on every mesh of the near ground (each game's build: AC's Custom Shaders Patch, BeamNG's clumps);
+    # it is cut into meshes of fewer than 65536 points
+    names = []
+    for n, _ in bp.meshes(track):
+        if n['name'] == bp.GROUND or re.fullmatch(re.escape(bp.GROUND) + r'(_\d+)+', n['name']):
+            n['grass'] = True
+            names.append(n['name'])
     bp.save(track, bp.TRACK)
-    # the Custom Shaders Patch's grass (and BeamNG's, which reads it) on every mesh of the near
-    # ground: it is cut into meshes of fewer than 65536 points
-    names = [n['name'] for n, _ in bp.meshes(track) if n['name'] == bp.GROUND or re.fullmatch(re.escape(bp.GROUND) + r'(_\d+)+', n['name'])]
-    text = open(lg.CSP, newline='').read()
-    m_ = re.search(r'(?m)^GRASS_MESHES *= *(.*)$', text)
-    have = [x.strip() for x in m_.group(1).split(',') if x.strip()]
-    keep = [x for x in have if not (x == bp.FILLER or re.fullmatch(re.escape(bp.GROUND) + r'(_\d+)*', x))]
-    text = text[:m_.start(1)] + ', '.join(names + keep) + text[m_.end(1):]
-    open(lg.CSP, 'w', newline='').write(text)
     print('  grass on %d meshes of the near ground' % len(names))
     # the AI lines, as the roads under them
-    ai = sorted(glob.glob(os.path.join(lg.TRACK, '*', 'ai', '*.ai')) + glob.glob(os.path.join(lg.TRACK, '*', 'data', '*.ai')))
+    ai = sorted(glob.glob(os.path.join(bp.AC_MADE, '*', 'ai', '*.ai')) + glob.glob(os.path.join(bp.AC_MADE, '*', 'data', '*.ai')))
     for path in ai:
         lg.move_ai(path, road_change)
     print('  %d AI lines' % len(ai))
-    print('  %d lights' % lg.move_csp(lg.CSP, top_change))
-    print('  %d trees stood on the ground, by %+.2f to %+.2f m' % (len(shift), shift.min(), shift.max()))
+    # (the lights: the light poles' and the buildings' placed after this, on the floor as it lies then; the
+    # others where source/lights.json has them)
+    if len(shift):
+        print('  %d trees stood on the ground, by %+.2f to %+.2f m' % (len(shift), shift.min(), shift.max()))
     json.dump(dict(draped=datetime.date.today().isoformat(), road_m=ROAD, cut_m=CUT, near_m=NEAR), open(DONE, 'w'), indent=1)
 
 

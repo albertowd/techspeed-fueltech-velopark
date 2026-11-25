@@ -1,6 +1,6 @@
 # TODO
 
-### Both games
+### All games
 
 - White lines along the track shown in full, joined where roads meet and following the track's edges.
 - The pit lanes' yellow lines along both sides, from the track to the pit boxes.
@@ -15,6 +15,16 @@
 - The big industry building south of the circuit.
 - Building materials as the real ones: painted walls, metal roofs, painted steel, wood and concrete.
 
+### rFactor 2
+
+- The track packed for rFactor 2's normal install (MAS files and an rFCMP package), not only Mod Mode.
+- Trackside cameras for replays and TV views.
+- Smaller files: its models are about three times the size of Assetto Corsa's.
+
 ### Assetto Corsa EVO
 
 - The track for Assetto Corsa EVO.
+
+### Live for Speed
+
+- The track for Live for Speed, once LFS takes track mods: how a track mod is made and installed is not yet public.

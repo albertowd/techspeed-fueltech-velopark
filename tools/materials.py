@@ -26,6 +26,8 @@ SURFACES_FILE = os.path.join(ROOT, 'source', 'surfaces.json')
 TEXTURES = os.path.join(ROOT, 'source', 'textures')
 CACHE = os.path.join(ROOT, 'build', 'cache', 'dds')
 VERSION = 1
+KEPT = ('metres', 'surface', 'glow', 'glow_strength', 'night_only', 'roughness', 'covers_grass')   # (an entry's own, kept when a model puts it again)
+KEPT_AC = ('night',)                                                 # (and of its targets.ac)
 # (the ground a mesh is driven as, by AC's name for it: the first that fits)
 SURFACES = (('1ROAD_KERB', 'rumble'), ('1KERB', 'kerb'), ('1ROAD', 'asphalt'), ('1GRASS', 'grass'), ('1WALL', 'wall'), ('1SAND', 'sand'))
 
@@ -120,6 +122,8 @@ class Hook:
             track['shadows'] = False
         if not x.pop('renderable', 1):
             track['visible'] = False
+        if x.pop('grass', False):
+            track['grass'] = True                                    # (grass grows on it)
         return own, track, x
 
     def node_in(self, name, track, x):
@@ -133,6 +137,8 @@ class Hook:
         draw = track.get('draw') or [0., 0.]
         x.update(lod_in=draw[0], lod_out=draw[1] or 0., cast_shadows=0 if track.get('shadows') is False else 1,
                  renderable=0 if track.get('visible') is False else 1)
+        if track.get('grass'):
+            x['grass'] = True
         return name, x
 
     def get(self, name):
@@ -145,9 +151,12 @@ class Hook:
         if old is not None and not drawn:
             return
         new = entry_of(name, x)
-        for k in ('metres', 'surface'):                   # (what the library holds that the model does not)
+        for k in KEPT:                                    # (what the library holds that the model does not)
             if old and k in old:
                 new[k] = old[k]
+        for k in KEPT_AC:
+            if old and k in old.get('targets', {}).get('ac', {}):
+                new.setdefault('targets', {}).setdefault('ac', {})[k] = old['targets']['ac'][k]
         if old != new:
             mats[name] = new
             _DIRTY['materials'].add(name)
@@ -175,7 +184,12 @@ def ac_dds(name, data):
     if data[:8] != b'\x89PNG\r\n\x1a\n' or os.path.splitext(name)[1].lower() != '.dds':
         return data
     t = library()['textures'].get(png_of(os.path.basename(name)), {})
-    fmt, normal = t.get('ac', 'DXT1'), t.get('normal', False)
+    return dds(data, t.get('ac', 'DXT1'), t.get('normal', False))
+
+
+def dds(data, fmt, normal=False):
+    """A PNG's bytes as a DDS in fmt (DXT1, DXT3, DXT5, or uncompressed: RGBA), a normal map's green turned down (as AC
+    reads them) when normal; kept in build/cache/dds."""
     key = hashlib.sha1(data + fmt.encode() + bytes([normal])).hexdigest()
     path = os.path.join(CACHE, key + '.dds')
     if os.path.exists(path):

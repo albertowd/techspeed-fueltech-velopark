@@ -1,0 +1,30 @@
+{
+ "about": "The track's one map: tiles of TILE pixels a side, at every level (level 0 the whole precision, each next half the one before), named <level>/<column>_<row>.jpg; north up, west on the left, the map's middle at x = z = 0 (a pixel's column (span/2 - x) / metres_a_pixel, its row (span/2 - z) / metres_a_pixel).",
+ "span": 3000.141602,
+ "px": 23186,
+ "tile": 512,
+ "levels": 9,
+ "metres_a_pixel": 0.12939453125,
+ "sources": [
+  {
+   "file": "source/textures/GoogleMap.jpg",
+   "square_m": 1060.0,
+   "metres_a_pixel": 0.12939453125,
+   "blended_m": 20.0
+  },
+  {
+   "file": "tools/reference/surroundings/surroundings.jpg",
+   "area_x_z": [
+    [
+     -1500,
+     1800
+    ],
+    [
+     -1500,
+     1500
+    ]
+   ],
+   "metres_a_pixel": 1.0
+  }
+ ]
+}

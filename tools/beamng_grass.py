@@ -1,14 +1,14 @@
-"""Grass for the BeamNG.drive level: clumps of blades standing on the ground where Assetto Corsa
-grows its Custom Shaders Patch grass, as BeamNG has no grass of its own on meshes.
+"""Grass for the BeamNG.drive level: clumps of blades standing on the ground where grass grows, as BeamNG has no
+grass of its own on meshes.
 
-Where: on the meshes the track's GRASS_FX config names, where no mesh of its occluding
-materials (roads, kerbs, tyres, buildings) lies over them, and where the ground photo is green,
-as that config's colour mask keeps grass off what is not; within BAND metres of the layout's
+Where: on the meshes grass grows on (extras.track `grass`), where no mesh of a material that keeps it off
+(materials.json `covers_grass`: roads, kerbs, tyres, buildings) lies over them, and where the ground photo is green,
+as Assetto Corsa's colour mask keeps its grass off what is not; within BAND metres of the layout's
 racing line, as further out it would only cost frames. Each clump is two crossed quads with a
 texture of blades made here, a little turned, sized and tilted at random; the clumps are cut
 in tiles of TILE metres, a shape each, so BeamNG draws only those in view.
 """
-import io, math, os, re
+import math, os
 
 import numpy as np
 from PIL import Image, ImageDraw
@@ -44,45 +44,36 @@ def texture(path):
     Image.fromarray(a[..., 3]).save(os.path.splitext(path)[0] + '_opacity.png')
 
 
-def _config(track):
-    path = os.path.join(track, 'extension', 'ext_config.ini')
-    text = open(path, encoding='utf-8', errors='replace').read() if os.path.exists(path) else ''
-    body = re.search(r'\[GRASS_FX\]\n(.*?)(?=\n\[|\Z)', text, re.S)
-    body = body.group(1) if body else ''
-    get = lambda k: [x.strip() for x in (re.search(r'^%s\s*=(.*)$' % k, body, re.M) or [None, ''])[1].split(',') if x.strip()]
-    return set(get('GRASS_MESHES')), set(get('OCCLUDING_MATERIALS'))
-
-
-def places(track, models, line):
-    """Where clumps stand, in AC's axes: (n, 3). models: {file: kn5io.Model}; line: (n, 2) the
+def places(models, line):
+    """Where clumps stand, in the track's axes: (n, 3). models: [track_models.Model]; line: (n, 2) the
     racing line's x, z."""
-    grass_meshes, occluding = _config(track)
-    if not grass_meshes:
-        return np.zeros((0, 3))
+    import materials
+    import track_models
+    lib = materials.library()['materials']
     tris, uvs, kind, photo = [], [], [], []
     photos = {}
-    for fn, m in models.items():
+    for m in models:
         for x in m.meshes:
-            mat = m.materials[x['mat']]
-            is_grass = x['name'] in grass_meshes
-            if not (is_grass or mat['name'] in occluding) or not (x['visible'] and x['renderable']):
+            mat = lib.get(x['material'], {})
+            is_grass = x['grass']
+            if not (is_grass or mat.get('covers_grass')) or not x['visible']:
                 continue
             f = x['f'][(x['f'][:, 0] != x['f'][:, 1]) & (x['f'][:, 1] != x['f'][:, 2]) & (x['f'][:, 0] != x['f'][:, 2])]
             if not len(f):
                 continue
             pi = -1
             if is_grass:
-                tex = mat['tex'].get('txDiffuse')
-                if (fn, tex) not in photos and tex in m.textures:
-                    blk = m.textures[tex]
-                    n = int.from_bytes(blk[4:8], 'little')
+                tex = mat.get('colour')
+                if tex and tex not in photos and os.path.exists(track_models.texture(tex)):
                     Image.MAX_IMAGE_PIXELS = None
-                    photos[(fn, tex)] = np.asarray(Image.open(io.BytesIO(blk[8 + n + 4:])).convert('RGB'))
-                pi = list(photos).index((fn, tex)) if (fn, tex) in photos else -1
+                    photos[tex] = np.asarray(Image.open(track_models.texture(tex)).convert('RGB'))
+                pi = list(photos).index(tex) if tex in photos else -1
             tris.append(x['v'][f][:, :, :3])
             uvs.append(x['v'][f][:, :, 6:8])
             kind.append(np.full(len(f), is_grass))
             photo.append(np.full(len(f), pi))
+    if not any(len(k) and k.any() for k in kind):
+        return np.zeros((0, 3))
     tris, uvs = np.concatenate(tris), np.concatenate(uvs)
     kind, photo = np.concatenate(kind), np.concatenate(photo)
     photos = list(photos.values())

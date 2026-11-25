@@ -13,6 +13,8 @@ after it).
 
 Bays BAY_W wide and BAY_D deep, their lines BAY_LINE wide, white.
 """
+import os
+
 import numpy as np
 
 import build_paths as bp
@@ -208,12 +210,15 @@ def lay_flat(track, pad, shape, name):
 
 
 def clear_trees(shape):
-    """The trees standing within shape (x, z) out of the trees' model and the forest. How many."""
+    """The trees standing within shape (x, z) out of the trees' model and the forest. How many. None while the trees
+    are not planted yet (tools/place_trees.py plants them after this: track.json's trees have these out already)."""
     import json
     import shapely
     import build_trees as bt
     import gltf_source
     import plant_outside as po
+    if not os.path.exists(bt.FOREST):
+        return 0
     forest = json.load(open(bt.FOREST))
     S = np.array([[s[1], s[3]] for s in forest['trees']])
     gone = shapely.contains_xy(shape, S[:, 0], S[:, 1])

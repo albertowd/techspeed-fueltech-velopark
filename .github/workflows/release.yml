@@ -1,64 +1,87 @@
 name: Release
 
-# Push a tag like v0.6.1 to build techspeed_fueltech_velopark_ac.7z for Assetto Corsa (for overtake.gg) and
-# techspeed_fueltech_velopark_beamng.zip for BeamNG.drive from the track's sources, and attach both to a
-# GitHub release, with that version's CHANGELOG section as the release notes.
+# Push a tag like v0.7.0 to build the track from its sources with the Top Race Editor (its release's app, EDITOR_VERSION):
+# techspeed_fueltech_velopark_ac.7z for Assetto Corsa (for overtake.gg), techspeed_fueltech_velopark_beamng.zip for
+# BeamNG.drive and techspeed_fueltech_velopark_rf2.7z for rFactor 2 (its location, for ModDev's Locations), attached to
+# a GitHub release with that version's CHANGELOG section as the release notes. Run by hand (Actions, Release, Run
+# workflow): the same build, its archives kept as the run's artifact only.
 
 on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+env:
+  # the editor that builds the track: a release of albertowd/top-race-editor
+  EDITOR_VERSION: v0.1.0
+
 jobs:
   release:
-    runs-on: ubuntu-latest
+    # (the editor's app is Windows')
+    runs-on: windows-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        # (bash waits for the editor's windowed program; PowerShell would not)
+        shell: bash
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: true
 
       - name: Check the version
+        if: github.ref_type == 'tag'
         id: version
         run: |
           set -e
           version="${GITHUB_REF_NAME#v}"
           track=source/track
-          grep -q "^VERSION = $version\$" "$track/extension/ext_config.ini" \
+          tr -d '\r' < "$track/extension/ext_config.ini" | grep -q "^VERSION = $version\$" \
             || { echo "ext_config.ini is not at $version: run release.ps1 -Version $version first"; exit 1; }
           # the section of this version, its lines without any Windows line ends
           awk -v v="## $version" '{sub(/\r$/, "")} $0 == v {on = 1; next} /^## / {on = 0} on' CHANGELOG.md > notes.md
           [ -s notes.md ] || { echo "CHANGELOG.md has no '## $version' section"; exit 1; }
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-python@v5
+      - name: The editor
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          gh release download "$EDITOR_VERSION" --repo albertowd/top-race-editor --pattern '*-win-x64.zip' --dir "$RUNNER_TEMP/editor-zip"
+          7z x "$RUNNER_TEMP"/editor-zip/*.zip -o"$RUNNER_TEMP/editor" > /dev/null
+          ls "$RUNNER_TEMP/editor"
+
+      - name: Build the three games
+        run: |
+          set -e
+          "$RUNNER_TEMP/editor/Top Race Editor.exe" --build --project "$GITHUB_WORKSPACE" --games ac,beamng,rf2
+
+      - name: Pack rFactor 2's location
+        run: |
+          set -e
+          # (7z: a third smaller than a zip, the GMTs' vertices and faces packing well)
+          (cd build/rf2/Locations && 7z a -t7z -mx=9 ../../dist/techspeed_fueltech_velopark_rf2.7z techspeed_fueltech_velopark > /dev/null)
+          7z t build/dist/techspeed_fueltech_velopark_rf2.7z > /dev/null
+          ls -la build/dist
+
+      - uses: actions/upload-artifact@v4
+        if: github.ref_type != 'tag'
         with:
-          python-version: '3.13'
-
-      - name: Build both games
-        run: |
-          set -e
-          # all but bpy, which only the preview renders use
-          grep -v '^bpy' tools/requirements.txt > requirements-build.txt
-          pip install -r requirements-build.txt
-          python tools/build_tracks.py ac beamng --all --pack
-
-      - name: Pack the archives
-        run: |
-          set -e
-          version="${{ steps.version.outputs.version }}"
-          archive="$PWD/techspeed_fueltech_velopark_ac.7z"
-          (cd build/ac && 7z a -t7z -mx=9 "$archive" content > /dev/null)
-          7z t "$archive" > /dev/null
-          mv "build/dist/techspeed_fueltech_velopark_beamng.zip" .
-          ls -la "techspeed_fueltech_velopark_ac.7z" "techspeed_fueltech_velopark_beamng.zip"
+          name: techspeed_fueltech_velopark
+          path: build/dist/*
+          retention-days: 14
 
       - uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
         with:
           name: ${{ steps.version.outputs.version }}
           body_path: notes.md
           files: |
-            techspeed_fueltech_velopark_ac.7z
-            techspeed_fueltech_velopark_beamng.zip
+            build/dist/techspeed_fueltech_velopark_ac.7z
+            build/dist/techspeed_fueltech_velopark_beamng.zip
+            build/dist/techspeed_fueltech_velopark_rf2.7z

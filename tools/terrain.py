@@ -37,6 +37,7 @@ import build_paths as bp
 
 TERRAIN = os.path.join(bp.ROOT, 'tools', 'reference', 'terrain')
 DOC = os.path.join(TERRAIN, 'terrain.json')
+TRACK_TERRAIN = TERRAIN     # (the track's own: its description where tools/track_data.py finds it, track.json or here)
 CACHE = os.path.join(bp.ROOT, 'build', 'cache', 'terrain')
 GROUND_CELL = 2.        # metres a pixel of ground.png
 # why a height is not the ground (points.json's why): 0 it is
@@ -61,8 +62,41 @@ def at(folder, cache=None):
     _GROUND.clear()
 
 
+def _own():
+    return os.path.abspath(TERRAIN) == os.path.abspath(TRACK_TERRAIN)
+
+
 def load(path=None):
-    return json.load(open(path or DOC, encoding='utf-8'))
+    """The terrain's description: path's, or the track's (track.json's terrain, or terrain.json while it is not in it),
+    or a new track's in its folder (at())."""
+    if path:
+        return json.load(open(path, encoding='utf-8'))
+    if _own():
+        import track_data
+        return track_data.part('terrain')[0]
+    return json.load(open(DOC, encoding='utf-8'))
+
+
+def exists():
+    if _own():
+        import track_data
+        return track_data.part('terrain')[0] is not None
+    return os.path.exists(DOC)
+
+
+def edit_file(e):
+    """An edit's file: named from the folder of the file the description is in (the track's root in track.json)."""
+    if _own():
+        import track_data
+        return os.path.join(track_data.part('terrain')[1] or TERRAIN, e['file'])
+    return os.path.join(TERRAIN, e['file'])
+
+
+def doc_files():
+    if _own():
+        import track_data
+        return track_data.files('terrain')
+    return [DOC] if os.path.exists(DOC) else []
 
 
 def _files(patterns):
@@ -80,12 +114,12 @@ def fingerprint(doc=None):
     h.update(b'terrain %d' % VERSION)
     files = _files(doc['heights']['files']) + _files(doc.get('buildings', {}).get('files', []))
     files += [os.path.join(bp.ROOT, d['file']) for d in (doc['image'], doc.get('photo')) if d]
-    files += [os.path.join(TERRAIN, e['file']) for e in doc.get('edits', []) if e.get('file')]
+    files += [edit_file(e) for e in doc.get('edits', []) if e.get('file')]
     for f in files:
         h.update(('%s %d' % (rel(f), os.path.getsize(f) if os.path.exists(f) else -1)).encode())
     for e in doc.get('edits', []):
-        if e.get('file') and os.path.exists(os.path.join(TERRAIN, e['file'])):
-            h.update(open(os.path.join(TERRAIN, e['file']), 'rb').read())
+        if e.get('file') and os.path.exists(edit_file(e)):
+            h.update(open(edit_file(e), 'rb').read())
     return h.hexdigest()[:16]
 
 
@@ -94,10 +128,10 @@ _FP = {}
 
 def key():
     """fingerprint() of the terrain as it is on disk, worked out once a process (each time its files change)."""
-    if not os.path.exists(DOC):
+    if not exists():
         return 'none'
     doc = load()
-    st = tuple((f, os.path.getmtime(f)) for f in [DOC] + [os.path.join(TERRAIN, e['file']) for e in doc.get('edits', []) if e.get('file')]
+    st = tuple((f, os.path.getmtime(f)) for f in doc_files() + [edit_file(e) for e in doc.get('edits', []) if e.get('file')]
                if os.path.exists(f))
     if _FP.get('st') != st:
         _FP.update(st=st, key=fingerprint(doc))
@@ -292,7 +326,7 @@ def edit(prev, e):
     """The ground with one edit on it (see the module's note): height(x, z) of the ground before it."""
     t = e['type']
     if t == 'raster':
-        R = _raster(os.path.join(TERRAIN, e['file']))
+        R = _raster(edit_file(e))
         return lambda xx, zz: prev(xx, zz) + _on(R, np.asarray(xx, float), np.asarray(zz, float))
     ring, ease = e['ring'], float(e.get('ease_m', 0.))
     if t == 'offset':
@@ -407,7 +441,7 @@ def new(location, image, heights, offset_m=0., photo=None, buildings=(), cell_m=
 def main():
     a = sys.argv[1:] or ['build']
     if a[0] == 'build':
-        if not os.path.exists(DOC):
+        if not exists():
             print('no terrain (%s): the ground as the models have it' % rel(DOC))
             return
         write()

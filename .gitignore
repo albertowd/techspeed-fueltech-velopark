@@ -28,3 +28,6 @@ tools/reference/materials/
 
 # the raw satellite pictures tools/ground_photo.py lays over the ground photo; kept locally, fetched again when missing
 tools/reference/ground_photo/tiles/
+
+# the track's models as the editor's build makes them from source/ on every build (the Release action builds them again)
+track/models/

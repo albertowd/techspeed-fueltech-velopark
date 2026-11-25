@@ -2296,7 +2296,8 @@ def build():
     grass_uv, *_ = np.linalg.lstsq(np.c_[gv[:, 0], gv[:, 2], np.ones(len(gv))], gv[:, 6:8], rcond=None)
     # road meshes no layout drives on
     driven = set()
-    for l in ('vp_1000', 'vp_1500', 'vp_1500_amateur', 'vp_1500_hotlap', 'vp_1500_short', 'vp_1500_short_amateur', 'vp_2500', 'vp_kids'):
+    for l in ('vp_1000', 'vp_1500', 'vp_1500_amateur', 'vp_1500_hotlap', 'vp_1500_short', 'vp_1500_short_amateur',
+              'vp_1500_short_2', 'vp_1500_short_2_amateur', 'vp_2500', 'vp_kids'):
         for x, z in C.ai_line(l)[::2, [0, 2]]:
             driven |= {ground.owner[k] for _, k in ground.hits(x, z)}
     bed_meshes = [k for k, m in enumerate(model.meshes) if m['name'] in ground_names and m['name'].startswith('1ROAD') and k not in driven]
@@ -3228,7 +3229,8 @@ def build():
 
     # -- night lights: keep the road at least as bright as before
     pts = np.concatenate([C.ai_line(l) for l in ('vp_1000', 'vp_1500', 'vp_1500_amateur', 'vp_1500_hotlap', 'vp_1500_short',
-                                                 'vp_1500_short_amateur', 'vp_2500', 'vp_kids')])[::3]
+                                                 'vp_1500_short_amateur', 'vp_1500_short_2', 'vp_1500_short_2_amateur',
+                                                 'vp_2500', 'vp_kids')])[::3]
     def series(posd, dird, c0, c1):
         a = light_model(pts, [posd[k] for k in sorted(posd)], [dird[k] for k in sorted(posd)], c0, 170, .25, 125, .5, .35)
         b = light_model(pts, [posd[k] for k in sorted(posd)], [np.array([0, -1., 0])] * len(posd), c1, 178, .25, 70, .5, .35)

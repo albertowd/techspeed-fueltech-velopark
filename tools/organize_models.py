@@ -19,7 +19,7 @@ corners. This puts them in order:
   velopark_runoffs.glb; the paddock keeps the pits, the car park and the middle's.
 - velopark_extra.glb, the trees, is velopark_trees.glb (its forest for BeamNG velopark_trees.json);
   the kids track's pole's wall in it goes to velopark_poles.glb.
-- The layouts' models (source/track/models_*.ini) follow.
+- The layouts' models (track/ac/models_*.ini) follow.
 
 A mesh keeps its name, material and textures. Run again, it finds them in order.
 """
@@ -116,8 +116,10 @@ def attach(src, dst, nodes):
             i = len(dst['materials']) - 1
             have = {t['name'] for t in dst['textures']}
             for t in mat['textures']:
-                if t['name'] not in have:
-                    dst['textures'].append(next(x for x in src['textures'] if x['name'] == t['name']))
+                held = next((x for x in src['textures'] if x['name'] == t['name']), None)
+                # (one the source does not hold: a library material's texture, which the step that makes it adds)
+                if t['name'] not in have and held is not None:
+                    dst['textures'].append(held)
                     have.add(t['name'])
         n['material'] = i
         name, j = n['name'], 1
@@ -167,11 +169,11 @@ def paddock_runoffs(ms):
 
 
 def layouts():
-    """Each layout's models in its source/track/models_*.ini, as the models now are."""
+    """Each layout's models in its models_*.ini (track/ac), as the models now are."""
     have = {os.path.splitext(os.path.basename(f))[0] for f in glob.glob(os.path.join(M, '*.glb'))}
     rename = {'velopark_extra': 'velopark_trees', 'velopark_paint': 'velopark_lines'}
     done = 0
-    for path in sorted(glob.glob(os.path.join(bp.ROOT, 'source', 'track', 'models_*.ini'))):
+    for path in sorted(glob.glob(os.path.join(bp.AC_MADE, 'models_*.ini'))):
         text = open(path, newline='').read()
         nl = '\r\n' if '\r\n' in text else '\n'
         files = [rename.get(f, f) for f in re.findall(r'(?m)^FILE=(.*?)\.kn5\s*$', text)]

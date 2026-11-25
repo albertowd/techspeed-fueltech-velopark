@@ -15,7 +15,7 @@ fixed box round each copy ('static'); a band along its curve ('wall'); or, alone
 ('dynamic', AC_POBJECT_n: its hull, its model under it). Its layouts: none named, every layout's (in SHARED, the
 dynamic ones in each layout's model); named, only theirs (in each one's model). The old models' tyre walls, poles,
 cones and boards out; the light poles' lights (their model's: in its light series, the catalogue's 'lights')
-written into ext_config.ini, one each, as each pole stands. The old lists below (version 2) until then:
+written to places.json's `lights`, one each, as each pole stands. The old lists below (version 2) until then:
 
 - A spot (grid slot, pit box, hotlap start: AC_START_n, AC_PIT_n, AC_HOTLAP_START_0 of vp_<layout>.glb)
   at its x, z, turned to its heading (radians from +z toward +x: the node's +z), as high over the floor
@@ -60,11 +60,16 @@ OBJECTS = os.path.join(bp.ROOT, 'tools', 'reference', 'objects.json')
 LINES = os.path.join(bp.MODELS, 'velopark_lines.glb')
 POLES = os.path.join(bp.MODELS, 'velopark_poles.glb')
 EXT = os.path.join(bp.ROOT, 'source', 'track', 'extension', 'ext_config.ini')
-TRACK_DIR = os.path.join(bp.ROOT, 'source', 'track')
-TERRAIN = ('velopark.glb', 'velopark_kerbs.glb', 'velopark_kids.glb', 'velopark_paddock.glb', 'velopark_runoffs.glb')
+LIGHTS = []          # (the placed objects' lights, in the world: places.json's `lights`)
+TRACK_DIR = bp.AC_MADE                # (the layouts' model lists the steps make: track/ac)
+TERRAIN = ('velopark.glb', 'velopark_kerbs.glb', 'velopark_kids.glb', 'velopark_paddock.glb', 'velopark_runoffs.glb',
+           'velopark_outside.glb')         # (and the floors laid in the buildings, the tent's: what stands in them on them)
 STEP = .25           # metres between a mark's rows along it (it follows the road)
 LIGHT_NEAR = 3.      # metres (x, z) from a pole's lenses its lights are
 MOVED = 1e-4         # metres, radians: less than this, not moved
+MERGE_MAX = 60000    # points of a merged mesh at most (a model's meshes index theirs in 16 bits)
+MERGE_CELL = 20.     # metres a side of the squares a part drawn only so near or so far is merged in
+SPOT_LIFT = .5       # metres over the floor every spot and gate stands in places.json (a game drops its car from there)
 # a layout's start line painted, checkered, on its track's road: the layout, its road (not the pit lane's, which
 # may lie over it there); the start line its first timing gate (AC_TIME_0)
 START_LINES = {'vp_kids': '1ROAD_KIDS_0'}
@@ -243,7 +248,8 @@ def layouts(data, places=None):
             for c in k['root']['children']:
                 if c['kind'] == 1 and MARKERS.match(c['name']):
                     M = np.array(c['matrix'], float).reshape(4, 4)
-                    here['spots'].append(dict(name=c['name'][len('AC_'):], x=float(M[3, 0]), y=float(M[3, 1]), z=float(M[3, 2]),
+                    x, z = float(M[3, 0]), float(M[3, 2])
+                    here['spots'].append(dict(name=c['name'][len('AC_'):], x=x, y=float(floor(x, z)[0]) + SPOT_LIFT, z=z,
                                               heading=float(heading_of(M))))
                 elif not c['name'].startswith('AC_POBJECT_'):
                     keep.append(c)
@@ -736,12 +742,61 @@ def shaped(o, meta, parts, size):
     return out, size
 
 
+BASE = .1            # metres up from a model's lowest point its base reaches (what it stands on: wheels, legs, a mast's foot)
+EDGE_IN = .9         # of the way out from its base's middle to its corners, where it is taken to touch
+
+
+def feet(parts):
+    """How many pieces a model's base is in: its faces with every corner within BASE of its lowest point, those
+    sharing a corner (where it is, to the millimetre) one piece."""
+    Vs = [V[:, :3] for p, V, F, m in parts if p != 'hull'] or [V[:, :3] for p, V, F, m in parts]
+    low = min(V[:, 1].min() for V in Vs) + BASE
+    parent = {}
+
+    def root(a):
+        while parent.setdefault(a, a) != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+    for p, V, F, m in parts:
+        if p == 'hull' and any(q != 'hull' for q, *_ in parts):
+            continue
+        key = [tuple(k) for k in np.round(V[:, :3] * 1000).astype(np.int64).tolist()]
+        for f in np.asarray(F).reshape(-1, 3):
+            if all(V[i, 1] < low for i in f):
+                a = root(key[f[0]])
+                for i in f[1:]:
+                    b = root(key[i])
+                    if a != b:
+                        parent[b] = a
+    return len({root(a) for a in list(parent)})
+
+
+def rest_heights(parts, places):
+    """Where each copy of a model rests on the floor: a model on feet (its base in three pieces or more: wheels,
+    legs) on the highest of the floor under its base's middle and corners, as such a thing rests on the highest it
+    touches, no wheel sunk into a step; one on a base of a piece (a tyre stack's, a cone's, a mast's foot) on the
+    floor under its middle, as it beds down on it. (places: [(x, z, heading)])"""
+    import templates
+    P = np.concatenate([V[:, :3] for p, V, F, m in parts if p != 'hull'] or [V[:, :3] for p, V, F, m in parts])
+    P = P[P[:, 1] < P[:, 1].min() + BASE]
+    if feet(parts) < 3:
+        return floor(np.array([x for x, z, h in places]), np.array([z for x, z, h in places]))
+    lo, hi = P.min(0), P.max(0)
+    mid = (lo + hi) / 2
+    Q = np.zeros((5, 11))
+    Q[:, 0] = [mid[0]] + [mid[0] + (c - mid[0]) * EDGE_IN for c in (lo[0], lo[0], hi[0], hi[0])]
+    Q[:, 2] = [mid[2]] + [mid[2] + (c - mid[2]) * EDGE_IN for c in (lo[2], hi[2], lo[2], hi[2])]
+    W = np.concatenate([templates.world(Q, np.array([x, z]), 0., h) for x, z, h in places])
+    return floor(W[:, 0], W[:, 2]).reshape(len(places), 5).max(1)
+
+
 def object_placed(o, parts, places):
     """An object's model at each of its places ('place'): [(part, points (n, 11), faces, material)] in the world,
-    each copy on the floor at its middle (its hull out: a dynamic one's alone)."""
+    each copy resting on the floor (rest_heights; its hull out: a dynamic one's alone)."""
     import templates
     sink = SINKS.get(o['model'], 0.)
-    ys = floor(np.array([x for x, z, h in places]), np.array([z for x, z, h in places]))
+    ys = rest_heights(parts, places)
     out = []
     for p, V0, F0, mat in parts:
         if p == 'hull':
@@ -767,7 +822,9 @@ def material_of(k, name):
             _MATERIAL_SOURCES[f] = gltf_source.load_kn5(f)
         src = _MATERIAL_SOURCES[f]
         m = next((m for m in src['materials'] if m['name'] == name), None)
-        if m is None:
+        held = {t['name'] for t in src['textures']}
+        # (from a model that holds its textures: one may name a library material whose textures another holds)
+        if m is None or any(t['name'] not in held for t in m.get('textures', [])):
             continue
         have = {t['name'] for t in k['textures']}
         for t in m.get('textures', []):
@@ -856,12 +913,15 @@ def objects(data, placed=None):
     shared['root']['children'] = []
     files[None] = shared
     count, pobj, lit, solid = {}, {lay: 0 for lay in layouts_all}, [], []
+    merged = {}           # (file, model, part, material, lod): [(points, faces)], the copies of what has nothing to hit
     for o in want:
         meta = cat.get(o.get('model'))
         if meta is None or not o.get('curve'):
             continue
         parts, size = shaped(o, meta, templates.load(o['model']), meta['size'])
         lods = meta.get('lods') or {}                               # (a part seen only so near, or so far: its stand-in)
+        draw = meta.get('draw')                                     # (and the whole model's, for the parts lods does not name)
+        whole = (float(draw[0] or 0.), float(draw[1] or 0.)) if draw else (0., 0.)
         global _MODEL
         _MODEL = o['model']
         single = len(o['curve']) == 1
@@ -896,7 +956,7 @@ def objects(data, placed=None):
                     top['children'].append(mesh(k, top['name'], hull[0], hull[1], hull[2], renderable=False))
                 node = dict(kind=1, name=name, active=1, matrix=[float(v) for v in np.eye(4).ravel()], children=[])
                 for pp, V, F, mat in vis:
-                    node['children'].append(mesh(k, part_name(name, pp, len(vis)), V, F, mat, lod=lods.get(pp, (0., 0.))))
+                    node['children'].append(mesh(k, part_name(name, pp, len(vis)), V, F, mat, lod=lods.get(pp, whole)))
                 top['children'].append(node)
                 k['root']['children'].append(top)
                 pobj[lay] += 1
@@ -905,7 +965,15 @@ def objects(data, placed=None):
             for lay in targets:
                 k = files[lay]
                 for pp, V, F, mat in laid:
-                    k['root']['children'].append(mesh(k, part_name(name, pp, len(laid)), V, F, mat, lod=lods.get(pp, (0., 0.))))
+                    if coll == 'none':
+                        # (nothing to hit: one mesh of all the copies of this part of the model in this file, drawn
+                        # at once, as many objects as there are; those drawn only so near or so far, of each MERGE_CELL
+                        # square, as a game measures that from the mesh's middle)
+                        lod = tuple(lods.get(pp, whole))
+                        cell = (0, 0) if lod == (0., 0.) else tuple(int(v // MERGE_CELL) for v in places[0][:2])
+                        merged.setdefault((lay, o['model'], pp, mat, lod, cell), []).append((V, F))
+                    else:
+                        k['root']['children'].append(mesh(k, part_name(name, pp, len(laid)), V, F, mat, lod=lods.get(pp, whole)))
                 if coll == 'wall' and not single:
                     P, F = wall_band(o, places, half=size[0] / 2, high=size[1] + COLLISION_OVER)
                     if lay == targets[0]:
@@ -920,7 +988,7 @@ def objects(data, placed=None):
                     P0 = (hull if hull is not None else np.concatenate([V for pp, V, F, m in parts]))[:, :3]
                     lo, hi = P0.min(0), P0.max(0)
                     hi[1] += COLLISION_OVER
-                    ys = floor(np.array([q[0] for q in places]), np.array([q[1] for q in places]))
+                    ys = rest_heights(parts, places)
                     Bs, BF = [], []
                     for j, ((x, z, h), y) in enumerate(zip(places, ys)):
                         B, F = box(lo, hi)
@@ -936,9 +1004,24 @@ def objects(data, placed=None):
         if meta.get('lights'):
             lit += [(meta['lights'], q) for q in places]
         count[o['model']] = count.get(o['model'], 0) + 1
+    for (lay, model, pp, mat, lod, cell), copies in sorted(merged.items(), key=lambda x: str(x[0])):
+        k = files[lay]
+        runs, run, n = [], [], 0
+        for V, F in copies:                                         # (in meshes of fewer than 65536 points)
+            if run and n + len(V) > MERGE_MAX:
+                runs.append(run)
+                run, n = [], 0
+            run.append((V, F))
+            n += len(V)
+        runs.append(run)
+        for i, run in enumerate(runs):
+            off = np.cumsum([0] + [len(V) for V, F in run[:-1]])
+            V = np.concatenate([V for V, F in run])
+            F = np.concatenate([F + o_ for (V_, F), o_ in zip(run, off)])
+            name = '%s_%s' % (model.upper(), pp.upper()) + ('' if lod == (0., 0.) else '_%d_%d' % cell) + ('_%d' % i if i else '')
+            k['root']['children'].append(mesh(k, name, V, F, mat, lod=lod))
     for lay, k in files.items():
         bp.save(k, SHARED if lay is None else os.path.join(bp.MODELS, lay + '.glb'))
-    shared_in_layouts()
     object_lights(lit)
     cleared = clear_trees(solid)
     if cleared:
@@ -991,26 +1074,11 @@ def clear_trees(areas):
     return int(gone.sum())
 
 
-def shared_in_layouts():
-    """SHARED in every layout's models (models_<layout>.ini), once."""
-    import glob
-    stem = os.path.splitext(os.path.basename(SHARED))[0]
-    for f in sorted(glob.glob(os.path.join(TRACK_DIR, 'models_*.ini'))):
-        text = open(f, encoding='utf-8').read()
-        if 'FILE=%s.kn5' % stem in text:
-            continue
-        n = len(re.findall(r'^\[MODEL_\d+\]', text, re.M))
-        text = text.rstrip('\n') + '\n\n[MODEL_%d]\nFILE=%s.kn5\nPOSITION=0,0,0\nROTATION=0,0,0\n' % (n, stem)
-        open(f, 'w', encoding='utf-8').write(text)
-
-
 def object_lights(lit):
-    """The lights of the objects that have them (the light poles'), written into ext_config.ini: in each light series
-    a model's lights name (its DESCRIPTION), every POSITION_k and DIRECTION_k made again, one for each object's light,
-    where it is and where it faces, its object turned to its heading, on the floor there."""
-    if not os.path.exists(EXT) or not lit:
-        return
-    by = {}
+    """The lights of the objects that have them (the light poles'), in the world (TRACK_FORMAT.md, "Lights and
+    screens"): each of a model's lights (its series, where it is and where it faces, in the model's own frame), its
+    object turned to its heading, on the floor there. They go to places.json's `lights`."""
+    out = []
     for lights, (x, z, h) in lit:
         y = float(floor(x, z)[0])
         s, c = math.sin(h), math.cos(h)
@@ -1019,45 +1087,26 @@ def object_lights(lit):
             a, f = L['at'], L['facing']
             p = np.array([x, z]) + right * a[0] + fwd * a[2]
             d = right * f[0] + fwd * f[2]
-            by.setdefault(L['series'], []).append(((p[0], y + a[1], p[1]), (d[0], f[1], d[1])))
-    raw = open(EXT, 'rb').read()
-    crlf = b'\r\n' in raw
-    lines = raw.decode('utf-8').replace('\r\n', '\n').split('\n')
-    # (each section's own lines, those of a series named by the lights made again: its positions and directions
-    # out, the new ones after its last line)
-    sections, cur = [], []
-    for line in lines:
-        if line.startswith('[') and cur:
-            sections.append(cur)
-            cur = []
-        cur.append(line)
-    sections.append(cur)
-    out = []
-    for sec in sections:
-        desc = next((re.match(r'^DESCRIPTION\s*=\s*(.*)$', ln).group(1).strip() for ln in sec if re.match(r'^DESCRIPTION\s*=', ln)), None)
-        if desc not in by:
-            out += sec
-            continue
-        body = [ln for ln in sec if not re.match(r'^(POSITION|DIRECTION)_\d+\s*=', ln)]
-        tail = []
-        while body and (not body[-1].strip() or body[-1].lstrip().startswith(';')):
-            tail.insert(0, body.pop())
-        for i, (P, D) in enumerate(by[desc]):
-            body.append('POSITION_%d = %.3f, %.3f, %.3f' % (i, *P))
-            body.append('DIRECTION_%d = %.3f, %.3f, %.3f' % (i, *D))
-        out += body + tail
-    text = '\n'.join(out)
-    open(EXT, 'wb').write((text.replace('\n', '\r\n') if crlf else text).encode('utf-8'))
+            out.append(dict(series=L['series'], at=[round(float(v), 3) for v in (p[0], y + a[1], p[1])],
+                            facing=[round(float(v), 3) + 0. for v in (d[0], f[1], d[1])]))
+    LIGHTS[:] = sorted(out, key=lambda L: L['series'])     # (by series, each's in the objects' order)
+    return len(out)
+
 
 
 def main():
     global OBJECTS
     if '--objects' in sys.argv:
         OBJECTS = sys.argv[sys.argv.index('--objects') + 1]
-    if not os.path.exists(OBJECTS):
-        print('no objects.json (the road editor writes it at its first save): nothing placed, the models as they are')
+        data = json.load(open(OBJECTS, encoding='utf-8')) if os.path.exists(OBJECTS) else None
+    else:
+        import track_data                       # (track.json's objects, or objects.json while they are not in it)
+        data, base = track_data.part('objects')
+        if data is not None and base == track_data.root():
+            data = dict(data, version=data.get('version', 3))     # (in track.json: of its format, version 3's body)
+    if data is None:
+        print('no objects (the road editor writes them at its first save): nothing placed, the models as they are')
         return
-    data = json.load(open(OBJECTS, encoding='utf-8'))
     if int(data.get('version') or 0) >= 3:
         # (version 3: the layouts' spots and gates; everything else that stands there an object of the catalogue; the
         # layouts' places and physics objects in PLACES, for each game's build to make its own)
@@ -1067,7 +1116,7 @@ def main():
         print('start lines painted: %s' % (', '.join(start_lines(data)) or 'none'))
         laid = objects(data, placed)
         print('objects laid: %s' % (', '.join('%d %s' % (n, m) for m, n in sorted(laid.items())) or 'none'))
-        json.dump(dict(version=1, layouts=placed), open(PLACES, 'w', encoding='utf-8'), indent=1)
+        json.dump(dict(version=1, layouts=placed, lights=LIGHTS), open(PLACES, 'w', encoding='utf-8'), indent=1)
         print('places of %d layouts: %d spots and gates, %d physics objects' % (
             len(placed), sum(len(v['spots']) for v in placed.values()), sum(len(v['objects']) for v in placed.values())))
         return

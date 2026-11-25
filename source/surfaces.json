@@ -3,32 +3,44 @@
  "surfaces": {
   "rumble": {
    "targets": {
-    "ac": "ROAD"
+    "ac": "ROAD",
+    "beamng": "RUMBLE_STRIP",
+    "rf2": "rumble"
    }
   },
   "kerb": {
    "targets": {
-    "ac": "KERB"
+    "ac": "KERB",
+    "beamng": "RUMBLE_STRIP",
+    "rf2": "rumble"
    }
   },
   "asphalt": {
    "targets": {
-    "ac": "ROAD"
+    "ac": "ROAD",
+    "beamng": "ASPHALT",
+    "rf2": "road"
    }
   },
   "grass": {
    "targets": {
-    "ac": "GRASS"
+    "ac": "GRASS",
+    "beamng": "VELOPARK_GRASS",
+    "rf2": "grass"
    }
   },
   "wall": {
    "targets": {
-    "ac": "WALL"
+    "ac": "WALL",
+    "beamng": "ASPHALT",
+    "rf2": "wall"
    }
   },
   "sand": {
    "targets": {
-    "ac": "SAND"
+    "ac": "SAND",
+    "beamng": "SAND",
+    "rf2": "sand"
    }
   }
  }

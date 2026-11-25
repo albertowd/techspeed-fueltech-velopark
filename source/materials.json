@@ -1,6 +1,276 @@
 {
  "version": 1,
  "materials": {
+  "ASH 2": {
+   "colour": "Tree ash 2.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksTree",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "Tree ash 2.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "ASH 3": {
+   "colour": "Tree ash 3.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksTree",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "Tree ash 3.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "BROAD 1": {
+   "colour": "Tree broad leaf 1.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksTree",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "Tree broad leaf 1.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "BROAD 2": {
+   "colour": "Tree broad leaf 2.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksTree",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "Tree broad leaf 2.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "BROAD 3": {
+   "colour": "Tree broad leaf 3.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksTree",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "Tree broad leaf 3.dds"
+      ]
+     ]
+    }
+   }
+  },
+  "BROAD 4": {
+   "colour": "Tree broad leaf 4.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksTree",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.0010000000474974513
+      ],
+      [
+       "ksSpecularEXP",
+       0.0010000000474974513
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.5
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "Tree broad leaf 4.dds"
+      ]
+     ]
+    }
+   }
+  },
   "Background": {
    "colour": "GoogleMap.jpg",
    "alpha": "opaque",
@@ -133,7 +403,17 @@
        0,
        "BuildingDark.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.25,
+       0.6
+      ],
+      "ksAmbient": [
+       0.15,
+       0.3
+      ]
+     }
     }
    }
   },
@@ -178,7 +458,17 @@
        0,
        "BuildingDoor.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.25,
+       0.6
+      ],
+      "ksAmbient": [
+       0.15,
+       0.3
+      ]
+     }
     }
    }
   },
@@ -268,9 +558,20 @@
        0,
        "BuildingRoofDark.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.25,
+       0.6
+      ],
+      "ksAmbient": [
+       0.15,
+       0.3
+      ]
+     }
     }
-   }
+   },
+   "covers_grass": true
   },
   "BuildingSolar": {
    "colour": "BuildingSolar.png",
@@ -313,9 +614,20 @@
        0,
        "BuildingSolar.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.25,
+       0.6
+      ],
+      "ksAmbient": [
+       0.15,
+       0.3
+      ]
+     }
     }
-   }
+   },
+   "covers_grass": true
   },
   "BuildingWall": {
    "colour": "BuildingWallGrey.png",
@@ -358,10 +670,21 @@
        0,
        "BuildingWallGrey.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.25,
+       0.6
+      ],
+      "ksAmbient": [
+       0.15,
+       0.3
+      ]
+     }
     }
    },
-   "surface": "wall"
+   "surface": "wall",
+   "covers_grass": true
   },
   "ConeOrange": {
    "colour": "ConeOrange.png",
@@ -863,7 +1186,14 @@
       ]
      ]
     }
-   }
+   },
+   "glow": [
+    1,
+    1,
+    1
+   ],
+   "glow_strength": 0.094,
+   "night_only": true
   },
   "GantryFlag": {
    "colour": "StartLamp.png",
@@ -1134,7 +1464,8 @@
       ]
      ]
     }
-   }
+   },
+   "covers_grass": true
   },
   "GridNumbers": {
    "colour": "GridNumbers.png",
@@ -1228,10 +1559,21 @@
        1,
        "kerb_concrete_nm.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.45,
+       0.2
+      ],
+      "ksAmbient": [
+       0.3,
+       0.2
+      ]
+     }
     }
    },
-   "surface": "rumble"
+   "surface": "rumble",
+   "covers_grass": true
   },
   "KerbFloor": {
    "colour": "kerb_floor.png",
@@ -1280,10 +1622,21 @@
        1,
        "kerb_floor_nm.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.45,
+       0.2
+      ],
+      "ksAmbient": [
+       0.3,
+       0.2
+      ]
+     }
     }
    },
-   "surface": "rumble"
+   "surface": "rumble",
+   "covers_grass": true
   },
   "KerbRamp": {
    "colour": "kerb_ramp.png",
@@ -1332,10 +1685,21 @@
        1,
        "kerb_ramp_nm.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.45,
+       0.2
+      ],
+      "ksAmbient": [
+       0.3,
+       0.2
+      ]
+     }
     }
    },
-   "surface": "rumble"
+   "surface": "rumble",
+   "covers_grass": true
   },
   "KerbRound": {
    "colour": "kerb_round.png",
@@ -1384,10 +1748,21 @@
        1,
        "kerb_ramp_nm.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.45,
+       0.2
+      ],
+      "ksAmbient": [
+       0.3,
+       0.2
+      ]
+     }
     }
    },
-   "surface": "rumble"
+   "surface": "rumble",
+   "covers_grass": true
   },
   "LinePaint": {
    "colour": "LinePaint.png",
@@ -1477,7 +1852,8 @@
       ]
      ]
     }
-   }
+   },
+   "covers_grass": true
   },
   "OutBanner": {
    "colour": "OUT_banner.png",
@@ -1526,6 +1902,7 @@
   },
   "OutConcrete": {
    "colour": "OUT_concrete.png",
+   "covers_grass": true,
    "alpha": "opaque",
    "targets": {
     "ac": {
@@ -1807,11 +2184,11 @@
      "props": [
       [
        "ksAmbient",
-       0.35
+       1
       ],
       [
        "ksDiffuse",
-       0.65
+       0.3
       ],
       [
        "ksSpecular",
@@ -1838,7 +2215,14 @@
       ]
      ]
     }
-   }
+   },
+   "glow": [
+    1,
+    1,
+    1
+   ],
+   "glow_strength": 0.094,
+   "night_only": true
   },
   "OutGlass": {
    "colour": "OUT_glass.png",
@@ -2065,7 +2449,14 @@
       ]
      ]
     }
-   }
+   },
+   "glow": [
+    1,
+    0.886,
+    0.706
+   ],
+   "glow_strength": 0.6,
+   "night_only": true
   },
   "OutMetalBlue": {
    "colour": "OUT_metal_blue.png",
@@ -2381,7 +2772,14 @@
       ]
      ]
     }
-   }
+   },
+   "glow": [
+    1,
+    1,
+    1
+   ],
+   "glow_strength": 0.5,
+   "night_only": true
   },
   "OutRoof": {
    "colour": "BuildingRoof.png",
@@ -3064,7 +3462,61 @@
     }
    },
    "metres": 2.5,
-   "surface": "kerb"
+   "surface": "kerb",
+   "roughness": "scan_pavers_rough.png",
+   "covers_grass": true
+  },
+  "Pit01c2": {
+   "colour": "Pit01c2.png",
+   "normal": "Pit01_norm.png",
+   "alpha": "mask",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixelAT_NM",
+     "blend": 0,
+     "alpha_tested": 1,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "Pit01c2.dds"
+      ],
+      [
+       "txNormal",
+       1,
+       "Pit01_norm.dds"
+      ]
+     ]
+    }
+   },
+   "covers_grass": true
   },
   "PitLinePaint": {
    "colour": "PitLinePaint.png",
@@ -3203,7 +3655,53 @@
      ]
     }
    },
-   "metres": 1.0
+   "metres": 1.0,
+   "roughness": "scan_poleframe_rough.png"
+  },
+  "PoleGlass": {
+   "colour": "pole_glass.png",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.800000011920929
+      ],
+      [
+       "ksSpecularEXP",
+       80.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       1.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "pole_glass.dds"
+      ]
+     ]
+    }
+   }
   },
   "PoleLens": {
    "colour": "pole_lens.png",
@@ -3248,7 +3746,14 @@
       ]
      ]
     }
-   }
+   },
+   "glow": [
+    1,
+    0.933,
+    0.824
+   ],
+   "glow_strength": 0.12,
+   "night_only": true
   },
   "PoleMast": {
    "colour": "scan_polemast.png",
@@ -3342,7 +3847,8 @@
      ]
     }
    },
-   "metres": 2.0
+   "metres": 2.0,
+   "roughness": "scan_polemast_rough.png"
   },
   "Rumble1": {
    "colour": "Rumble1.png",
@@ -3391,10 +3897,21 @@
        1,
        "Rumble_norm.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.45,
+       0.2
+      ],
+      "ksAmbient": [
+       0.3,
+       0.2
+      ]
+     }
     }
    },
-   "surface": "asphalt"
+   "surface": "rumble",
+   "covers_grass": true
   },
   "StartLamp": {
    "colour": "StartLamp.png",
@@ -3575,11 +4092,23 @@
        3,
        "scan_tarmac_dark.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.45,
+       0.2
+      ],
+      "ksAmbient": [
+       0.3,
+       0.2
+      ]
+     }
     }
    },
    "metres": 30.0,
-   "surface": "asphalt"
+   "surface": "asphalt",
+   "roughness": "scan_tarmac_dark_rough.png",
+   "covers_grass": true
   },
   "Tarmac Light": {
    "colour": "scan_tarmac_light.png",
@@ -3670,11 +4199,23 @@
        3,
        "scan_tarmac_light.dds"
       ]
-     ]
+     ],
+     "night": {
+      "ksDiffuse": [
+       0.45,
+       0.2
+      ],
+      "ksAmbient": [
+       0.3,
+       0.2
+      ]
+     }
     }
    },
    "metres": 30.0,
-   "surface": "asphalt"
+   "surface": "asphalt",
+   "roughness": "scan_tarmac_light_rough.png",
+   "covers_grass": true
   },
   "TyreBarrier": {
    "colour": "TyreBarrier.png",
@@ -3726,33 +4267,34 @@
      ]
     }
    },
-   "surface": "wall"
+   "surface": "wall",
+   "covers_grass": true
   },
   "aluminium": {
-   "colour": "c_aluminium.png",
+   "colour": "kart_aluminium.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.11999999731779099
+       0.5
       ],
       [
        "ksDiffuse",
-       0.14000000059604645
+       0.5
       ],
       [
        "ksSpecular",
-       0.5199999809265137
+       0.0
       ],
       [
        "ksSpecularEXP",
-       93.19999694824219
+       1.0
       ],
       [
        "ksEmissive",
@@ -3761,59 +4303,43 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.22653500735759735
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.3885450065135956
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_aluminium.png"
+       "kart_aluminium.jpg"
       ]
      ]
     }
    }
   },
   "black_anodized": {
-   "colour": "c_black_anodized.png",
+   "colour": "kart_black_anodized.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.11999999731779099
+       0.5
       ],
       [
        "ksDiffuse",
-       0.14000000059604645
+       0.5
       ],
       [
        "ksSpecular",
-       0.49000000953674316
+       0.0
       ],
       [
        "ksSpecularEXP",
-       81.05000305175781
+       1.0
       ],
       [
        "ksEmissive",
@@ -3822,36 +4348,20 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.15448175370693207
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.27636224031448364
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_black_anodized.png"
+       "kart_black_anodized.jpg"
       ]
      ]
     }
    }
   },
   "black_plastic": {
-   "colour": "c_black_plastic.png",
+   "colour": "kart_black_plastic.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
@@ -3862,19 +4372,19 @@
      "props": [
       [
        "ksAmbient",
-       0.44999998807907104
+       0.5
       ],
       [
        "ksDiffuse",
-       0.550000011920929
+       0.5
       ],
       [
        "ksSpecular",
-       0.3700000047683716
+       0.0
       ],
       [
        "ksSpecularEXP",
-       41.45000076293945
+       1.0
       ],
       [
        "ksEmissive",
@@ -3889,37 +4399,37 @@
       [
        "txDiffuse",
        0,
-       "c_black_plastic.png"
+       "kart_black_plastic.jpg"
       ]
      ]
     }
    }
   },
   "body_livery": {
-   "colour": "body_livery.png",
+   "colour": "kart_body_livery.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.44999998807907104
+       0.5
       ],
       [
        "ksDiffuse",
-       0.550000011920929
+       0.5
       ],
       [
        "ksSpecular",
-       0.550000011920929
+       0.0
       ],
       [
        "ksSpecularEXP",
-       106.25
+       1.0
       ],
       [
        "ksEmissive",
@@ -3928,59 +4438,43 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.019999999552965164
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.05999999865889549
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "body_livery.png"
+       "kart_body_livery.jpg"
       ]
      ]
     }
    }
   },
   "brake_disc": {
-   "colour": "c_brake_disc.png",
+   "colour": "kart_brake_disc.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.11999999731779099
+       0.5
       ],
       [
        "ksDiffuse",
-       0.14000000059604645
+       0.5
       ],
       [
        "ksSpecular",
-       0.46000000834465027
+       0.0
       ],
       [
        "ksSpecularEXP",
-       69.80000305175781
+       1.0
       ],
       [
        "ksEmissive",
@@ -3989,59 +4483,43 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.14182400703430176
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.2582879960536957
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_brake_disc.png"
+       "kart_brake_disc.jpg"
       ]
      ]
     }
    }
   },
   "caliper": {
-   "colour": "c_caliper.png",
+   "colour": "kart_caliper.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.11999999731779099
+       0.5
       ],
       [
        "ksDiffuse",
-       0.14000000059604645
+       0.5
       ],
       [
        "ksSpecular",
-       0.5199999809265137
+       0.0
       ],
       [
        "ksSpecularEXP",
-       93.19999694824219
+       1.0
       ],
       [
        "ksEmissive",
@@ -4050,59 +4528,43 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.12326750159263611
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.22427250444889069
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_caliper.png"
+       "kart_caliper.jpg"
       ]
      ]
     }
    }
   },
   "chain": {
-   "colour": "c_chain.png",
+   "colour": "kart_chain.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.11999999731779099
+       0.5
       ],
       [
        "ksDiffuse",
-       0.14000000059604645
+       0.5
       ],
       [
        "ksSpecular",
-       0.4000000059604645
+       0.0
       ],
       [
        "ksSpecularEXP",
-       50.0
+       1.0
       ],
       [
        "ksEmissive",
@@ -4111,36 +4573,20 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.10437499731779099
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.2006250023841858
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_chain.png"
+       "kart_chain.jpg"
       ]
      ]
     }
    }
   },
   "chassis_black": {
-   "colour": "c_chassis_black.png",
+   "colour": "kart_chassis_black.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
@@ -4151,19 +4597,19 @@
      "props": [
       [
        "ksAmbient",
-       0.44999998807907104
+       0.5
       ],
       [
        "ksDiffuse",
-       0.550000011920929
+       0.5
       ],
       [
        "ksSpecular",
-       0.4300000071525574
+       0.0
       ],
       [
        "ksSpecularEXP",
-       59.45000076293945
+       1.0
       ],
       [
        "ksEmissive",
@@ -4178,37 +4624,37 @@
       [
        "txDiffuse",
        0,
-       "c_chassis_black.png"
+       "kart_chassis_black.jpg"
       ]
      ]
     }
    }
   },
   "engine_alu": {
-   "colour": "c_engine_alu.png",
+   "colour": "kart_engine_alu.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.11999999731779099
+       0.5
       ],
       [
        "ksDiffuse",
-       0.14000000059604645
+       0.5
       ],
       [
        "ksSpecular",
-       0.4300000071525574
+       0.0
       ],
       [
        "ksSpecularEXP",
-       59.45000076293945
+       1.0
       ],
       [
        "ksEmissive",
@@ -4217,59 +4663,43 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.11688696593046188
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.2195725291967392
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_engine_alu.png"
+       "kart_engine_alu.jpg"
       ]
      ]
     }
    }
   },
   "engine_black": {
-   "colour": "c_engine_black.png",
+   "colour": "kart_engine_black.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.11999999731779099
+       0.5
       ],
       [
        "ksDiffuse",
-       0.14000000059604645
+       0.5
       ],
       [
        "ksSpecular",
-       0.4000000059604645
+       0.0
       ],
       [
        "ksSpecularEXP",
-       50.0
+       1.0
       ],
       [
        "ksEmissive",
@@ -4278,59 +4708,43 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.062187500298023224
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.1303125023841858
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_engine_black.png"
+       "kart_engine_black.jpg"
       ]
      ]
     }
    }
   },
   "engine_red": {
-   "colour": "c_engine_red.png",
+   "colour": "kart_engine_red.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.44999998807907104
+       0.5
       ],
       [
        "ksDiffuse",
-       0.550000011920929
+       0.5
       ],
       [
        "ksSpecular",
-       0.5199999809265137
+       0.0
       ],
       [
        "ksSpecularEXP",
-       93.19999694824219
+       1.0
       ],
       [
        "ksEmissive",
@@ -4339,59 +4753,43 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.019999999552965164
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.05999999865889549
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_engine_red.png"
+       "kart_engine_red.jpg"
       ]
      ]
     }
    }
   },
   "exhaust": {
-   "colour": "c_exhaust.png",
+   "colour": "kart_exhaust.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.11999999731779099
+       0.5
       ],
       [
        "ksDiffuse",
-       0.14000000059604645
+       0.5
       ],
       [
        "ksSpecular",
-       0.49000000953674316
+       0.0
       ],
       [
        "ksSpecularEXP",
-       81.05000305175781
+       1.0
       ],
       [
        "ksEmissive",
@@ -4400,59 +4798,43 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.18810218572616577
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.3304527997970581
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_exhaust.png"
+       "kart_exhaust.jpg"
       ]
      ]
     }
    }
   },
   "floor_alu": {
-   "colour": "c_floor_alu.png",
+   "colour": "kart_floor_alu.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.11999999731779099
+       0.5
       ],
       [
        "ksDiffuse",
-       0.14000000059604645
+       0.5
       ],
       [
        "ksSpecular",
-       0.47200000286102295
+       0.0
       ],
       [
        "ksSpecularEXP",
-       74.19200134277344
+       1.0
       ],
       [
        "ksEmissive",
@@ -4461,59 +4843,43 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.16781717538833618
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.29947352409362793
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_floor_alu.png"
+       "kart_floor_alu.jpg"
       ]
      ]
     }
    }
   },
   "fuel_hose": {
-   "colour": "c_fuel_hose.png",
+   "colour": "kart_fuel_hose.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.44999998807907104
+       0.5
       ],
       [
        "ksDiffuse",
-       0.550000011920929
+       0.5
       ],
       [
        "ksSpecular",
-       0.6100000143051147
+       0.0
       ],
       [
        "ksSpecularEXP",
-       135.0500030517578
+       1.0
       ],
       [
        "ksEmissive",
@@ -4522,59 +4888,43 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.019999999552965164
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.05999999865889549
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_fuel_hose.png"
+       "kart_fuel_hose.jpg"
       ]
      ]
     }
    }
   },
   "fuel_hose_yellow": {
-   "colour": "c_fuel_hose_yellow.png",
+   "colour": "kart_fuel_hose_yellow.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.44999998807907104
+       0.5
       ],
       [
        "ksDiffuse",
-       0.550000011920929
+       0.5
       ],
       [
        "ksSpecular",
-       0.5799999833106995
+       0.0
       ],
       [
        "ksSpecularEXP",
-       120.19999694824219
+       1.0
       ],
       [
        "ksEmissive",
@@ -4583,36 +4933,20 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.019999999552965164
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.05999999865889549
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "c_fuel_hose_yellow.png"
+       "kart_fuel_hose_yellow.jpg"
       ]
      ]
     }
    }
   },
   "grip_black": {
-   "colour": "c_grip_black.png",
+   "colour": "kart_grip_black.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
@@ -4623,19 +4957,19 @@
      "props": [
       [
        "ksAmbient",
-       0.44999998807907104
+       0.5
       ],
       [
        "ksDiffuse",
-       0.550000011920929
+       0.5
       ],
       [
        "ksSpecular",
-       0.1599999964237213
+       0.0
       ],
       [
        "ksSpecularEXP",
-       6.800000190734863
+       1.0
       ],
       [
        "ksEmissive",
@@ -4650,14 +4984,14 @@
       [
        "txDiffuse",
        0,
-       "c_grip_black.png"
+       "kart_grip_black.jpg"
       ]
      ]
     }
    }
   },
   "pedal_plate": {
-   "colour": "pedal_plate.png",
+   "colour": "kart_pedal_plate.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
@@ -4668,19 +5002,19 @@
      "props": [
       [
        "ksAmbient",
-       0.44999998807907104
+       0.5
       ],
       [
        "ksDiffuse",
-       0.550000011920929
+       0.5
       ],
       [
        "ksSpecular",
-       0.4000000059604645
+       0.0
       ],
       [
        "ksSpecularEXP",
-       50.0
+       1.0
       ],
       [
        "ksEmissive",
@@ -4695,37 +5029,37 @@
       [
        "txDiffuse",
        0,
-       "pedal_plate.png"
+       "kart_pedal_plate.jpg"
       ]
      ]
     }
    }
   },
   "pod_stripe": {
-   "colour": "pod_stripe.png",
+   "colour": "kart_pod_stripe.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
-     "shader": "ksPerPixelReflection",
+     "shader": "ksPerPixel",
      "blend": 0,
      "alpha_tested": 0,
      "depth_mode": 0,
      "props": [
       [
        "ksAmbient",
-       0.44999998807907104
+       0.5
       ],
       [
        "ksDiffuse",
-       0.550000011920929
+       0.5
       ],
       [
        "ksSpecular",
-       0.550000011920929
+       0.0
       ],
       [
        "ksSpecularEXP",
-       106.25
+       1.0
       ],
       [
        "ksEmissive",
@@ -4734,36 +5068,20 @@
       [
        "ksAlphaRef",
        0.0
-      ],
-      [
-       "fresnelC",
-       0.019999999552965164
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.05999999865889549
-      ],
-      [
-       "isAdditive",
-       0.0
       ]
      ],
      "textures": [
       [
        "txDiffuse",
        0,
-       "pod_stripe.png"
+       "kart_pod_stripe.jpg"
       ]
      ]
     }
    }
   },
   "protector": {
-   "colour": "c_protector.png",
+   "colour": "kart_protector.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
@@ -4774,19 +5092,19 @@
      "props": [
       [
        "ksAmbient",
-       0.44999998807907104
+       0.5
       ],
       [
        "ksDiffuse",
-       0.550000011920929
+       0.5
       ],
       [
        "ksSpecular",
-       0.4000000059604645
+       0.0
       ],
       [
        "ksSpecularEXP",
-       50.0
+       1.0
       ],
       [
        "ksEmissive",
@@ -4801,319 +5119,14 @@
       [
        "txDiffuse",
        0,
-       "c_protector.png"
+       "kart_protector.jpg"
       ]
      ]
     }
    }
   },
   "recoil_cover": {
-   "colour": "recoil_cover.png",
-   "alpha": "opaque",
-   "targets": {
-    "ac": {
-     "shader": "ksPerPixelReflection",
-     "blend": 0,
-     "alpha_tested": 0,
-     "depth_mode": 0,
-     "props": [
-      [
-       "ksAmbient",
-       0.44999998807907104
-      ],
-      [
-       "ksDiffuse",
-       0.550000011920929
-      ],
-      [
-       "ksSpecular",
-       0.5199999809265137
-      ],
-      [
-       "ksSpecularEXP",
-       93.19999694824219
-      ],
-      [
-       "ksEmissive",
-       0.0
-      ],
-      [
-       "ksAlphaRef",
-       0.0
-      ],
-      [
-       "fresnelC",
-       0.019999999552965164
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.05999999865889549
-      ],
-      [
-       "isAdditive",
-       0.0
-      ]
-     ],
-     "textures": [
-      [
-       "txDiffuse",
-       0,
-       "recoil_cover.png"
-      ]
-     ]
-    }
-   }
-  },
-  "rim_alu": {
-   "colour": "c_rim_alu.png",
-   "alpha": "opaque",
-   "targets": {
-    "ac": {
-     "shader": "ksPerPixelReflection",
-     "blend": 0,
-     "alpha_tested": 0,
-     "depth_mode": 0,
-     "props": [
-      [
-       "ksAmbient",
-       0.11999999731779099
-      ],
-      [
-       "ksDiffuse",
-       0.14000000059604645
-      ],
-      [
-       "ksSpecular",
-       0.5080000162124634
-      ],
-      [
-       "ksSpecularEXP",
-       88.23200225830078
-      ],
-      [
-       "ksEmissive",
-       0.0
-      ],
-      [
-       "ksAlphaRef",
-       0.0
-      ],
-      [
-       "fresnelC",
-       0.15330436825752258
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.273007333278656
-      ],
-      [
-       "isAdditive",
-       0.0
-      ]
-     ],
-     "textures": [
-      [
-       "txDiffuse",
-       0,
-       "c_rim_alu.png"
-      ]
-     ]
-    }
-   }
-  },
-  "seat": {
-   "colour": "c_seat.png",
-   "alpha": "opaque",
-   "targets": {
-    "ac": {
-     "shader": "ksPerPixelReflection",
-     "blend": 0,
-     "alpha_tested": 0,
-     "depth_mode": 0,
-     "props": [
-      [
-       "ksAmbient",
-       0.44999998807907104
-      ],
-      [
-       "ksDiffuse",
-       0.550000011920929
-      ],
-      [
-       "ksSpecular",
-       0.5799999833106995
-      ],
-      [
-       "ksSpecularEXP",
-       120.19999694824219
-      ],
-      [
-       "ksEmissive",
-       0.0
-      ],
-      [
-       "ksAlphaRef",
-       0.0
-      ],
-      [
-       "fresnelC",
-       0.019999999552965164
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.05999999865889549
-      ],
-      [
-       "isAdditive",
-       0.0
-      ]
-     ],
-     "textures": [
-      [
-       "txDiffuse",
-       0,
-       "c_seat.png"
-      ]
-     ]
-    }
-   }
-  },
-  "sprocket": {
-   "colour": "c_sprocket.png",
-   "alpha": "opaque",
-   "targets": {
-    "ac": {
-     "shader": "ksPerPixelReflection",
-     "blend": 0,
-     "alpha_tested": 0,
-     "depth_mode": 0,
-     "props": [
-      [
-       "ksAmbient",
-       0.11999999731779099
-      ],
-      [
-       "ksDiffuse",
-       0.14000000059604645
-      ],
-      [
-       "ksSpecular",
-       0.5199999809265137
-      ],
-      [
-       "ksSpecularEXP",
-       93.19999694824219
-      ],
-      [
-       "ksEmissive",
-       0.0
-      ],
-      [
-       "ksAlphaRef",
-       0.0
-      ],
-      [
-       "fresnelC",
-       0.22653500735759735
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.3885450065135956
-      ],
-      [
-       "isAdditive",
-       0.0
-      ]
-     ],
-     "textures": [
-      [
-       "txDiffuse",
-       0,
-       "c_sprocket.png"
-      ]
-     ]
-    }
-   }
-  },
-  "steel": {
-   "colour": "c_steel.png",
-   "alpha": "opaque",
-   "targets": {
-    "ac": {
-     "shader": "ksPerPixelReflection",
-     "blend": 0,
-     "alpha_tested": 0,
-     "depth_mode": 0,
-     "props": [
-      [
-       "ksAmbient",
-       0.11999999731779099
-      ],
-      [
-       "ksDiffuse",
-       0.14000000059604645
-      ],
-      [
-       "ksSpecular",
-       0.5920000076293945
-      ],
-      [
-       "ksSpecularEXP",
-       126.03199768066406
-      ],
-      [
-       "ksEmissive",
-       0.0
-      ],
-      [
-       "ksAlphaRef",
-       0.0
-      ],
-      [
-       "fresnelC",
-       0.34634262323379517
-      ],
-      [
-       "fresnelEXP",
-       4.0
-      ],
-      [
-       "fresnelMaxLevel",
-       0.5660347938537598
-      ],
-      [
-       "isAdditive",
-       0.0
-      ]
-     ],
-     "textures": [
-      [
-       "txDiffuse",
-       0,
-       "c_steel.png"
-      ]
-     ]
-    }
-   }
-  },
-  "tyre": {
-   "colour": "tyre.png",
+   "colour": "kart_recoil_cover.jpg",
    "alpha": "opaque",
    "targets": {
     "ac": {
@@ -5124,19 +5137,19 @@
      "props": [
       [
        "ksAmbient",
-       0.44999998807907104
+       0.5
       ],
       [
        "ksDiffuse",
-       0.550000011920929
+       0.5
       ],
       [
        "ksSpecular",
-       0.2199999988079071
+       0.0
       ],
       [
        "ksSpecularEXP",
-       12.199999809265137
+       1.0
       ],
       [
        "ksEmissive",
@@ -5151,11 +5164,331 @@
       [
        "txDiffuse",
        0,
-       "tyre.png"
+       "kart_recoil_cover.jpg"
       ]
      ]
     }
    }
+  },
+  "rim_alu": {
+   "colour": "kart_rim_alu.jpg",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.5
+      ],
+      [
+       "ksDiffuse",
+       0.5
+      ],
+      [
+       "ksSpecular",
+       0.0
+      ],
+      [
+       "ksSpecularEXP",
+       1.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "kart_rim_alu.jpg"
+      ]
+     ]
+    }
+   }
+  },
+  "seat": {
+   "colour": "kart_seat.jpg",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.5
+      ],
+      [
+       "ksDiffuse",
+       0.5
+      ],
+      [
+       "ksSpecular",
+       0.0
+      ],
+      [
+       "ksSpecularEXP",
+       1.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "kart_seat.jpg"
+      ]
+     ]
+    }
+   }
+  },
+  "sprocket": {
+   "colour": "kart_sprocket.jpg",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.5
+      ],
+      [
+       "ksDiffuse",
+       0.5
+      ],
+      [
+       "ksSpecular",
+       0.0
+      ],
+      [
+       "ksSpecularEXP",
+       1.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "kart_sprocket.jpg"
+      ]
+     ]
+    }
+   }
+  },
+  "steel": {
+   "colour": "kart_steel.jpg",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.5
+      ],
+      [
+       "ksDiffuse",
+       0.5
+      ],
+      [
+       "ksSpecular",
+       0.0
+      ],
+      [
+       "ksSpecularEXP",
+       1.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "kart_steel.jpg"
+      ]
+     ]
+    }
+   }
+  },
+  "tyre": {
+   "colour": "kart_tyre.jpg",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksPerPixel",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.5
+      ],
+      [
+       "ksDiffuse",
+       0.5
+      ],
+      [
+       "ksSpecular",
+       0.0
+      ],
+      [
+       "ksSpecularEXP",
+       1.0
+      ],
+      [
+       "ksEmissive",
+       0.0
+      ],
+      [
+       "ksAlphaRef",
+       0.0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "kart_tyre.jpg"
+      ]
+     ]
+    }
+   }
+  },
+  "BackgroundGenerated": {
+   "colour": "GroundGenerated.jpg",
+   "alpha": "opaque",
+   "targets": {
+    "ac": {
+     "shader": "ksMultilayer",
+     "blend": 0,
+     "alpha_tested": 0,
+     "depth_mode": 0,
+     "props": [
+      [
+       "ksAmbient",
+       0.20000000298023224
+      ],
+      [
+       "ksDiffuse",
+       0.20000000298023224
+      ],
+      [
+       "ksSpecular",
+       0.10000000149011612
+      ],
+      [
+       "ksSpecularEXP",
+       6
+      ],
+      [
+       "ksEmissive",
+       0
+      ],
+      [
+       "ksAlphaRef",
+       1
+      ],
+      [
+       "multR",
+       706.6666666666666
+      ],
+      [
+       "multG",
+       530
+      ],
+      [
+       "multB",
+       530
+      ],
+      [
+       "multA",
+       530
+      ],
+      [
+       "magicMult",
+       2
+      ],
+      [
+       "boh",
+       0
+      ]
+     ],
+     "textures": [
+      [
+       "txDiffuse",
+       0,
+       "GroundGenerated.jpg"
+      ],
+      [
+       "txMask",
+       1,
+       "GroundGeneratedMask.png"
+      ],
+      [
+       "txDetailR",
+       2,
+       "GroundDetailGrass.png"
+      ],
+      [
+       "txDetailG",
+       3,
+       "GroundDetailSand.png"
+      ],
+      [
+       "txDetailB",
+       4,
+       "GroundDetailGravel.png"
+      ],
+      [
+       "txDetailA",
+       5,
+       "GroundDetailGravel.png"
+      ]
+     ]
+    }
+   },
+   "surface": "grass"
   }
  },
  "textures": {
@@ -5511,6 +5844,10 @@
    "ac": "DXT5",
    "normal": true
   },
+  "scan_pavers_rough.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
   "scan_poleframe.png": {
    "ac": "DXT1",
    "normal": false
@@ -5522,6 +5859,10 @@
   "scan_poleframe_nm.png": {
    "ac": "DXT5",
    "normal": true
+  },
+  "scan_poleframe_rough.png": {
+   "ac": "DXT1",
+   "normal": false
   },
   "scan_polemast.png": {
    "ac": "DXT1",
@@ -5535,6 +5876,10 @@
    "ac": "DXT5",
    "normal": true
   },
+  "scan_polemast_rough.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
   "scan_tarmac_dark.png": {
    "ac": "DXT1",
    "normal": false
@@ -5546,6 +5891,10 @@
   "scan_tarmac_dark_nm.png": {
    "ac": "DXT5",
    "normal": true
+  },
+  "scan_tarmac_dark_rough.png": {
+   "ac": "DXT1",
+   "normal": false
   },
   "scan_tarmac_light.png": {
    "ac": "DXT1",
@@ -5559,8 +5908,32 @@
    "ac": "DXT5",
    "normal": true
   },
+  "scan_tarmac_light_rough.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
   "track_light.png": {
    "ac": "DXT3",
+   "normal": false
+  },
+  "GroundGenerated.jpg": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "GroundGeneratedMask.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "GroundDetailGrass.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "GroundDetailSand.png": {
+   "ac": "DXT1",
+   "normal": false
+  },
+  "GroundDetailGravel.png": {
+   "ac": "DXT1",
    "normal": false
   }
  }

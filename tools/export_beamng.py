@@ -410,6 +410,7 @@ SIDE_PATHS = {'path_r20_pits': (((-1., 226.1), (-8.4, 222.9), (-14.4, 217.8), (-
 # asphalt round them: the lanes beside the centre buildings (R24 for vp_1000, R25 for vp_1500),
 # and the pits along the long pit building (R14, for vp_2500 and the hotlap)
 PIT_RADIUS = {'vp_1000': 5., 'vp_1500': 5., 'vp_1500_amateur': 5., 'vp_1500_short': 5., 'vp_1500_short_amateur': 5.,
+              'vp_1500_short_2': 5., 'vp_1500_short_2_amateur': 5.,
               'vp_1500_hotlap': 9., 'vp_2500': 9.}
 
 

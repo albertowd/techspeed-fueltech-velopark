@@ -30,7 +30,7 @@ by location.json) and screenshots of the vp_1000 driven from K1_S_LEFT to K1_T1:
   walls, a band of steel framed windows under the eaves, and one rounded roof of dark metal
   arched over each from west to east; the tower's upper floor with two windows a side, their
   top lights hinged at the top and opened out; plastered inside, with ceiling lamps, whose night
-  lights it writes into the Custom Shaders Patch config (LIGHT_SERIES_3); and the big white tent
+  lights it writes, with its screens, to lights_outside.json (tools/track_lights.py); and the big white tent
   by the pit boxes, north of the solar shed, its fabric rising like a ball from the square of
   its posts.
 
@@ -54,11 +54,12 @@ import gltf_source
 import kn5tree
 import level_ground
 import shapes as sh
+import track_lights
 
 ROOT = bp.ROOT
 OUT = os.path.join(bp.MODELS, 'velopark_outside.glb')
 TEX = os.path.join(ROOT, 'source', 'textures')
-LAYOUTS = os.path.join(ROOT, 'source', 'track')
+LAYOUTS = bp.AC_MADE                # (the layouts' model lists the steps make: track/ac)
 DIRT = 6.                # metres, the dirt roads' width
 FENCE_IN = 4.5           # metres from a dirt road's middle to the property's fence
 TRACK_FENCE = 12.        # metres out from the vp_1000's roads and tyre walls to its fence
@@ -101,7 +102,7 @@ FRAME = .06              # the windows' steel frames, their side
 WALL = .15               # the walls' thickness, where they have windows
 # the ceiling lamps: their side and depth, about how far apart, and their night lights' colour
 # (brightness last) and reach
-LAMP, LAMP_EVERY, LAMP_LIGHT, LAMP_RANGE = (.6, .08), 7., '1, 0.84, 0.62, 0.15', 8.
+LAMP, LAMP_EVERY = (.6, .08), 7.        # (their light: the series Building lamps of source/lights.json)
 # the race control tower's upper floor: the windows' sill, the hinge of their top lights over the
 # floor, the top lights' height, the wall left at each corner and between the two windows, and
 # how far each top light is open (degrees; two a side, round from the south)
@@ -1181,68 +1182,18 @@ def lamps(model, name, spots, yaw=0., at=(0, 0, 0)):
     LAMP_SPOTS.extend(map(tuple, S))
 
 
-def write_price_display():
-    """The fuel station's prices as a display of the Custom Shaders Patch, as the start gantry's
-    board is: a script that draws them on the prices' material in red digits, lit like LEDs and
-    glowing at night, written into the track's config from FUEL_PRICES (each price a square of
-    the display, one under the other, as prices_texture() paints them)."""
-    path = os.path.join(LAYOUTS, 'extension', 'ext_config.ini')
-    text = open(path, encoding='utf-8', newline='').read()
+def price_display():
+    """The fuel station's prices as a screen (TRACK_FORMAT.md, "Lights and screens"), as the start gantry's board
+    is: drawn in red digits, lit like LEDs and glowing at night, from FUEL_PRICES (each price a square of it, one
+    under the other, as prices_texture() paints them; without a game's own display the sign shows them painted)."""
     n = len(FUEL_PRICES)
-    lua = '\n'.join([
-        '-- the prices, in reais: edit them here, or in FUEL_PRICES of tools/build_outside.py',
-        'local PRICES = { %s }' % ', '.join('"%s"' % p for _, p in FUEL_PRICES),
-        'local RED = rgbm(1, .06, .04, 1)',
-        'local LETTER = vec2(104, 250)',
-        'function update(dt)',
-        '\tfor i, p in ipairs(PRICES) do',
-        '\t\tdisplay.text{ pos = vec2(482 - LETTER.x * #p, (i - 1) * 512 + 130), letter = LETTER, text = p, font = "digital_big", color = RED }',
-        '\tend',
-        'end'])
-    block = '\n'.join([
-        "; The fuel station's prices: lit digits as the start gantry's board has, drawn by this",
-        '; script, written by tools/build_outside.py from its FUEL_PRICES. Without the patch the',
-        '; sign shows them painted.',
-        '[SCRIPTABLE_DISPLAY_...]', 'MATERIALS = OutFuelPrices', 'RESOLUTION = 512, %d' % (512 * n),
-        'DISPLAY_POS = 0, 0', 'DISPLAY_SIZE = 512, %d' % (512 * n), "SCRIPT = '", lua + "'", 'BACKGROUND = 0, 0, 0, 1', '',
-        '[CustomEmissive]', 'ACTIVE = 1', "DESCRIPTION = Fuel station's prices", 'MATERIALS = OutFuelPrices',
-        'Resolution = 512, %d' % (512 * n),
-        '@ = CustomEmissive_Rect, Channel = 0, Start = "0, 0", Size = "512, %d", CornerRadius = 0.0' % (512 * n), '',
-        '[MATERIAL_ADJUSTMENT_...]', 'ACTIVE = 1', "DESCRIPTION = Fuel station's prices at night",
-        'MATERIALS = OutFuelPrices', 'CONDITION = NIGHT_SMOOTH', 'KEY_0 = ksEmissive',
-        'VALUE_0 = 255, 255, 255, 0.094', 'VALUE_0_OFF = 0, 0, 0',
-        "; (the end of the fuel station's prices)"]) + '\n\n'
-    old = re.search(r"; The fuel station's prices: lit digits.*?; \(the end of the fuel station's prices\)\n\n", text, re.S)
-    if old:
-        text = text[:old.start()] + block + text[old.end():]
-    else:
-        at = text.index('; ---- Start gantry board')
-        text = text[:at] + block + text[at:]
-    open(path, 'w', encoding='utf-8', newline='').write(text)
+    return dict(material='OutFuelPrices', shows='prices', pixels=[512, 512 * n], background=[0, 0, 0],
+                data=dict(prices=[p for _, p in FUEL_PRICES]))
 
 
-def write_lights():
-    """The buildings' lamps' night lights, as their series in the track's Custom Shaders Patch
-    config (which tools/export_beamng.py makes BeamNG's night lights too)."""
-    path = os.path.join(LAYOUTS, 'extension', 'ext_config.ini')
-    text = open(path, encoding='utf-8', newline='').read()
-    block = '\n'.join([
-        '; The buildings in the middle of the track are lit inside at night by their ceiling lamps,',
-        '; written by tools/build_outside.py where it hangs them.',
-        '[LIGHT_SERIES_3]', 'ACTIVE = 1', 'DESCRIPTION = Building lamps',
-        'COLOR = %s' % LAMP_LIGHT, 'DIRECTION = 0, -1, 0', 'SPOT = 170', 'SPOT_SHARPNESS = 0.2',
-        'RANGE = %g' % LAMP_RANGE, 'RANGE_GRADIENT_OFFSET = 0.3', 'FADE_AT = 300', 'FADE_SMOOTH = 40',
-        'DIFFUSE_CONCENTRATION = 0.6', 'SINGLE_FREQUENCY = 0', 'SHADOWS = 0', 'CONDITION = NIGHT_SMOOTH'] +
-        ['POSITION_%d = %.3f, %.3f, %.3f' % (i, x, y, z) for i, (x, y, z) in enumerate(LAMP_SPOTS)]) + '\n\n'
-    old = re.search(r'; The buildings in the middle of the track are lit inside.*?\n\n', text, re.S)
-    if old:
-        text = text[:old.start()] + block + text[old.end():]
-    else:
-        at = text.index('[MATERIAL_ADJUSTMENT_')
-        at = text.rfind('\n\n', 0, at) + 2
-        text = text[:at] + block + text[at:]
-    open(path, 'w', encoding='utf-8', newline='').write(text)
-    return len(LAMP_SPOTS)
+def lamp_lights():
+    """The buildings' lamps' night lights, one where each hangs, in the series Building lamps of source/lights.json."""
+    return [dict(series='Building lamps', at=[round(float(v), 3) for v in p]) for p in LAMP_SPOTS]
 
 
 # ---- the buildings in the middle of the track ---------------------------------------------------
@@ -1639,137 +1590,21 @@ def hotlap_page_texture():
     return img
 
 
-def write_timing_display():
-    """The session's times on the TV beside the site's, as a display of the Custom Shaders Patch: a
-    script that draws every car of the session in order of its best lap (its laps, its last and its
-    best lap, how far behind the fastest), under the session's clock. Written into the track's
-    config; without the patch the TV shows timing_texture() painted."""
-    path = os.path.join(LAYOUTS, 'extension', 'ext_config.ini')
-    text = open(path, encoding='utf-8', newline='').read()
-    lua = '\n'.join([
-        '-- the session: every car in order of its best lap, from tools/build_outside.py',
-        'local WHITE, GREY, GREEN, AMBER = rgbm(.95, .95, .95, 1), rgbm(.7, .7, .74, 1), rgbm(.45, .86, .45, 1), rgbm(.92, .78, .24, 1)',
-        'local L, S = vec2(11, 20), vec2(8, 14)',
-        'local function get(o, k) local ok, v = pcall(function() return o[k] end) if ok then return v end return nil end',
-        'local function fmt(ms) if not ms or ms <= 0 then return "--:--.---" end return string.format("%02d:%06.3f", math.floor(ms / 60000), (ms % 60000) / 1000) end',
-        'local function clock(s) s = math.max(0, math.floor(s or 0)) return string.format("%02d:%02d:%02d", math.floor(s / 3600), math.floor(s / 60) % 60, s % 60) end',
-        'local function put(x, y, t, c, l) display.text{ pos = vec2(x, y), letter = l or S, text = t, font = "aria", color = c } end',
-        'function update(dt)',
-        '\tlocal ok, sim = pcall(ac.getSim)',
-        '\tif not ok or not sim then return end',
-        '\tlocal n = get(sim, "carsCount") or 1',
-        '\tlocal rows = {}',
-        '\tfor i = 0, n - 1 do',
-        '\t\tlocal okc, car = pcall(ac.getCar, i)',
-        '\t\tif okc and car then',
-        '\t\t\tlocal okn, name = pcall(ac.getDriverName, i)',
-        '\t\t\trows[#rows + 1] = { name = okn and name or ("CAR " .. (i + 1)), best = get(car, "bestLapTimeMs") or 0,',
-        '\t\t\t\tlast = get(car, "previousLapTimeMs") or 0, laps = get(car, "lapCount") or 0 }',
-        '\t\tend',
-        '\tend',
-        '\ttable.sort(rows, function(a, b) if (a.best > 0) ~= (b.best > 0) then return a.best > 0 end return a.best < b.best end)',
-        '\tlocal left = get(sim, "sessionTimeLeft")',
-        '\tput(24, 16, "Session:", GREY) put(110, 16, "HOT LAP", WHITE)',
-        '\tput(24, 40, "Timing:", GREY) put(110, 34, clock((get(sim, "timeHours") or 0) * 3600 + (get(sim, "timeMinutes") or 0) * 60 + (get(sim, "timeSeconds") or 0)), WHITE, vec2(15, 28))',
-        '\tput(24, 68, "Time to go:", GREY) put(130, 68, clock(left and left / 1000 or 0), WHITE)',
-        '\tdisplay.rect{ pos = vec2(20, 92), size = vec2(984, 2), color = rgbm(.86, .86, .88, 1) }',
-        '\tlocal fastest = rows[1] and rows[1].best or 0',
-        '\tfor k = 1, math.min(#rows, 13) do',
-        '\t\tlocal r, y = rows[k], 100 + (k - 1) * 33',
-        '\t\tput(24, y + 4, tostring(k), WHITE, L)',
-        '\t\tput(70, y, string.upper(r.name), WHITE, L)',
-        '\t\tput(70, y + 20, "Laps: " .. r.laps, GREY, vec2(6, 11))',
-        '\t\tput(400, y + 6, "Last Time: " .. fmt(r.last), GREY)',
-        '\t\tput(600, y + 6, "Best Time: " .. fmt(r.best), k == 1 and r.best > 0 and GREEN or WHITE)',
-        '\t\tif k > 1 and r.best > 0 and fastest > 0 then put(820, y + 6, string.format("Diff: %.3f", (r.best - fastest) / 1000), GREY) end',
-        '\t\tdisplay.rect{ pos = vec2(20, y + 32), size = vec2(984, 1), color = rgbm(.35, .36, .4, 1) }',
-        '\tend',
-        '\tput(24, 554, "Timing and results are not official", AMBER, vec2(7, 12))',
-        'end'])
-    block = '\n'.join([
-        "; The session's times on the TV in the open end of the building by the hotlap's pit lane, drawn",
-        "; by this script, written by tools/build_outside.py. Without the patch the TV shows them painted.",
-        '[SCRIPTABLE_DISPLAY_...]', 'MATERIALS = OutTiming', 'RESOLUTION = 1024, 576',
-        'DISPLAY_POS = 0, 0', 'DISPLAY_SIZE = 1024, 576', "SCRIPT = '", lua + "'", 'BACKGROUND = 0.04, 0.05, 0.07, 1',
-        "; (the end of the session's times)"]) + '\n\n'
-    old = re.search(r"; The session's times on the TV.*?; \(the end of the session's times\)\n\n", text, re.S)
-    if old:
-        text = text[:old.start()] + block + text[old.end():]
-    else:
-        at = text.index('; ---- Start gantry board')
-        text = text[:at] + block + text[at:]
-    open(path, 'w', encoding='utf-8', newline='').write(text)
+def session_display():
+    """The session's times on the TV beside the site's (TRACK_FORMAT.md, "Lights and screens"): every car of the
+    session in order of its best lap (its laps, its last and its best lap, how far behind the fastest), under the
+    session's clock. Without a game's own display the TV shows timing_texture() painted."""
+    return dict(material='OutTiming', shows='session_times', pixels=[1024, 576], background=[.04, .05, .07])
 
 
-def write_hotlap_display():
-    """The HotLap Velopark site's times on the TV as a display of the Custom Shaders Patch: a script
-    that draws them as the site shows them and, once the player has a best lap, puts it in among
-    them, its place in the middle, the times either side round it; till then the whole list rolls
-    by. Written into the track's config from hotlap_rows()."""
-    path = os.path.join(LAYOUTS, 'extension', 'ext_config.ini')
-    text = open(path, encoding='utf-8', newline='').read()
-    rows = hotlap_rows()
-    data = ',\n'.join('{%d,"%s","%s","%s","%s",%d,%d}' % (r, b[:12], c[:22], y, n[:30], ms, e) for r, b, c, y, n, ms, e in rows)
-    cols = ', '.join(str(x) for x, _ in HOTLAP_COLS)
-    lua = '\n'.join([
-        '-- the HotLap Velopark times (rank, brand, car, year, driver, ms, edition), from tools/build_outside.py',
-        'local R = {', data, '}',
-        'local X = { %s }' % cols,
-        'local SHOW, ROW, TOP = %d, %d, %d' % (HOTLAP_SHOW, HOTLAP_ROW, HOTLAP_TOP),
-        'local ORANGE, TEAL, WHITE = rgbm(1, .5, 0, 1), rgbm(.16, .78, .7, 1), rgbm(.94, .94, .94, 1)',
-        'local L = vec2(10, 18)',
-        'local scroll = 0',
-        'local function fmt(ms) return string.format("%d:%06.3f", math.floor(ms / 60000), (ms % 60000) / 1000) end',
-        'local function put(x, y, t, c, right) if right then x = x - #t * L.x end display.text{ pos = vec2(x, y), letter = L, text = t, font = "aria", color = c } end',
-        'function update(dt)',
-        '\tdisplay.rect{ pos = vec2(0, 0), size = vec2(1024, 64), color = rgbm(.13, .13, .13, 1) }',
-        '\tdisplay.text{ pos = vec2(60, 18), letter = vec2(15, 28), text = "HotLap", font = "aria", color = WHITE }',
-        '\tdisplay.text{ pos = vec2(512 - 13 * 11, 84), letter = vec2(22, 38), text = "Classificacao", font = "aria", color = ORANGE }',
-        '\tdisplay.rect{ pos = vec2(16, TOP - ROW), size = vec2(992, ROW), color = rgbm(.12, .12, .12, 1) }',
-        '\tfor i, h in ipairs({ "#", "Marca", "Modelo", "Ano", "Piloto(a)", "Tempo", "Edicao" }) do put(X[i], TOP - ROW + 6, h, WHITE, i == 6) end',
-        '\tlocal best = 0',
-        '\tlocal ok, car = pcall(ac.getCar, 0)',
-        '\tif ok and car and car.bestLapTimeMs and car.bestLapTimeMs > 0 then best = car.bestLapTimeMs end',
-        '\tlocal you = nil',
-        '\tif best > 0 then you = #R + 1 for i = 1, #R do if R[i][6] > best then you = i break end end end',
-        '\tlocal n = #R + (you and 1 or 0)',
-        '\tif you then',
-        '\t\tlocal target = math.max(0, math.min(n - SHOW, you - 1 - math.floor(SHOW / 2)))',
-        '\t\tscroll = scroll + (target - scroll) * math.min(1, dt * 2)',
-        '\telse',
-        '\t\tscroll = (scroll + dt * .7) % n',
-        '\tend',
-        '\tlocal first = math.floor(scroll)',
-        '\tfor j = 0, SHOW - 1 do',
-        '\t\tlocal p = (first + j) % n + 1',
-        '\t\tlocal y = TOP + j * ROW',
-        '\t\tif you and p == you then',
-        '\t\t\tdisplay.rect{ pos = vec2(16, y), size = vec2(992, ROW - 1), color = rgbm(1, .5, 0, .35) }',
-        '\t\t\tput(X[1], y + 6, tostring(you), WHITE) put(X[5], y + 6, "@ VOCE", WHITE) put(X[6], y + 6, fmt(best), WHITE, true)',
-        '\t\telse',
-        '\t\t\tlocal r = R[(you and p > you) and p - 1 or p]',
-        '\t\t\tlocal c = r[1] <= 3 and ORANGE or TEAL',
-        '\t\t\tdisplay.rect{ pos = vec2(16, y), size = vec2(992, ROW - 1), color = rgbm(.12, .12, .12, 1) }',
-        '\t\t\tput(X[1], y + 6, tostring(r[1]), c) put(X[2], y + 6, r[2], c) put(X[3], y + 6, r[3], c) put(X[4], y + 6, r[4], c)',
-        '\t\t\tput(X[5], y + 6, "@ " .. r[5], c) put(X[6], y + 6, fmt(r[6]), c, true) put(X[7], y + 6, r[7] .. ".", WHITE)',
-        '\t\tend',
-        '\tend',
-        'end'])
-    block = '\n'.join([
-        "; The HotLap Velopark site's times on the TV in the open end of the building by the hotlap's pit",
-        "; lane, drawn by this script, the player's best lap among them: written by tools/build_outside.py",
-        "; from the site's results. Without the patch the TV shows the fastest painted.",
-        '[SCRIPTABLE_DISPLAY_...]', 'MATERIALS = OutHotlapPage', 'RESOLUTION = 1024, 576',
-        'DISPLAY_POS = 0, 0', 'DISPLAY_SIZE = 1024, 576', "SCRIPT = '", lua + "'", 'BACKGROUND = 0.07, 0.07, 0.07, 1',
-        "; (the end of the HotLap Velopark site's times)"]) + '\n\n'
-    old = re.search(r"; The HotLap Velopark site's times on the TV.*?; \(the end of the HotLap Velopark site's times\)\n\n", text, re.S)
-    if old:
-        text = text[:old.start()] + block + text[old.end():]
-    else:
-        at = text.index('; ---- Start gantry board')
-        text = text[:at] + block + text[at:]
-    open(path, 'w', encoding='utf-8', newline='').write(text)
-    return len(rows)
+def hotlap_display():
+    """The HotLap Velopark site's times on the TV, as the site shows them; once the player has a best lap, it among
+    them, its place in the middle, the times either side round it; till then the whole list rolls by. Its data:
+    the times (rank, brand, car, year, driver, ms, edition, each cut to fit), the columns' x, how many rows are
+    shown, their height and where they begin, as hotlap_page_texture() paints them."""
+    rows = [[r, b[:12], c[:22], y, n[:30], ms, e] for r, b, c, y, n, ms, e in hotlap_rows()]
+    return dict(material='OutHotlapPage', shows='hotlap_times', pixels=[1024, 576], background=[.07, .07, .07],
+                data=dict(times=rows, columns=[x for x, _ in HOTLAP_COLS], shown=HOTLAP_SHOW, row=HOTLAP_ROW, top=HOTLAP_TOP))
 
 
 def apron_step(model):
@@ -2328,22 +2163,6 @@ def pond(model, ground, lines):
                                        axes=(np.array([1., 0, 0]), np.array([0, 0, 1.]))))
 
 
-# ---- the layouts' model lists --------------------------------------------------------------------
-def register():
-    """velopark_outside.kn5 in every layout's models_*.ini, after the others."""
-    added = 0
-    for f in sorted(glob.glob(os.path.join(LAYOUTS, 'models_*.ini'))):
-        text = open(f, newline='').read()
-        if 'velopark_outside.kn5' in text:
-            continue
-        nl = '\r\n' if '\r\n' in text else '\n'
-        n = text.count('[MODEL_')
-        text = text.rstrip() + nl + nl + '[MODEL_%d]%sFILE=velopark_outside.kn5%sPOSITION=0,0,0%sROTATION=0,0,0%s' % (n, nl, nl, nl, nl)
-        open(f, 'w', newline='').write(text)
-        added += 1
-    return added
-
-
 def remove_old_fence():
     """The south west's old fence (WALL_100, chain link on Fence03) out of velopark.glb."""
     k = gltf_source.load_kn5(bp.TRACK)
@@ -2556,10 +2375,9 @@ def main():
     # the small raised one north of it, its front to the track
     c, ax, L, D, tiers = STAND_2
     wooden_stand(model, ground, 'STAND_2', c, ax, L, D, tiers, (-18., 1.))
-    print('%d building lamps lit at night' % write_lights())
-    write_price_display()
-    print("%d of the HotLap Velopark site's times on the TV" % write_hotlap_display())
-    write_timing_display()
+    lamps, screens = lamp_lights(), [price_display(), hotlap_display(), session_display()]
+    track_lights.write_outside(lamps, screens)
+    print("%d building lamps lit at night, %d of the HotLap Velopark site's times on the TV" % (len(lamps), len(screens[1]['data']['times'])))
     fuel_station(model, ground)
     open_area(model, ground, hotlap_roof(model, ground))
     # a cone where the vp_1500's pit entry and the side road part (as the photos show it)
@@ -2596,7 +2414,6 @@ def main():
         tex[name] = materials.save_texture(name, img, fmt)                # (kept as PNG, AC's DDS made by its build)
     tris, meshes = write(model, tex)
     print('%d fence posts; %d meshes, %d triangles, in %s' % (posts, meshes, tris, os.path.relpath(OUT, ROOT)))
-    print('%d layouts given the model' % register())
     print("%d faces of the old wall past the 1500 pit entry's tyres out" % remove_wall_stub())
     if remove_old_fence():
         print('the old fence out of velopark.glb')

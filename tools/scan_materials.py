@@ -19,8 +19,8 @@ source/models, gets its uv scaled so the texture repeats at the scan's real size
 the same factor so they meet as they did. Run again, it finds the meshes at that size and the
 textures made and changes nothing; a mesh some tool made again at the old size is scaled again.
 
-tools/export_beamng.py carries the same textures to BeamNG: the normal map with its green turned
-up (BeamNG reads OpenGL's), and the gloss as BeamNG's roughness map.
+Each is kept as PNG (tools/materials.py), the normal map green up, and the roughness as a map of its own
+(scan_<material>_rough.png, the material's `roughness`), which BeamNG's build reads.
 """
 import glob, json, os, sys, urllib.request
 
@@ -33,7 +33,7 @@ import kn5tree
 from map_roads import scale
 
 ROOT = bp.ROOT
-MODELS = os.path.join(ROOT, 'source', 'models')
+MODELS = bp.MODELS
 TEXTURES = os.path.join(ROOT, 'source', 'textures')
 CACHE = os.path.join(ROOT, 'tools', 'reference', 'materials')
 SIZE = 2048             # texture side, pixels
@@ -250,7 +250,8 @@ def main():
             continue
         # named after the material: two may take one scan, each in its own colour
         base = 'scan_' + mat_name.lower().replace(' ', '_')
-        is_scan = lambda k, mi: k['materials'][mi]['textures'][0]['name'] == base + '.dds'
+        # (a model has the scan when it holds its texture: its material, as the library names it, has it before)
+        is_scan = lambda k, mi: any(t['name'] == base + '.dds' for t in k['textures'])
         # what it was, kept from the first run: the average colour of its texture, and the metres
         # that texture covered, which the uv of a mesh made again by some tool still have; and the
         # scan it has, and the metres a texture of it covers
@@ -317,6 +318,14 @@ def main():
         os.makedirs(os.path.dirname(state_path), exist_ok=True)
         json.dump(state, open(state_path, 'w'), indent=1)
         import materials
+        # (and its roughness, as the games that read one take it: 1 - the gloss, the library's `roughness`)
+        rough = base + '_rough.dds'
+        materials.save_texture(rough, Image.fromarray(255 - np.asarray(made[base + '_maps.dds'][0])[..., 1], 'L'))
+        entry = materials.library()['materials'].get(mat_name)
+        if entry is not None and entry.get('roughness') != materials.png_of(rough):
+            entry['roughness'] = materials.png_of(rough)
+            materials._DIRTY['materials'].add(mat_name)
+            materials.save()
         made = {name: materials.save_texture(name, img, fmt, normal) for name, (img, fmt, normal) in made.items()}   # (kept as PNG)
         for f, n, by in todo:
             V = n['verts']

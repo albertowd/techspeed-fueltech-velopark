@@ -34,7 +34,8 @@ EAST_WALL = ((-33.6, 58.3), (-33.7, 61.6), (-35.5, 64.), (-37.3, 65.7), (-38.8, 
              (-40.6, 76.4), (-40.4, 79.4), (-40., 81.8), (-40., 84.1))
 WALL_OFF, WALL_STEP, WALL_H, TEMPLATE = .45, .62, .75, ('TYRES_56', 'TYRES_56F')
 WALLS_BOX = ((-46., -8.), (50., 120.))
-LAYOUTS = ('vp_1500', 'vp_1500_amateur', 'vp_1500_short', 'vp_1500_short_amateur', 'vp_1500_hotlap', 'vp_2500')
+LAYOUTS = ('vp_1500', 'vp_1500_amateur', 'vp_1500_short', 'vp_1500_short_amateur', 'vp_1500_short_2',
+           'vp_1500_short_2_amateur', 'vp_1500_hotlap', 'vp_2500')
 
 
 def dx(z, x=None):

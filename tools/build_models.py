@@ -2,16 +2,17 @@
 
     python tools/build_models.py [--all] [--from STEP] [--until STEP] [--skip STEP,STEP] [--keep STEP,STEP] [--install] [--beamng] [--profile]
 
-The models in source/models are made by a chain of steps, each building on the one before, from
-the models as they were at BASE (a commit; the steps are not made to run twice over their own work)
+The track's models in track/models (and what AC's layouts take of them in track/ac: their model lists and AI
+lines) are made by a chain of steps, each building on the one before, from the hand-made models in source/models
+and AC's own files in source/track, copied there first (the steps are not made to run twice over their own work)
 (STEPS:
 terrain (the ground's heights, from tools/reference/terrain: the original heights, the filtered, the edits; first, so
-the roads and everything after lie on it, and an edit to it runs them all), organize_models, scan_materials, build_roads, shift_pit_entry, restyle_paddock, drape_track, lay_pavers, merge_floor,
-build_outside --paddock (the paddock's buildings), place_objects (what the road editor places, from
-tools/reference/objects.json), place_karts, check_normals, check_holes; merge_floor makes the terrain (the roads, the rumbles, the ground) one
+the roads and everything after lie on it, and an edit to it runs them all), scan_materials, build_roads, restyle_paddock, drape_track, lay_pavers, merge_floor,
+build_outside --paddock (the paddock's buildings), place_trees (the trees where track.json places them), place_objects (what the road editor places, from
+tools/reference/objects.json), check_normals, check_holes; merge_floor makes the terrain (the roads, the rumbles, the ground) one
 surface, proved as it is made, and stops the build at the first merge that does not come out whole; the last
 checks the paint lies on the roads. What stands on the map (the pit boxes, the grid, the poles, the tyre walls,
-the buildings) is placed by the road editor, top-race-editor, as data: not driven on, never checked for gaps). This starts from the committed models and runs them in order, but keeps, in
+the buildings) is placed by the road editor, top-race-editor, as data: not driven on, never checked for gaps). This starts from the hand-made models and runs them in order, but keeps, in
 build/cache, the files each step changed: a step whose code (its script and the tools it imports,
 and its data) and whose input (everything before it) are as they were last time is not run, its
 files are put back as it left them. So a change to the buildings runs build_outside and the steps
@@ -37,30 +38,29 @@ import ast, glob, hashlib, json, os, shutil, subprocess, sys, time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, 'tools')
 CACHE = os.path.join(ROOT, 'build', 'cache')
-BASE = '6928794'          # the commit whose models the steps start from (before them)
+HAND = os.path.join(ROOT, 'source', 'models')        # (the hand-made models the steps start from)
+MADE_DIR = os.path.join(ROOT, 'track')                # (what they make: track/models, and AC's own in track/ac)
+AC_FILES = ('*/ai/*.ai', '*/data/*.ai')   # (AC's files of source/track the steps change, copied to track/ac: the AI lines)
 # each step: its script, its arguments, and the data it reads beyond the models (globs from ROOT)
-STEPS = [('terrain', ['build'], ['tools/reference/terrain/terrain.json', 'tools/reference/terrain/*.npz',   # (the ground, first: the rest lies on it)
+STEPS = [('terrain', ['build'], ['tools/reference/track.json', 'tools/reference/terrain/terrain.json', 'tools/reference/terrain/*.npz',   # (the ground, first: the rest lies on it)
                                  'tools/reference/elevation/google_*.json', 'tools/reference/surroundings/*.json',
                                  'tools/reference/surroundings/*.jpg', 'source/textures/GoogleMap.jpg']),
-         ('organize_models', [], []),
          ('scan_materials', [], ['tools/reference/materials/**/*']),
-         ('build_roads', [], ['tools/reference/roads.json', 'tools/reference/retired.json']),
-         ('shift_pit_entry', [], []),
+         ('build_roads', [], ['tools/reference/track.json', 'tools/reference/roads.json', 'tools/reference/retired.json']),
          ('restyle_paddock', [], []),
          ('drape_track', [], ['tools/reference/surroundings/*', 'tools/reference/elevation/*']),
          ('lay_pavers', [], []),
-         ('merge_floor', [], ['tools/reference/roads.json']),
+         ('merge_floor', [], ['tools/reference/track.json', 'tools/reference/roads.json']),
          ('build_outside', ['--paddock'], ['tools/reference/site/*', 'tools/reference/*.png']),   # (the paddock's buildings, on the ground as it lies now)
-         ('place_objects', [], ['tools/reference/objects.json']),   # (what the road editor places: spots, poles, marks)
-         ('place_karts', [], []),
+         ('place_trees', [], ['tools/reference/track.json', 'tools/reference/trees.json', 'tools/reference/templates/*']),   # (the trees where they are placed)
+         ('place_objects', [], ['tools/reference/track.json', 'tools/reference/objects.json']),   # (what the road editor places: spots, poles, marks)
          ('check_normals', ['--fix'], []),
          ('check_holes', [], [])]          # (the last: no holes, or no track built from them)
 # what the steps change, watched for changes (the rest of source/ and the reference they write)
 STEP_DATA = {s: d for s, _, d in STEPS}
-WATCH = ['source', os.path.join('tools', 'reference', 'elevation'), os.path.join('tools', 'reference', 'terrain')]
-# made by the steps, out before the first (as the committed models were before them)
-MADE = ['source/models/places.json', 'source/models/velopark_objects.glb', 'source/models/velopark_lines.glb', 'source/models/velopark_runoffs.glb', 'source/models/velopark_trees.glb',
-        'source/models/velopark_trees.json', 'tools/reference/elevation/draped.json']
+WATCH = ['source', 'track', os.path.join('tools', 'reference', 'elevation'), os.path.join('tools', 'reference', 'terrain')]
+# made by the steps outside track/, out before the first
+MADE = ['tools/reference/elevation/draped.json']
 NOT_INPUT = ('tools/reference/elevation/draped.json',)
 
 
@@ -148,14 +148,29 @@ def state():
 
 
 def reset():
-    """The models, the track's config and the layouts' AI lines as they were at BASE; what the steps make out."""
-    ai = git('ls-tree', '-r', '--name-only', BASE, '--', 'source/track').split()
-    ai = [f for f in ai if f.endswith('.ai')]
-    git('restore', '--source=' + BASE, '--worktree', '--', 'source/models', 'source/track/extension/ext_config.ini', *ai)   # (not staged)
+    """track/ made again from the hand-made: the models of source/models in track/models, AC's files the steps change
+    (AC_FILES of source/track) in track/ac; what the steps make out."""
+    for sub in ('models', 'ac'):
+        shutil.rmtree(os.path.join(MADE_DIR, sub), ignore_errors=True)
+    shutil.copytree(HAND, os.path.join(MADE_DIR, 'models'))
+    src = os.path.join(ROOT, 'source', 'track')
+    for pattern in AC_FILES:
+        for f in glob.glob(os.path.join(src, pattern)):
+            dst = os.path.join(MADE_DIR, 'ac', os.path.relpath(f, src))
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy2(f, dst)
     for f in MADE:
         p = os.path.join(ROOT, f)
         if os.path.exists(p):
             os.remove(p)
+
+
+def base_key():
+    """What the steps start from, as a key: each hand-made model's and AC file's name, size and time."""
+    src = os.path.join(ROOT, 'source', 'track')
+    files = sorted(glob.glob(os.path.join(HAND, '*'))) + sorted(f for p in AC_FILES for f in glob.glob(os.path.join(src, p)))
+    return hashlib.sha1(json.dumps([(os.path.relpath(f, ROOT).replace(os.sep, '/'), os.path.getsize(f), os.stat(f).st_mtime_ns)
+                                    for f in files]).encode()).hexdigest()
 
 
 def restore(step):
@@ -227,7 +242,7 @@ def main():
         sys.exit('no step %s: %s' % (until, ', '.join(names)))
     os.makedirs(CACHE, exist_ok=True)
     reset()
-    key = hashlib.sha1(git('rev-parse', BASE + ':source/models').encode()).hexdigest()
+    key = base_key()
     t0 = time.time()
     before = []                                                # (each step done so far: when it was made, what it changed)
     for i, (step, sargs, data) in enumerate(STEPS):

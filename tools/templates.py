@@ -49,6 +49,8 @@ def catalogue():
             fits, coll = EDITOR_KINDS.get(m.get('kind'), (['place'], ['none', 'static']))
             out[key] = dict(editor=os.path.join(EDITOR_MODELS, key + '.glb'), label=m.get('label', key), size=m.get('size'),
                             fits=fits, collision=coll, lights=[], kind=m.get('kind'))
+            if m.get('draw'):
+                out[key]['draw'] = m['draw']        # (how near and far it is drawn, [near, far]: all its parts)
     return out
 
 

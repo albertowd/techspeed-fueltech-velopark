@@ -1,12 +1,12 @@
 Title: Techspeed FuelTech Velopark
-Version: 0.5.0
-Tag line: The Techspeed FuelTech Velopark kart circuit in Nova Santa Rita, Brazil, with 8 layouts and a live start gantry.
+Version: 0.8.0
+Tag line: The Techspeed FuelTech Velopark kart circuit in Nova Santa Rita, Brazil, with 10 layouts and a live start gantry.
 
 ----- paste everything below into the description -----
 
 [HEADING=1]Techspeed FuelTech Velopark[/HEADING]
 
-The Techspeed FuelTech Velopark karting circuit in Nova Santa Rita, Brazil, built for go-karts. Eight layouts, from a 227 m kids track to a 2.5 km endurance layout, on ground traced from satellite imagery.
+The Techspeed FuelTech Velopark karting circuit in Nova Santa Rita, Brazil, built for go-karts. Ten layouts, from a 227 m kids track to a 2.5 km endurance layout, on ground traced from satellite imagery.
 
 [SCREENSHOT: ../docs/screens/ac/1-grid-night.jpg]
 
@@ -19,8 +19,10 @@ The Techspeed FuelTech Velopark karting circuit in Nova Santa Rita, Brazil, buil
 [TR][TD]Techspeed FuelTech Velopark 1000[/TD][TD]1004 m[/TD][TD]Clockwise[/TD][TD]24[/TD][/TR]
 [TR][TD]Techspeed FuelTech Velopark 1500[/TD][TD]1517 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
 [TR][TD]Techspeed FuelTech Velopark 1500 Amateur[/TD][TD]1477 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
-[TR][TD]Techspeed FuelTech Velopark 1500 Short[/TD][TD]1217 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
-[TR][TD]Techspeed FuelTech Velopark 1500 Short Amateur[/TD][TD]1180 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark 1500 Short[/TD][TD]1129 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark 1500 Short Amateur[/TD][TD]1090 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark 1500 Short 2[/TD][TD]1217 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
+[TR][TD]Techspeed FuelTech Velopark 1500 Short 2 Amateur[/TD][TD]1180 m[/TD][TD]Clockwise[/TD][TD]16[/TD][/TR]
 [TR][TD]Techspeed FuelTech Velopark 1500 Hotlap[/TD][TD]1517 m[/TD][TD]Clockwise[/TD][TD]36[/TD][/TR]
 [TR][TD]Techspeed FuelTech Velopark 2500[/TD][TD]2541 m[/TD][TD]Clockwise[/TD][TD]32[/TD][/TR]
 [TR][TD]Techspeed FuelTech Velopark Kids[/TD][TD]227 m[/TD][TD]Anticlockwise[/TD][TD]3[/TD][/TR]
@@ -30,8 +32,10 @@ The Techspeed FuelTech Velopark karting circuit in Nova Santa Rita, Brazil, buil
 [*][B]Velopark 1000:[/B] rental and amateur track to learn go-kart racing, with more curves and less speed but still very challenging to new drivers.
 [*][B]Velopark 1500:[/B] championship track with greater straight speed and tight turns, currently the most used track.
 [*][B]Velopark 1500 Amateur:[/B] rental track with greater straight speed and not so tight turns, a new challenge for rental drivers.
-[*][B]Velopark 1500 Short:[/B] short version of the 1500, used for quick races in championships.
-[*][B]Velopark 1500 Short Amateur:[/B] short version of the Amateur, used for quick races in rental go-karts.
+[*][B]Velopark 1500 Short:[/B] short version of the 1500, used for quick races in championships, turning in at the first inner link.
+[*][B]Velopark 1500 Short Amateur:[/B] short version of the Amateur, used for quick races in rental go-karts, turning in at the first inner link.
+[*][B]Velopark 1500 Short 2:[/B] the Short turning in at the second inner link.
+[*][B]Velopark 1500 Short 2 Amateur:[/B] the Short Amateur turning in at the second inner link.
 [*][B]Velopark 1500 Hotlap:[/B] used at night with real daily cars, for the public to get some circuit experience.
 [*][B]Velopark 2500:[/B] a long race layout that combines the 1500 and the 1000, used in 2h, 4h, 6h and 12h races overnight.
 [*][B]Velopark Kids:[/B] a kids track managed by a professor, teaching kids who are not old enough to race on the real track.
