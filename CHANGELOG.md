@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1
+
+- Smooth where two roads meet: no more small steps in the asphalt at the junctions, and the bends keep the dip on their inside there.
+
 ## 0.8.0
 
 - The track for rFactor 2: `techspeed_fueltech_velopark_rf2.7z`, beside the Assetto Corsa and BeamNG.drive downloads.

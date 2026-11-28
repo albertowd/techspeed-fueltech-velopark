@@ -17,7 +17,7 @@ permissions:
 
 env:
   # the editor that builds the track: a release of albertowd/top-race-editor
-  EDITOR_VERSION: v0.1.0
+  EDITOR_VERSION: v0.1.1
 
 jobs:
   release:
