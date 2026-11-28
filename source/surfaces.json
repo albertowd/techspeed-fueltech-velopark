@@ -3,7 +3,7 @@
  "surfaces": {
   "rumble": {
    "targets": {
-    "ac": "ROAD",
+    "ac": "KERB",
     "beamng": "RUMBLE_STRIP",
     "rf2": "rumble"
    }

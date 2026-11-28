@@ -4,6 +4,8 @@
 
 - No small steps where two roads meet.
 - Bends keep the dip on their inside where another road joins them.
+- Only the digits on the fuel station sign light up at night.
+- Assetto Corsa: the kerbs rumble and shake like kerbs.
 
 ## 0.8.0
 

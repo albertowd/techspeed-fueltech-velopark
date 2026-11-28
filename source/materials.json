@@ -2772,14 +2772,7 @@
       ]
      ]
     }
-   },
-   "glow": [
-    1,
-    1,
-    1
-   ],
-   "glow_strength": 0.5,
-   "night_only": true
+   }
   },
   "OutRoof": {
    "colour": "BuildingRoof.png",

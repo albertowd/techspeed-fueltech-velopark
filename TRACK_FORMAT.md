@@ -23,10 +23,8 @@ into source.
 
 | Source | Written by | What it holds |
 |---|---|---|
-| `tools/reference/track.json` | the editor (its new-track wizard) | The track's settings; each layout's models (`layouts`: `{"vp_1500": {"models": ["velopark", ...]}}`, by their names in `track/models`, in the order a game loads them) |
+| `tools/reference/track.json` | the editor | The one file of what the editor edits: the track's settings; `roads` (the roads, their lines and kerbs); `objects` (what stands on the map, as objects of the catalogue; the layouts' grid, pits, hotlap start, timing gates and racing lines; the paint marks, the rubber, the paved areas); `layouts` (each layout's models: `{"vp_1500": {"models": ["velopark", ...]}}`, by their names in `track/models`, in the order a game loads them); `trees`; `drawings` |
 | `tools/reference/terrain/terrain.json` (and its edits) | the editor | The ground: its heights' files, filters and edits |
-| `tools/reference/roads.json` | the editor | The roads, their lines and kerbs |
-| `tools/reference/objects.json` | the editor | What stands on the map, as objects of the catalogue; the layouts' grid, pits, hotlap start and timing gates; the paint marks |
 | `tools/reference/templates/` | the tools | The catalogue: each model's template (`.npz` parts, or a `.glb` in this format whose meshes keep their roles), and models.json (a tree's `kind` is `tree`: the plantation's variants and its understory; a building's `building`, its collision `model`: its own walls and floors) |
 | `source/models/*.glb` | hand-made | One-off models: buildings, the judges' tower, and so on |
 | `source/materials.json` | the tools | The material library |
@@ -53,7 +51,7 @@ the step that makes the new texture (tools/scan_materials.py) maps them for it, 
 for any model that doesn't hold it yet.
 
 The layouts' places are not models. The grid, the pits, the hotlap start and the timing gates stay in
-objects.json. The objects step works out where each stands, a spot or a gate's `y` 0.5 m over the floor under it
+track.json's `objects`. The objects step works out where each stands, a spot or a gate's `y` 0.5 m over the floor under it
 (where a game drops its car from), and writes them, with
 each layout's physics objects (the knockable cones and boards), to `places.json`:
 
@@ -93,7 +91,7 @@ A node's name is free. No game reads meaning from names. A game's build gives ea
 game needs: AC's `1ROAD_` or `1WALL_`, for example.
 
 What decides the surface of what the build makes:
-- a road: its `material` in roads.json, whose entry in materials.json has the `surface`;
+- a road: its `material` in track.json's `roads`, whose entry in materials.json has the `surface`;
 - a rumble: its kind's material (KerbRamp, KerbConcrete, KerbRound, KerbFloor), the same way (`rumble`);
 - the ground: `grass`, until the terrain has zones of its own;
 - paint: `visual`, laid just over the road, never a driving surface.
@@ -141,7 +139,7 @@ mapping is nearly flat.
 - `targets`: anything a game needs for it that isn't above. Each game's build has its own default for
   everything, from the rest of the entry. The `targets` block holds only what that default gets wrong.
 
-Every material named anywhere is a key here: roads.json's `material`, the kerbs' materials, the
+Every material named anywhere is a key here: the roads' `material`, the kerbs' materials, the
 catalogue's and the hand-made models'. The editor can list and check them.
 
 The same file has a `textures` section, one entry per PNG: `{"ac": "DXT1", "normal": false}`. `ac` is the
@@ -166,13 +164,13 @@ of what's see-through as a map of its own; rFactor 2's later.
 ```json
 { "version": 1, "surfaces": {
   "asphalt": { "targets": { "ac": "ROAD", "beamng": "ASPHALT" } },
-  "rumble":  { "targets": { "ac": "ROAD", "beamng": "RUMBLE_STRIP" } },
+  "rumble":  { "targets": { "ac": "KERB", "beamng": "RUMBLE_STRIP" } },
   "kerb":    { "targets": { "ac": "KERB", "beamng": "RUMBLE_STRIP" } },
   "grass":   { "targets": { "ac": "GRASS", "beamng": "VELOPARK_GRASS" } } } }
 ```
 
-A rumble is a kerb laid on the road's edge. AC drives it as ROAD, as the track always has; `kerb` is the
-concrete kerb pieces, which AC drives as KERB. How each grips is each game's own: AC's by its surface's key
+A rumble is a kerb laid on the road's edge; `kerb` is the concrete kerb pieces and the pavers. AC drives both as
+KERB, which gives them its kerb sound, force feedback and vibration (as ROAD, the rumbles were silent). How each grips is each game's own: AC's by its surface's key
 (`targets.ac`), BeamNG's by its ground model (`targets.beamng`, ASPHALT where it's left out). A ground model the
 game lacks is the level's own, made by its build: VELOPARK_GRASS is BeamNG's GRASS with a soft layer 1 cm deep,
 not 5, which would hide half a kart's tyre.
@@ -283,7 +281,7 @@ tools/export_beamng.py) are no longer run.
 - The track's build makes `track/` from the source.
 - Each game's build reads only `track/` and the source:
   - Assetto Corsa: the .kn5 models (names, shaders, flags and DDS textures from this data, the layouts'
-    places from objects.json), the layouts' model lists (models_<layout>.ini, from track.json's `layouts`: a model
+    places from track.json's `objects`), the layouts' model lists (models_<layout>.ini, from track.json's `layouts`: a model
     a list names that isn't made stops the build) and the Custom Shaders Patch config; packed as
     `build/dist/<track>_ac.7z`.
   - BeamNG.drive: the level, made from this data, not from the AC build: the models of a layout's list, their
@@ -317,7 +315,8 @@ Each step ends with an AC build the same as before it, model for model:
    tools/place_trees.py plants them into track/models/velopark_trees.glb, merged by 50 m tile and part, and
    BeamNG's forest of them; source/models has no trees.
 
-Next, proposed:
+Next, proposed (7 done for the roads, the objects, the trees and the layouts, all in track.json now; the terrain
+still in its folder):
 
 7. The track's source in one file, `tools/reference/track.json`, with one `version`: its settings as now, and
    `roads` (roads.json's list), `objects` (objects.json's body: `layouts`, `objects`, `marks`), `terrain`
